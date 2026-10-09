@@ -1,4 +1,4 @@
-# Nuggit 🍗
+# Nuggit
 
 A small personal desktop helper (Mac first) that makes things easier to start.
 See [SPEC.md](SPEC.md) for the full product spec and phases.

@@ -1,0 +1,46 @@
+.clock {
+  height: 100%;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  text-align: center;
+}
+
+.clock-time {
+  font-size: clamp(1.25rem, min(20cqw, 42cqh), 6rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.clock-date::first-letter {
+  text-transform: uppercase;
+}
+
+.clock-date {
+  font-size: clamp(0.75rem, min(6cqw, 12cqh), 1.25rem);
+  color: var(--color-text-muted);
+}
+
+.clock-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.clock-settings label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.clock-settings input {
+  accent-color: var(--color-accent);
+}

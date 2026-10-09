@@ -1,9 +1,26 @@
+import { Desktop } from './desktop/Desktop'
+import { Toolbar } from './desktop/Toolbar'
+import { useDesktop } from './store/useDesktop'
+import { useSettings } from './store/useSettings'
+
 function App(): React.JSX.Element {
+  const desktopStore = useDesktop()
+  const { settings, setTheme } = useSettings()
+  const { desktop } = desktopStore
+
+  if (!desktop) return <div className="app" />
+
   return (
-    <main className="hello">
-      <h1>Hola 👋</h1>
-      <p>Nuggit está vivo.</p>
-    </main>
+    <div className="app">
+      <Toolbar
+        widgets={desktop.widgets}
+        theme={settings?.theme ?? 'system'}
+        onAdd={desktopStore.addWidget}
+        onShow={(id) => desktopStore.setHidden(id, false)}
+        onThemeChange={setTheme}
+      />
+      <Desktop desktop={desktop} store={desktopStore} />
+    </div>
   )
 }
 

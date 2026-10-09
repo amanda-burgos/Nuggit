@@ -1,7 +1,16 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
+import type { NuggitApi } from '../shared/types'
 
-// Safe API exposed to the renderer. Disk and AI access will be added here
-// (via IPC to the main process) in later phases.
-const api = {}
+// Safe API exposed to the renderer. All disk access goes through the main process.
+const api: NuggitApi = {
+  desktop: {
+    load: () => ipcRenderer.invoke('desktop:load'),
+    save: (state) => ipcRenderer.invoke('desktop:save', state)
+  },
+  settings: {
+    load: () => ipcRenderer.invoke('settings:load'),
+    update: (patch) => ipcRenderer.invoke('settings:update', patch)
+  }
+}
 
 contextBridge.exposeInMainWorld('api', api)

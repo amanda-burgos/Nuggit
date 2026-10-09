@@ -1,7 +1,14 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { registerIpc } from './ipc'
+import { flushWrites } from './storage/jsonStore'
 import icon from '../../resources/icon.png?asset'
+
+// Optional separate data folder (handy for testing without touching your real data)
+if (process.env['NUGGIT_USER_DATA']) {
+  app.setPath('userData', process.env['NUGGIT_USER_DATA'])
+}
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -46,10 +53,22 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  registerIpc()
   createWindow()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+})
+
+// Finish any pending saves before quitting, so the last change is never lost.
+let writesFlushed = false
+app.on('before-quit', (event) => {
+  if (writesFlushed) return
+  event.preventDefault()
+  flushWrites().finally(() => {
+    writesFlushed = true
+    app.quit()
   })
 })
 
