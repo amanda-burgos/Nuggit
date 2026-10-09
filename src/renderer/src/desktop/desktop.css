@@ -143,8 +143,20 @@
 
 .react-grid-item.react-grid-placeholder {
   background: var(--color-accent);
+  background-clip: content-box;
+  padding: 6px;
   opacity: 0.25;
-  border-radius: var(--radius-lg);
+  border-radius: calc(var(--radius-lg) + 6px);
+}
+
+.react-grid-item.react-draggable-dragging,
+.react-grid-item.resizing {
+  z-index: 10000 !important;
+}
+
+.react-grid-item > .react-resizable-handle.react-resizable-handle-se {
+  right: 8px;
+  bottom: 8px;
 }
 
 .react-grid-item > .react-resizable-handle::after {

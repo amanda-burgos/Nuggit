@@ -5,12 +5,12 @@ import 'react-resizable/css/styles.css'
 import type { Breakpoint, DesktopState, LayoutEntry } from '../../../shared/types'
 import type { DesktopStore } from '../store/useDesktop'
 import { getWidgetDefinition } from '../widgets/registry'
-import { BREAKPOINT_KEYS, BREAKPOINTS, COLS, MARGIN, ROW_HEIGHT } from './layout'
+import { BREAKPOINT_KEYS, BREAKPOINTS, COLS, ROW_HEIGHT, WIDGET_GAP } from './layout'
 import { WidgetFrame } from './WidgetFrame'
 import './desktop.css'
 
-// No gravity: widgets stay exactly where they are dropped, and never push each other.
-const freePlacement = getCompactor(null, false, true)
+// No gravity and overlap allowed: widgets stay exactly where they are dropped.
+const freePlacement = getCompactor(null, true)
 
 interface Props {
   desktop: DesktopState
@@ -19,7 +19,12 @@ interface Props {
 
 export function Desktop({ desktop, store }: Props): React.JSX.Element {
   const { width, containerRef, mounted } = useContainerWidth()
-  const visible = desktop.widgets.filter((w) => !w.hidden)
+  // Widget order in the store is the stacking order (last = on top). Children keep a stable
+  // order so React never moves DOM nodes mid-drag; z-index does the stacking instead.
+  const visible = desktop.widgets
+    .map((w, stackIndex) => ({ instance: w, stackIndex }))
+    .filter(({ instance }) => !instance.hidden)
+    .sort((a, b) => a.instance.id.localeCompare(b.instance.id))
 
   // Add each widget's size limits (clamped to the breakpoint's columns) to the grid layout.
   const layouts = useMemo(() => {
@@ -57,19 +62,23 @@ export function Desktop({ desktop, store }: Props): React.JSX.Element {
           breakpoints={BREAKPOINTS}
           cols={COLS}
           rowHeight={ROW_HEIGHT}
-          margin={[MARGIN, MARGIN]}
-          containerPadding={[16, 8]}
+          margin={[0, 0]}
+          containerPadding={[16 - WIDGET_GAP / 2, 8 - WIDGET_GAP / 2]}
           compactor={freePlacement}
           dragConfig={{ handle: '.widget-drag-handle', cancel: '.widget-no-drag' }}
           onLayoutChange={(_current, all) =>
             store.applyLayouts(all as Partial<Record<Breakpoint, readonly LayoutEntry[]>>)
           }
         >
-          {visible.map((instance) => {
+          {visible.map(({ instance, stackIndex }) => {
             const def = getWidgetDefinition(instance.type)
             if (!def) return null
             return (
-              <div key={instance.id}>
+              <div
+                key={instance.id}
+                style={{ padding: WIDGET_GAP / 2, zIndex: stackIndex + 1 }}
+                onPointerDownCapture={() => store.bringToFront(instance.id)}
+              >
                 <WidgetFrame
                   instance={instance}
                   def={def}

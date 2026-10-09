@@ -5,9 +5,9 @@ export const clockWidget: WidgetDefinition<ClockConfig> = {
   type: 'clock',
   name: 'Reloj',
   icon: '🕒',
-  defaultSize: { w: 9, h: 8 },
-  minSize: { w: 5, h: 5 },
-  maxSize: { w: 24, h: 16 },
+  defaultSize: { w: 360, h: 192 },
+  minSize: { w: 180, h: 110 },
+  maxSize: { w: 960, h: 400 },
   defaultConfig: { showSeconds: false, hour12: false },
   component: ClockWidget,
   settingsComponent: ClockSettings

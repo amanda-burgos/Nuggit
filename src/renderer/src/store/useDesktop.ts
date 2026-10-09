@@ -47,6 +47,7 @@ export interface DesktopStore {
   addWidget(type: string): void
   removeWidget(id: string): void
   setHidden(id: string, hidden: boolean): void
+  bringToFront(id: string): void
   updateConfig(id: string, patch: Record<string, unknown>): void
   applyLayouts(layouts: Partial<Record<Breakpoint, readonly LayoutEntry[]>>): void
 }
@@ -98,6 +99,18 @@ export function useDesktop(): DesktopStore {
     [update]
   )
 
+  const bringToFront = useCallback(
+    (id: string) =>
+      update((s) => {
+        const index = s.widgets.findIndex((w) => w.id === id)
+        if (index === -1 || index === s.widgets.length - 1) return s
+        const widgets = [...s.widgets]
+        widgets.push(...widgets.splice(index, 1))
+        return { ...s, widgets }
+      }),
+    [update]
+  )
+
   const setHidden = useCallback(
     (id: string, hidden: boolean) =>
       update((s) => ({
@@ -137,5 +150,13 @@ export function useDesktop(): DesktopStore {
     [update]
   )
 
-  return { desktop, addWidget, removeWidget, setHidden, updateConfig, applyLayouts }
+  return {
+    desktop,
+    addWidget,
+    removeWidget,
+    setHidden,
+    bringToFront,
+    updateConfig,
+    applyLayouts
+  }
 }

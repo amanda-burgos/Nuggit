@@ -7,3 +7,7 @@ export const widgetRegistry: AnyWidgetDefinition[] = [clockWidget]
 export function getWidgetDefinition(type: string): AnyWidgetDefinition | undefined {
   return widgetRegistry.find((def) => def.type === type)
 }
+
+// Grid units and widget sizes must never hot-swap into a running desktop (the saved layout
+// would be read with the wrong scale and overwritten). Reload the page from disk instead.
+import.meta.hot?.accept(() => window.location.reload())
