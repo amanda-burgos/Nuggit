@@ -1,13 +1,16 @@
 import { useMemo } from 'react'
-import { Responsive, useContainerWidth, type Layout } from 'react-grid-layout'
+import { getCompactor, Responsive, useContainerWidth, type Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import type { Breakpoint, DesktopState, LayoutEntry } from '../../../shared/types'
 import type { DesktopStore } from '../store/useDesktop'
 import { getWidgetDefinition } from '../widgets/registry'
-import { BREAKPOINT_KEYS, BREAKPOINTS, COLS, ROW_HEIGHT } from './layout'
+import { BREAKPOINT_KEYS, BREAKPOINTS, COLS, MARGIN, ROW_HEIGHT } from './layout'
 import { WidgetFrame } from './WidgetFrame'
 import './desktop.css'
+
+// No gravity: widgets stay exactly where they are dropped, and never push each other.
+const freePlacement = getCompactor(null, false, true)
 
 interface Props {
   desktop: DesktopState
@@ -54,8 +57,9 @@ export function Desktop({ desktop, store }: Props): React.JSX.Element {
           breakpoints={BREAKPOINTS}
           cols={COLS}
           rowHeight={ROW_HEIGHT}
-          margin={[16, 16]}
+          margin={[MARGIN, MARGIN]}
           containerPadding={[16, 8]}
+          compactor={freePlacement}
           dragConfig={{ handle: '.widget-drag-handle', cancel: '.widget-no-drag' }}
           onLayoutChange={(_current, all) =>
             store.applyLayouts(all as Partial<Record<Breakpoint, readonly LayoutEntry[]>>)

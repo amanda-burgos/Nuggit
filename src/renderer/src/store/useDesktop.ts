@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Breakpoint, DesktopState, LayoutEntry } from '../../../shared/types'
-import { BREAKPOINT_KEYS, placeNewWidget, toLayoutEntry } from '../desktop/layout'
+import {
+  BREAKPOINT_KEYS,
+  GRID_VERSION,
+  migrateLayouts,
+  placeNewWidget,
+  toLayoutEntry
+} from '../desktop/layout'
 import { getWidgetDefinition } from '../widgets/registry'
 
 function createDefaultDesktop(): DesktopState {
-  const empty: DesktopState = { widgets: [], layouts: { lg: [], md: [], sm: [] } }
+  const empty: DesktopState = {
+    widgets: [],
+    layouts: { lg: [], md: [], sm: [] },
+    gridVersion: GRID_VERSION
+  }
   return addWidgetTo(empty, 'clock')
 }
 
@@ -13,6 +23,7 @@ function addWidgetTo(state: DesktopState, type: string): DesktopState {
   if (!def) return state
   const id = `${type}-${crypto.randomUUID().slice(0, 8)}`
   return {
+    ...state,
     widgets: [
       ...state.widgets,
       { id, type, config: structuredClone(def.defaultConfig), hidden: false }
@@ -21,13 +32,14 @@ function addWidgetTo(state: DesktopState, type: string): DesktopState {
   }
 }
 
-// Drop widgets whose type no longer exists, and layout entries without a widget.
-function sanitize(state: DesktopState): DesktopState {
+// Convert old grids, drop widgets whose type no longer exists and orphan layout entries.
+function sanitize(saved: DesktopState): DesktopState {
+  const state = migrateLayouts(saved)
   const widgets = state.widgets.filter((w) => getWidgetDefinition(w.type))
   const ids = new Set(widgets.map((w) => w.id))
   const layouts = { ...state.layouts }
   for (const bp of BREAKPOINT_KEYS) layouts[bp] = layouts[bp].filter((l) => ids.has(l.i))
-  return { widgets, layouts }
+  return { ...state, widgets, layouts }
 }
 
 export interface DesktopStore {
@@ -81,7 +93,7 @@ export function useDesktop(): DesktopStore {
       update((s) => {
         const layouts = { ...s.layouts }
         for (const bp of BREAKPOINT_KEYS) layouts[bp] = layouts[bp].filter((l) => l.i !== id)
-        return { widgets: s.widgets.filter((w) => w.id !== id), layouts }
+        return { ...s, widgets: s.widgets.filter((w) => w.id !== id), layouts }
       }),
     [update]
   )

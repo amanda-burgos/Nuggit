@@ -20,6 +20,7 @@ export interface WidgetInstance {
 export interface DesktopState {
   widgets: WidgetInstance[]
   layouts: Record<Breakpoint, LayoutEntry[]>
+  gridVersion?: number // grid scale the layouts were saved with (missing = 1)
 }
 
 export type ThemePreference = 'light' | 'dark' | 'system'
