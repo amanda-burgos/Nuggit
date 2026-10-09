@@ -24,7 +24,7 @@ No es una app de productividad corporativa con listas gigantes. Es un espacio pe
 
 - **Nuggit**: la app.
 - **Dip**: el ayudante de IA que vive dentro de Nuggit. Es la salsita que acompaña. Tiene su propio nombre y personalidad, sin importar qué IA haya detrás (Gemini hoy, otra mañana).
-- **Tenders**: los pasos chiquitos en los que Dip convierte una tarea grande. "Le das el pollo, te devuelve chicken tenders."
+- **Tenders**: los pasos chiquitos en los que Dip convierte una tarea grande.
 
 Personalidad de Dip: casual, cálido, con humor y emojis cuando encajan, bilingüe (español/inglés). Nunca regaña ni hace sentir culpable. Calmado si el usuario está agobiado. Respuestas cortas.
 
@@ -232,8 +232,6 @@ Una pantalla con widgets que se pueden mover, redimensionar, ocultar, mostrar, a
 Lista simple, con tareas y subtareas ("tenders"). Botón grande de ✅. No mostrar 40 tareas a la vez: agrupar y colapsar.
 
 ### 9.3 Tenders (feature estrella)
-"Le das el pollo, te devuelve chicken tenders."
-
 1. El usuario escribe una tarea grande (ej: "proyecto de ciencias").
 2. La IA hace **2 o 3 preguntas cortas** (para cuándo es, qué tiene ya, si es en grupo...).
 3. La IA propone una lista de pasos chiquitos, cada uno con un tiempo estimado (5–25 min).
@@ -284,6 +282,7 @@ Pantalla de concentración: solo la tarea actual, el temporizador y el siguiente
 - Modo claro y oscuro desde el inicio (tokens de color en variables).
 - Cada widget tiene su ícono y un toque de color propio, pero todos del mismo sistema visual.
 - Sin decoración que no sirva para nada.
+- **No usar el emoji de pollo** (ni dibujos de pollo) en la interfaz, el logo ni el título.
 
 ---
 
@@ -303,6 +302,15 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 - Añadir, quitar, mover y redimensionar widgets. Se guarda en `desktop.json`.
 - Tema base navy/lavanda con modo claro y oscuro.
 - **Listo cuando:** muevo el reloj, cierro la app, la abro y sigue donde lo dejé. Al achicar la ventana, se reacomoda.
+
+### Fase 1.5 — Despegar widgets al escritorio
+- Modelo **híbrido**: el tablero dentro de la app se queda, y cada widget tiene un botón **"Despegar"** que lo saca como ventanita propia en el escritorio de Mac (sin bordes, esquinas redondeadas, mismo estilo).
+- Botón para **"Regresar"** el widget al tablero de la app.
+- Cada widget despegado recuerda su posición y tamaño en la pantalla, y se vuelve a abrir donde estaba al abrir Nuggit.
+- No debe quedarse encima de todas las ventanas por defecto (que no estorbe a otras apps). Opción por widget: "Mantener encima".
+- Si se desconecta un monitor, los widgets que quedaron fuera de pantalla vuelven a una posición visible.
+- Lockdown (Fase 7) debe poder esconder los widgets despegados.
+- **Listo cuando:** despego el reloj, lo pongo en mi escritorio, cierro y abro Nuggit, y sigue ahí. Le doy "Regresar" y vuelve al tablero.
 
 ### Fase 2 — Tareas
 - Widget de tareas: crear, editar, borrar, marcar como hecha, subtareas.
