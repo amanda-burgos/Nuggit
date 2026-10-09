@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Builds
+dist/
+out/
+release/
+
+# Env files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local app data (never commit personal data)
+data/
+userData/
+*.local.json
+tasks.json
+notes.json
+settings.json
+desktop.json
+
+# OS / editor / tooling
+.DS_Store
+.eslintcache
+*.log*
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
