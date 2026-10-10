@@ -1,9 +1,7 @@
 // Types shared between the main process, preload and renderer.
 
-export type Breakpoint = 'lg' | 'md' | 'sm'
-
-export interface LayoutEntry {
-  i: string
+// A widget's rectangle in pixels, relative to the top-left of the desktop board.
+export interface WidgetRect {
   x: number
   y: number
   w: number
@@ -18,9 +16,19 @@ export interface WidgetInstance {
 }
 
 export interface DesktopState {
+  widgets: WidgetInstance[] // array order is the stacking order (last = on top)
+  // Where each widget wants to be. If the window is too small it is drawn moved/shrunk
+  // to fit, but this saved rect stays the same so it returns when the window grows.
+  positions: Record<string, WidgetRect>
+  gridVersion: number // layout format version, used to convert older saved files
+}
+
+// What may be on disk: the current format or an older grid-based one (converted on load).
+export interface SavedDesktop {
   widgets: WidgetInstance[]
-  layouts: Record<Breakpoint, LayoutEntry[]>
-  gridVersion?: number // grid scale the layouts were saved with (missing = 1)
+  positions?: Record<string, WidgetRect>
+  gridVersion?: number
+  layouts?: Record<string, Array<{ i: string; x: number; y: number; w: number; h: number }>>
 }
 
 export type ThemePreference = 'light' | 'dark' | 'system'
@@ -42,7 +50,7 @@ export interface SettingsPatch {
 // API exposed by the preload script on `window.api`.
 export interface NuggitApi {
   desktop: {
-    load(): Promise<DesktopState | null>
+    load(): Promise<SavedDesktop | null>
     save(state: DesktopState): Promise<void>
   }
   settings: {

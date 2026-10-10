@@ -64,7 +64,7 @@ Estas reglas existen para que el proyecto **se termine** y no se abandone a la m
 |---|---|
 | App de escritorio | **Electron** |
 | Interfaz | **React + TypeScript**, con **Vite** (plantilla `electron-vite` o similar) |
-| Widgets que se mueven / redimensionan | **react-grid-layout** (responsive incluido) |
+| Widgets que se mueven / redimensionan | Tablero propio con posición libre en píxeles (sin librería de grid) |
 | Estilos | CSS con variables (tokens de color) o Tailwind; lo que sea más simple |
 | Datos | Archivos **JSON locales** en la carpeta de datos de la app (`app.getPath('userData')`), detrás de una capa de "storage" para poder cambiar a SQLite después |
 | IA (primera) | **Google Gemini** con el SDK oficial (`@google/genai`) y la API key del usuario |
@@ -139,7 +139,7 @@ export interface WidgetInstance {
 }
 ```
 
-El **layout** (posición y tamaño) lo guarda el escritorio, no el widget, para cada breakpoint responsive (`lg`, `md`, `sm`).
+El **layout** (posición y tamaño en píxeles) lo guarda el escritorio, no el widget. El tablero mide exactamente el área visible (sin scroll); los widgets no salen de los bordes. Si la ventana se achica, se dibujan movidos/achicados para caber, sin cambiar lo guardado, y vuelven a su lugar cuando la ventana crece. Se pueden encimar; el último tocado queda al frente.
 
 ---
 
@@ -185,7 +185,8 @@ interface Settings {
 
 interface DesktopState {
   widgets: WidgetInstance[];
-  layouts: Record<"lg" | "md" | "sm", Array<{ i: string; x: number; y: number; w: number; h: number }>>;
+  positions: Record<string, { x: number; y: number; w: number; h: number }>; // px, por id de widget
+  gridVersion: number; // versión del formato, para convertir archivos viejos
 }
 ```
 
@@ -297,7 +298,7 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 - **Listo cuando:** `npm run dev` abre la app con un "Hola 👋".
 
 ### Fase 1 — Escritorio de widgets
-- Escritorio con react-grid-layout, responsive (lg/md/sm).
+- Escritorio de widgets con posición libre, que mide exactamente la ventana (sin scroll) y es responsive.
 - Widget Registry + 1 widget de prueba (reloj).
 - Añadir, quitar, mover y redimensionar widgets. Se guarda en `desktop.json`.
 - Tema base navy/lavanda con modo claro y oscuro.

@@ -1,13 +1,5 @@
-import type {
-  Breakpoint,
-  DesktopState,
-  LayoutEntry,
-  Settings,
-  WidgetInstance
-} from '../../shared/types'
+import type { SavedDesktop, Settings, WidgetInstance, WidgetRect } from '../../shared/types'
 import { readJson, writeJson } from './jsonStore'
-
-const BREAKPOINTS: Breakpoint[] = ['lg', 'md', 'sm']
 
 const DEFAULT_SETTINGS: Settings = {
   ai: { provider: 'none', shareTasksWithAI: false },
@@ -18,12 +10,8 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
 
-function isLayoutEntry(value: unknown): value is LayoutEntry {
-  return (
-    isObject(value) &&
-    typeof value.i === 'string' &&
-    ['x', 'y', 'w', 'h'].every((k) => Number.isFinite(value[k]))
-  )
+function isRect(value: unknown): value is WidgetRect {
+  return isObject(value) && ['x', 'y', 'w', 'h'].every((k) => Number.isFinite(value[k]))
 }
 
 function isWidgetInstance(value: unknown): value is WidgetInstance {
@@ -35,24 +23,23 @@ function isWidgetInstance(value: unknown): value is WidgetInstance {
   )
 }
 
-function isDesktopState(value: unknown): value is DesktopState {
-  if (!isObject(value) || !Array.isArray(value.widgets) || !isObject(value.layouts)) return false
-  const layouts = value.layouts
-  return (
-    value.widgets.every(isWidgetInstance) &&
-    BREAKPOINTS.every((bp) => Array.isArray(layouts[bp]) && layouts[bp].every(isLayoutEntry))
-  )
+// Accepts the current format, or an older grid-based file (the renderer converts it).
+function isSavedDesktop(value: unknown): value is SavedDesktop {
+  if (!isObject(value) || !Array.isArray(value.widgets)) return false
+  if (!value.widgets.every(isWidgetInstance)) return false
+  if (isObject(value.positions)) return Object.values(value.positions).every(isRect)
+  return isObject(value.layouts)
 }
 
 // --- Desktop ---
 
-export async function loadDesktop(): Promise<DesktopState | null> {
+export async function loadDesktop(): Promise<SavedDesktop | null> {
   const data = await readJson<unknown>('desktop', null)
-  return isDesktopState(data) ? data : null
+  return isSavedDesktop(data) ? data : null
 }
 
 export async function saveDesktop(state: unknown): Promise<void> {
-  if (!isDesktopState(state)) throw new Error('Invalid desktop state')
+  if (!isSavedDesktop(state) || !state.positions) throw new Error('Invalid desktop state')
   await writeJson('desktop', state)
 }
 

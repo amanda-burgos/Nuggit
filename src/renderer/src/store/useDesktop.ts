@@ -1,60 +1,78 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Breakpoint, DesktopState, LayoutEntry } from '../../../shared/types'
-import {
-  BREAKPOINT_KEYS,
-  GRID_VERSION,
-  migrateLayouts,
-  placeNewWidget,
-  toLayoutEntry
-} from '../desktop/layout'
+import type { DesktopState, SavedDesktop, WidgetRect } from '../../../shared/types'
+import { findFreeSpot, fitRect, GRID_VERSION, toDesktopState, type Size } from '../desktop/layout'
 import { getWidgetDefinition } from '../widgets/registry'
 
-function createDefaultDesktop(): DesktopState {
-  const empty: DesktopState = {
-    widgets: [],
-    layouts: { lg: [], md: [], sm: [] },
-    gridVersion: GRID_VERSION
-  }
-  return addWidgetTo(empty, 'clock')
+// Used to place widgets before the board has been measured.
+const FALLBACK_AREA: Size = { width: 1000, height: 600 }
+
+function createDefaultDesktop(area: Size): DesktopState {
+  const empty: DesktopState = { widgets: [], positions: {}, gridVersion: GRID_VERSION }
+  return addWidgetTo(empty, 'clock', area)
 }
 
-function addWidgetTo(state: DesktopState, type: string): DesktopState {
+// Rects as currently drawn on the board, for every visible widget.
+function visibleRects(state: DesktopState, area: Size): WidgetRect[] {
+  return state.widgets
+    .filter((w) => !w.hidden && state.positions[w.id])
+    .map((w) => fitRect(state.positions[w.id], area, getWidgetDefinition(w.type)))
+}
+
+function addWidgetTo(state: DesktopState, type: string, area: Size): DesktopState {
   const def = getWidgetDefinition(type)
   if (!def) return state
   const id = `${type}-${crypto.randomUUID().slice(0, 8)}`
+  const size = { width: def.defaultSize.w, height: def.defaultSize.h }
   return {
     ...state,
     widgets: [
       ...state.widgets,
       { id, type, config: structuredClone(def.defaultConfig), hidden: false }
     ],
-    layouts: placeNewWidget(state.layouts, id, def)
+    positions: { ...state.positions, [id]: findFreeSpot(size, visibleRects(state, area), area) }
   }
 }
 
-// Convert old grids, drop widgets whose type no longer exists and orphan layout entries.
-function sanitize(saved: DesktopState): DesktopState {
-  const state = migrateLayouts(saved)
+// Convert old files, drop widgets whose type no longer exists, and give any widget
+// without a position a free spot.
+function sanitize(saved: SavedDesktop, area: Size): DesktopState {
+  const state = toDesktopState(saved)
   const widgets = state.widgets.filter((w) => getWidgetDefinition(w.type))
-  const ids = new Set(widgets.map((w) => w.id))
-  const layouts = { ...state.layouts }
-  for (const bp of BREAKPOINT_KEYS) layouts[bp] = layouts[bp].filter((l) => ids.has(l.i))
-  return { ...state, widgets, layouts }
+  const positions: Record<string, WidgetRect> = {}
+  for (const w of widgets) {
+    const rect = state.positions[w.id]
+    if (rect) positions[w.id] = rect
+  }
+  let result: DesktopState = { ...state, widgets, positions }
+  for (const w of widgets) {
+    if (positions[w.id]) continue
+    const def = getWidgetDefinition(w.type)!
+    const spot = findFreeSpot(
+      { width: def.defaultSize.w, height: def.defaultSize.h },
+      visibleRects(result, area),
+      area
+    )
+    result = { ...result, positions: { ...result.positions, [w.id]: spot } }
+  }
+  return result
 }
 
 export interface DesktopStore {
   desktop: DesktopState | null
+  setBoardSize(size: Size): void
   addWidget(type: string): void
   removeWidget(id: string): void
   setHidden(id: string, hidden: boolean): void
   bringToFront(id: string): void
   updateConfig(id: string, patch: Record<string, unknown>): void
-  applyLayouts(layouts: Partial<Record<Breakpoint, readonly LayoutEntry[]>>): void
+  moveWidget(id: string, x: number, y: number): void
+  resizeWidget(id: string, rect: WidgetRect): void
 }
 
 export function useDesktop(): DesktopStore {
   const [desktop, setDesktop] = useState<DesktopState | null>(null)
   const loaded = useRef(false)
+  const boardSize = useRef<Size>(FALLBACK_AREA)
 
   useEffect(() => {
     let cancelled = false
@@ -66,7 +84,8 @@ export function useDesktop(): DesktopStore {
       })
       .then((saved) => {
         if (cancelled) return
-        setDesktop(saved ? sanitize(saved) : createDefaultDesktop())
+        const area = boardSize.current
+        setDesktop(saved ? sanitize(saved, area) : createDefaultDesktop(area))
       })
     return () => {
       cancelled = true
@@ -87,14 +106,21 @@ export function useDesktop(): DesktopStore {
     setDesktop((prev) => (prev ? fn(prev) : prev))
   }, [])
 
-  const addWidget = useCallback((type: string) => update((s) => addWidgetTo(s, type)), [update])
+  const setBoardSize = useCallback((size: Size) => {
+    boardSize.current = size
+  }, [])
+
+  const addWidget = useCallback(
+    (type: string) => update((s) => addWidgetTo(s, type, boardSize.current)),
+    [update]
+  )
 
   const removeWidget = useCallback(
     (id: string) =>
       update((s) => {
-        const layouts = { ...s.layouts }
-        for (const bp of BREAKPOINT_KEYS) layouts[bp] = layouts[bp].filter((l) => l.i !== id)
-        return { ...s, widgets: s.widgets.filter((w) => w.id !== id), layouts }
+        const positions = { ...s.positions }
+        delete positions[id]
+        return { ...s, widgets: s.widgets.filter((w) => w.id !== id), positions }
       }),
     [update]
   )
@@ -131,32 +157,32 @@ export function useDesktop(): DesktopStore {
     [update]
   )
 
-  // The grid only knows visible widgets, so keep hidden widgets' positions as they were.
-  const applyLayouts = useCallback(
-    (incoming: Partial<Record<Breakpoint, readonly LayoutEntry[]>>) =>
-      update((s) => {
-        const hiddenIds = new Set(s.widgets.filter((w) => w.hidden).map((w) => w.id))
-        const knownIds = new Set(s.widgets.map((w) => w.id))
-        const layouts = { ...s.layouts }
-        for (const bp of BREAKPOINT_KEYS) {
-          const items = incoming[bp]
-          if (!items) continue
-          const visible = items.filter((l) => knownIds.has(l.i) && !hiddenIds.has(l.i))
-          const kept = s.layouts[bp].filter((l) => hiddenIds.has(l.i))
-          layouts[bp] = [...visible.map(toLayoutEntry), ...kept]
-        }
-        return JSON.stringify(layouts) === JSON.stringify(s.layouts) ? s : { ...s, layouts }
-      }),
+  // Moving keeps the saved size, so a widget shrunk by a small window grows back later.
+  const moveWidget = useCallback(
+    (id: string, x: number, y: number) =>
+      update((s) =>
+        s.positions[id]
+          ? { ...s, positions: { ...s.positions, [id]: { ...s.positions[id], x, y } } }
+          : s
+      ),
+    [update]
+  )
+
+  const resizeWidget = useCallback(
+    (id: string, rect: WidgetRect) =>
+      update((s) => ({ ...s, positions: { ...s.positions, [id]: rect } })),
     [update]
   )
 
   return {
     desktop,
+    setBoardSize,
     addWidget,
     removeWidget,
     setHidden,
     bringToFront,
     updateConfig,
-    applyLayouts
+    moveWidget,
+    resizeWidget
   }
 }

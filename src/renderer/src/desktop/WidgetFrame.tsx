@@ -5,15 +5,19 @@ import type { AnyWidgetDefinition } from '../widgets/types'
 interface Props {
   instance: WidgetInstance
   def: AnyWidgetDefinition
+  onHeaderPointerDown(e: React.PointerEvent): void
+  onResizePointerDown(e: React.PointerEvent): void
   onHide(): void
   onRemove(): void
   onUpdateConfig(patch: Record<string, unknown>): void
 }
 
-// Common shell for every widget: header (drag handle + actions) and body.
+// Common shell for every widget: header (drag handle + actions), body and resize corner.
 export function WidgetFrame({
   instance,
   def,
+  onHeaderPointerDown,
+  onResizePointerDown,
   onHide,
   onRemove,
   onUpdateConfig
@@ -29,7 +33,7 @@ export function WidgetFrame({
 
   return (
     <section className="widget" aria-label={def.name}>
-      <header className="widget-header widget-drag-handle">
+      <header className="widget-header" onPointerDown={onHeaderPointerDown}>
         <span className="widget-icon" aria-hidden>
           {def.icon}
         </span>
@@ -60,6 +64,12 @@ export function WidgetFrame({
           <Widget instanceId={instance.id} config={config} updateConfig={onUpdateConfig} />
         )}
       </div>
+      <div
+        className="widget-resize-handle"
+        title="Cambiar tamaño"
+        aria-hidden
+        onPointerDown={onResizePointerDown}
+      />
     </section>
   )
 }
