@@ -79,7 +79,10 @@ export function Desktop({ desktop, store }: Props): React.JSX.Element {
 
   const visible = desktop.widgets
     .map((instance, stackIndex) => ({ instance, stackIndex }))
-    .filter(({ instance }) => !instance.hidden && desktop.positions[instance.id])
+    .filter(
+      ({ instance }) =>
+        !instance.hidden && !desktop.detached[instance.id] && desktop.positions[instance.id]
+    )
     // Stable DOM order so nodes never move mid-drag; z-index does the stacking.
     .sort((a, b) => a.instance.id.localeCompare(b.instance.id))
 
@@ -117,6 +120,15 @@ export function Desktop({ desktop, store }: Props): React.JSX.Element {
                   def={def}
                   onHeaderPointerDown={(e) => startGesture(e, instance.id, 'move', rect, def)}
                   onResizePointerDown={(e) => startGesture(e, instance.id, 'resize', rect, def)}
+                  onDetach={() => {
+                    const origin = areaRef.current?.getBoundingClientRect()
+                    if (!origin) return
+                    store.detachWidget(instance.id, {
+                      ...rect,
+                      x: origin.left + rect.x,
+                      y: origin.top + rect.y
+                    })
+                  }}
                   onHide={() => store.setHidden(instance.id, true)}
                   onRemove={() => store.removeWidget(instance.id)}
                   onUpdateConfig={(patch) => store.updateConfig(instance.id, patch)}

@@ -1,8 +1,11 @@
-import { app, shell, BrowserWindow } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { app, nativeTheme, type BrowserWindow } from 'electron'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
+import { createAppWindow } from './appWindow'
+import { initDesktop } from './desktop'
 import { registerIpc } from './ipc'
+import { loadSettings } from './storage'
 import { flushWrites } from './storage/jsonStore'
+import { initWidgetWindows, prepareQuit } from './widgetWindows'
 import icon from '../../resources/icon.png?asset'
 
 // Optional separate data folder (handy for testing without touching your real data)
@@ -10,42 +13,29 @@ if (process.env['NUGGIT_USER_DATA']) {
   app.setPath('userData', process.env['NUGGIT_USER_DATA'])
 }
 
+let mainWindow: BrowserWindow | null = null
+
 function createWindow(): void {
-  const mainWindow = new BrowserWindow({
+  const win = createAppWindow({
     width: 1100,
     height: 720,
     minWidth: 420,
     minHeight: 400,
-    show: false,
     title: 'Nuggit',
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      contextIsolation: true,
-      nodeIntegration: false,
-      sandbox: false
-    }
+    ...(process.platform === 'linux' ? { icon } : {})
   })
+  mainWindow = win
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+  win.on('ready-to-show', () => {
+    win.show()
   })
-
-  // Open external links in the default browser, never inside the app
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
-    return { action: 'deny' }
+  win.on('closed', () => {
+    if (mainWindow === win) mainWindow = null
   })
-
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   electronApp.setAppUserModelId('com.nuggit.app')
 
   // F12 toggles DevTools in dev; Cmd/Ctrl+R reload is disabled in production
@@ -53,17 +43,28 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  try {
+    const settings = await loadSettings()
+    nativeTheme.themeSource = settings.theme
+    await initDesktop()
+  } catch (err) {
+    console.error('[startup] could not load saved data', err)
+  }
+
   registerIpc()
   createWindow()
+  initWidgetWindows()
 
+  // Clicking the Dock icon brings the board back, even if detached widgets are open.
   app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (!mainWindow) createWindow()
   })
 })
 
 // Finish any pending saves before quitting, so the last change is never lost.
 let writesFlushed = false
 app.on('before-quit', (event) => {
+  prepareQuit()
   if (writesFlushed) return
   event.preventDefault()
   flushWrites().finally(() => {

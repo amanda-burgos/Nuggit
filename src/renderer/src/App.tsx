@@ -14,9 +14,11 @@ function App(): React.JSX.Element {
     <div className="app">
       <Toolbar
         widgets={desktop.widgets}
+        detached={desktop.detached}
         theme={settings?.theme ?? 'system'}
         onAdd={desktopStore.addWidget}
         onShow={(id) => desktopStore.setHidden(id, false)}
+        onAttach={desktopStore.attachWidget}
         onThemeChange={setTheme}
       />
       <Desktop desktop={desktop} store={desktopStore} />

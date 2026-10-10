@@ -1,4 +1,10 @@
-import type { SavedDesktop, Settings, WidgetInstance, WidgetRect } from '../../shared/types'
+import type {
+  DetachedWidget,
+  SavedDesktop,
+  Settings,
+  WidgetInstance,
+  WidgetRect
+} from '../../shared/types'
 import { readJson, writeJson } from './jsonStore'
 
 const DEFAULT_SETTINGS: Settings = {
@@ -23,8 +29,12 @@ function isWidgetInstance(value: unknown): value is WidgetInstance {
   )
 }
 
+function isDetachedWidget(value: unknown): value is DetachedWidget {
+  return isObject(value) && isRect(value.bounds) && typeof value.alwaysOnTop === 'boolean'
+}
+
 // Accepts the current format, or an older grid-based file (the renderer converts it).
-function isSavedDesktop(value: unknown): value is SavedDesktop {
+export function isSavedDesktop(value: unknown): value is SavedDesktop {
   if (!isObject(value) || !Array.isArray(value.widgets)) return false
   if (!value.widgets.every(isWidgetInstance)) return false
   if (isObject(value.positions)) return Object.values(value.positions).every(isRect)
@@ -35,7 +45,15 @@ function isSavedDesktop(value: unknown): value is SavedDesktop {
 
 export async function loadDesktop(): Promise<SavedDesktop | null> {
   const data = await readJson<unknown>('desktop', null)
-  return isSavedDesktop(data) ? data : null
+  if (!isSavedDesktop(data)) return null
+  // Keep only valid detached entries that still point to a widget.
+  const ids = new Set(data.widgets.map((w) => w.id))
+  const detached = Object.fromEntries(
+    Object.entries(isObject(data.detached) ? data.detached : {}).filter(
+      ([id, entry]) => ids.has(id) && isDetachedWidget(entry)
+    )
+  )
+  return { ...data, detached }
 }
 
 export async function saveDesktop(state: unknown): Promise<void> {

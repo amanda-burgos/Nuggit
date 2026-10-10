@@ -107,7 +107,12 @@ const GRID_MIGRATIONS: Record<number, (l: LegacyEntry) => LegacyEntry> = {
 
 export function toDesktopState(saved: SavedDesktop): DesktopState {
   if (saved.positions && (saved.gridVersion ?? 1) >= GRID_VERSION) {
-    return { widgets: saved.widgets, positions: saved.positions, gridVersion: GRID_VERSION }
+    return {
+      widgets: saved.widgets,
+      positions: saved.positions,
+      detached: saved.detached ?? {},
+      gridVersion: GRID_VERSION
+    }
   }
   // Older files: take the large-window layout and turn it into pixels.
   let version = saved.gridVersion ?? 1
@@ -126,7 +131,12 @@ export function toDesktopState(saved: SavedDesktop): DesktopState {
       h: Math.max(l.h - 12, 1)
     }
   }
-  return { widgets: saved.widgets, positions, gridVersion: GRID_VERSION }
+  return {
+    widgets: saved.widgets,
+    positions,
+    detached: saved.detached ?? {},
+    gridVersion: GRID_VERSION
+  }
 }
 
 // Layout logic must never hot-swap into a running desktop (it could save positions computed

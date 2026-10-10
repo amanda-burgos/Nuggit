@@ -186,6 +186,10 @@ interface Settings {
 interface DesktopState {
   widgets: WidgetInstance[];
   positions: Record<string, { x: number; y: number; w: number; h: number }>; // px, por id de widget
+  detached: Record<string, {                // widgets despegados al escritorio, por id
+    bounds: { x: number; y: number; w: number; h: number }; // px de pantalla
+    alwaysOnTop: boolean;                   // "Mantener encima"
+  }>;
   gridVersion: number; // versión del formato, para convertir archivos viejos
 }
 ```

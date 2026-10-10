@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { ThemePreference, WidgetInstance } from '../../../shared/types'
+import type { DetachedWidget, ThemePreference, WidgetInstance } from '../../../shared/types'
 import { getWidgetDefinition, widgetRegistry } from '../widgets/registry'
 
 const THEME_CYCLE: Record<ThemePreference, { next: ThemePreference; icon: string; label: string }> =
@@ -11,22 +11,27 @@ const THEME_CYCLE: Record<ThemePreference, { next: ThemePreference; icon: string
 
 interface Props {
   widgets: WidgetInstance[]
+  detached: Record<string, DetachedWidget>
   theme: ThemePreference
   onAdd(type: string): void
   onShow(id: string): void
+  onAttach(id: string): void
   onThemeChange(theme: ThemePreference): void
 }
 
 export function Toolbar({
   widgets,
+  detached,
   theme,
   onAdd,
   onShow,
+  onAttach,
   onThemeChange
 }: Props): React.JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
-  const hidden = widgets.filter((w) => w.hidden)
+  const hidden = widgets.filter((w) => w.hidden && !detached[w.id])
+  const outside = widgets.filter((w) => detached[w.id])
   const themeInfo = THEME_CYCLE[theme]
 
   // Close the menu on outside click or Esc.
@@ -99,6 +104,27 @@ export function Toolbar({
                         }}
                       >
                         <span aria-hidden>{def?.icon}</span> Mostrar {def?.name}
+                      </button>
+                    )
+                  })}
+                </>
+              )}
+              {outside.length > 0 && (
+                <>
+                  <div className="menu-label">En tu escritorio</div>
+                  {outside.map((w) => {
+                    const def = getWidgetDefinition(w.type)
+                    return (
+                      <button
+                        key={w.id}
+                        role="menuitem"
+                        className="menu-item"
+                        onClick={() => {
+                          onAttach(w.id)
+                          setMenuOpen(false)
+                        }}
+                      >
+                        <span aria-hidden>{def?.icon}</span> Regresar {def?.name}
                       </button>
                     )
                   })}

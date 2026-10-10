@@ -7,14 +7,19 @@ import { getWidgetDefinition } from '../widgets/registry'
 const FALLBACK_AREA: Size = { width: 1000, height: 600 }
 
 function createDefaultDesktop(area: Size): DesktopState {
-  const empty: DesktopState = { widgets: [], positions: {}, gridVersion: GRID_VERSION }
+  const empty: DesktopState = {
+    widgets: [],
+    positions: {},
+    detached: {},
+    gridVersion: GRID_VERSION
+  }
   return addWidgetTo(empty, 'clock', area)
 }
 
 // Rects as currently drawn on the board, for every visible widget.
 function visibleRects(state: DesktopState, area: Size): WidgetRect[] {
   return state.widgets
-    .filter((w) => !w.hidden && state.positions[w.id])
+    .filter((w) => !w.hidden && !state.detached[w.id] && state.positions[w.id])
     .map((w) => fitRect(state.positions[w.id], area, getWidgetDefinition(w.type)))
 }
 
@@ -43,7 +48,10 @@ function sanitize(saved: SavedDesktop, area: Size): DesktopState {
     const rect = state.positions[w.id]
     if (rect) positions[w.id] = rect
   }
-  let result: DesktopState = { ...state, widgets, positions }
+  const detached = Object.fromEntries(
+    Object.entries(state.detached).filter(([id]) => widgets.some((w) => w.id === id))
+  )
+  let result: DesktopState = { ...state, widgets, positions, detached }
   for (const w of widgets) {
     if (positions[w.id]) continue
     const def = getWidgetDefinition(w.type)!
@@ -67,11 +75,15 @@ export interface DesktopStore {
   updateConfig(id: string, patch: Record<string, unknown>): void
   moveWidget(id: string, x: number, y: number): void
   resizeWidget(id: string, rect: WidgetRect): void
+  // rect is relative to the app window's content area.
+  detachWidget(id: string, rect: WidgetRect): void
+  attachWidget(id: string): void
 }
 
 export function useDesktop(): DesktopStore {
   const [desktop, setDesktop] = useState<DesktopState | null>(null)
-  const loaded = useRef(false)
+  // True while applying a change that came from another window, so it isn't saved back.
+  const fromRemote = useRef(false)
   const boardSize = useRef<Size>(FALLBACK_AREA)
 
   useEffect(() => {
@@ -87,16 +99,22 @@ export function useDesktop(): DesktopStore {
         const area = boardSize.current
         setDesktop(saved ? sanitize(saved, area) : createDefaultDesktop(area))
       })
+    const unsubscribe = window.api.desktop.onChange((saved) => {
+      fromRemote.current = true
+      setDesktop(sanitize(saved, boardSize.current))
+    })
     return () => {
       cancelled = true
+      unsubscribe()
     }
   }, [])
 
   // Save every change right away (changes only happen on drop, resize or config edits).
+  // The first save after loading also stores files converted from older formats.
   useEffect(() => {
     if (!desktop) return
-    if (!loaded.current) {
-      loaded.current = true
+    if (fromRemote.current) {
+      fromRemote.current = false
       return
     }
     window.api.desktop.save(desktop).catch((err) => console.error('Could not save desktop', err))
@@ -174,6 +192,19 @@ export function useDesktop(): DesktopStore {
     [update]
   )
 
+  // Detaching and attaching are done by the main process, which then sends the new state.
+  const detachWidget = useCallback((id: string, rect: WidgetRect) => {
+    window.api.widgetWindows
+      .detach(id, rect)
+      .catch((err) => console.error('Could not detach widget', err))
+  }, [])
+
+  const attachWidget = useCallback((id: string) => {
+    window.api.widgetWindows
+      .attach(id)
+      .catch((err) => console.error('Could not attach widget', err))
+  }, [])
+
   return {
     desktop,
     setBoardSize,
@@ -183,6 +214,8 @@ export function useDesktop(): DesktopStore {
     bringToFront,
     updateConfig,
     moveWidget,
-    resizeWidget
+    resizeWidget,
+    detachWidget,
+    attachWidget
   }
 }

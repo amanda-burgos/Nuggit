@@ -2,13 +2,19 @@ import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
 import type { AnyWidgetDefinition } from '../widgets/types'
 
+// Actions are shown only when their handler is given: the board and a detached
+// window offer different ones.
 interface Props {
   instance: WidgetInstance
   def: AnyWidgetDefinition
-  onHeaderPointerDown(e: React.PointerEvent): void
-  onResizePointerDown(e: React.PointerEvent): void
-  onHide(): void
-  onRemove(): void
+  onHeaderPointerDown?(e: React.PointerEvent): void
+  onResizePointerDown?(e: React.PointerEvent): void
+  onDetach?(): void
+  onAttach?(): void
+  alwaysOnTop?: boolean
+  onToggleAlwaysOnTop?(): void
+  onHide?(): void
+  onRemove?(): void
   onUpdateConfig(patch: Record<string, unknown>): void
 }
 
@@ -18,6 +24,10 @@ export function WidgetFrame({
   def,
   onHeaderPointerDown,
   onResizePointerDown,
+  onDetach,
+  onAttach,
+  alwaysOnTop,
+  onToggleAlwaysOnTop,
   onHide,
   onRemove,
   onUpdateConfig
@@ -28,7 +38,7 @@ export function WidgetFrame({
   const Settings = def.settingsComponent
 
   const confirmRemove = (): void => {
-    if (window.confirm(`¿Quitar "${def.name}" del escritorio?`)) onRemove()
+    if (window.confirm(`¿Quitar "${def.name}" del escritorio?`)) onRemove?.()
   }
 
   return (
@@ -49,12 +59,36 @@ export function WidgetFrame({
               ⚙︎
             </button>
           )}
-          <button className="icon-button" title="Ocultar" onClick={onHide}>
-            –
-          </button>
-          <button className="icon-button" title="Quitar" onClick={confirmRemove}>
-            ×
-          </button>
+          {onToggleAlwaysOnTop && (
+            <button
+              className={`icon-button${alwaysOnTop ? ' is-active' : ''}`}
+              title={alwaysOnTop ? 'Mantener encima: sí' : 'Mantener encima: no'}
+              aria-pressed={alwaysOnTop}
+              onClick={onToggleAlwaysOnTop}
+            >
+              <span className={`pin${alwaysOnTop ? ' is-on' : ''}`}>📌</span>
+            </button>
+          )}
+          {onDetach && (
+            <button className="icon-button" title="Despegar al escritorio" onClick={onDetach}>
+              ↗
+            </button>
+          )}
+          {onAttach && (
+            <button className="icon-button" title="Regresar al tablero" onClick={onAttach}>
+              ↙
+            </button>
+          )}
+          {onHide && (
+            <button className="icon-button" title="Ocultar" onClick={onHide}>
+              –
+            </button>
+          )}
+          {onRemove && (
+            <button className="icon-button" title="Quitar" onClick={confirmRemove}>
+              ×
+            </button>
+          )}
         </div>
       </header>
       <div className="widget-body widget-no-drag">
@@ -64,12 +98,14 @@ export function WidgetFrame({
           <Widget instanceId={instance.id} config={config} updateConfig={onUpdateConfig} />
         )}
       </div>
-      <div
-        className="widget-resize-handle"
-        title="Cambiar tamaño"
-        aria-hidden
-        onPointerDown={onResizePointerDown}
-      />
+      {onResizePointerDown && (
+        <div
+          className="widget-resize-handle"
+          title="Cambiar tamaño"
+          aria-hidden
+          onPointerDown={onResizePointerDown}
+        />
+      )}
     </section>
   )
 }
