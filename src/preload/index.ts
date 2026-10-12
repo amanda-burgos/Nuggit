@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { NuggitApi, SavedDesktop } from '../shared/types'
+import type { NuggitApi, SavedDesktop, Task } from '../shared/types'
 
 // Safe API exposed to the renderer. All disk access goes through the main process.
 const api: NuggitApi = {
@@ -11,6 +11,18 @@ const api: NuggitApi = {
       const handler = (_event: IpcRendererEvent, state: SavedDesktop): void => listener(state)
       ipcRenderer.on('desktop:changed', handler)
       return () => ipcRenderer.removeListener('desktop:changed', handler)
+    }
+  },
+  tasks: {
+    load: () => ipcRenderer.invoke('tasks:load'),
+    create: (input) => ipcRenderer.invoke('tasks:create', input),
+    update: (id, patch) => ipcRenderer.invoke('tasks:update', id, patch),
+    remove: (id) => ipcRenderer.invoke('tasks:remove', id),
+    restore: (tasks) => ipcRenderer.invoke('tasks:restore', tasks),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, tasks: Task[]): void => listener(tasks)
+      ipcRenderer.on('tasks:changed', handler)
+      return () => ipcRenderer.removeListener('tasks:changed', handler)
     }
   },
   settings: {

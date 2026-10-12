@@ -53,6 +53,38 @@ export interface Settings {
   background?: string
 }
 
+export type Priority = 'low' | 'medium' | 'high'
+export type TaskStatus = 'todo' | 'doing' | 'done'
+
+export interface Task {
+  id: string
+  title: string
+  description?: string
+  priority: Priority
+  dueDate?: string // ISO date, YYYY-MM-DD
+  estimateMin?: number
+  category?: string
+  status: TaskStatus
+  parentId?: string // set when this task is a "tender" (subtask) of another task
+  order: number // order inside its parent (or among top-level tasks)
+  notes?: string
+  createdAt: string
+  updatedAt: string
+  completedAt?: string
+}
+
+// Fields the interface may set. Empty strings / null clear an optional field.
+export interface TaskInput {
+  title?: string
+  description?: string | null
+  priority?: Priority
+  dueDate?: string | null
+  estimateMin?: number | null
+  category?: string | null
+  status?: TaskStatus
+  notes?: string | null
+}
+
 export interface SettingsPatch {
   theme?: ThemePreference
 }
@@ -65,6 +97,17 @@ export interface NuggitApi {
     updateConfig(id: string, patch: Record<string, unknown>): Promise<void>
     // Called whenever another window (or the main process) changes the desktop.
     onChange(listener: (state: SavedDesktop) => void): () => void
+  }
+  tasks: {
+    load(): Promise<Task[]>
+    create(input: TaskInput & { title: string; parentId?: string }): Promise<Task>
+    update(id: string, patch: TaskInput): Promise<void>
+    // Removes the task and its subtasks; returns what was removed so it can be restored.
+    remove(id: string): Promise<Task[]>
+    // Puts back tasks returned by remove() (undo).
+    restore(tasks: Task[]): Promise<void>
+    // Called whenever any window changes the tasks.
+    onChange(listener: (tasks: Task[]) => void): () => void
   }
   settings: {
     load(): Promise<Settings>

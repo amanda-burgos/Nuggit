@@ -2,6 +2,7 @@ import { ipcMain, nativeTheme } from 'electron'
 import type { WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
 import { loadSettings, updateSettings } from './storage'
+import { createTask, getTasks, removeTask, restoreTasks, updateTask } from './tasks'
 import {
   attachWidget,
   detachWidget,
@@ -28,6 +29,16 @@ export function registerIpc(): void {
   ipcMain.handle('desktop:updateConfig', (_event, id: unknown, patch: unknown) => {
     if (typeof id === 'string' && isObject(patch)) updateWidgetConfig(id, patch)
   })
+
+  ipcMain.handle('tasks:load', () => getTasks())
+  ipcMain.handle('tasks:create', (_event, input: unknown) => createTask(input))
+  ipcMain.handle('tasks:update', (_event, id: unknown, patch: unknown) => {
+    if (typeof id === 'string') updateTask(id, patch)
+  })
+  ipcMain.handle('tasks:remove', (_event, id: unknown) =>
+    typeof id === 'string' ? removeTask(id) : []
+  )
+  ipcMain.handle('tasks:restore', (_event, tasks: unknown) => restoreTasks(tasks))
 
   ipcMain.handle('settings:load', () => loadSettings())
   ipcMain.handle('settings:update', async (_event, patch: unknown) => {

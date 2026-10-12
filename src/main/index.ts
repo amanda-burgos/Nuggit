@@ -3,6 +3,7 @@ import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
 import { registerIpc } from './ipc'
+import { initTasks } from './tasks'
 import { loadSettings } from './storage'
 import { flushWrites } from './storage/jsonStore'
 import { initWidgetWindows, prepareQuit } from './widgetWindows'
@@ -49,6 +50,11 @@ app.whenReady().then(async () => {
     await initDesktop()
   } catch (err) {
     console.error('[startup] could not load saved data', err)
+  }
+  try {
+    await initTasks()
+  } catch (err) {
+    console.error('[startup] could not load tasks', err)
   }
 
   registerIpc()
