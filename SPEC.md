@@ -279,6 +279,15 @@ Pantalla de concentración: solo la tarea actual, el temporizador y el siguiente
 
 ---
 
+### 9.11 Barra de menú (ya existe)
+Nuggit vive también en la **barra de menú** de macOS (`src/main/statusTray.ts`).
+- Muestra la tarea actual: "▶ Nombre de la tarea".
+- En Settings se puede elegir cómo se ve: **solo ícono** o **texto** (el nombre de la tarea).
+- Al hacer clic, abre un menú con: la tarea actual, **"Siguiente paso: ..."** (el próximo tender), **✅ Marcar como hecha**, **Pausar** y **Abrir Nuggit**.
+- Debe seguir funcionando en todas las fases. No romperla ni quitarla.
+- Cuando exista Next Action (Fase 5), la barra muestra lo mismo que ese widget, y "Marcar como hecha" pasa al siguiente tender.
+- Lockdown (Fase 7) puede usarla para mostrar la tarea y el tiempo restante.
+
 ## 10. Diseño visual
 
 - Colores base: **navy blue**, **lavender**, **white**, acentos suaves.
@@ -333,6 +342,7 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 - **Listo cuando:** le doy "proyecto de ciencias", me hace preguntas y me guarda los tenders después de confirmar.
 
 ### Fase 5 — Next Action + "ya terminé"
+- Conectar la barra de menú (9.11) con Next Action: misma tarea y mismo siguiente paso.
 - Widget Next Action con las reglas de 9.5.
 - En el chat, "ya terminé X" propone marcarla como hecha y sugiere la siguiente.
 - **Listo cuando:** abro la app y sé qué hacer en menos de 5 segundos.

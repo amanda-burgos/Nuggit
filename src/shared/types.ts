@@ -19,7 +19,10 @@ export interface WidgetInstance {
 export interface DetachedWidget {
   bounds: WidgetRect // screen pixels
   alwaysOnTop: boolean
+  shadow?: boolean // macOS window shadow; off unless turned on
 }
+
+export type DetachedWindowOptions = Partial<Pick<DetachedWidget, 'alwaysOnTop' | 'shadow'>>
 
 export interface DesktopState {
   widgets: WidgetInstance[] // array order is the stacking order (last = on top)
@@ -124,7 +127,7 @@ export interface NuggitApi {
     // rect is relative to the calling window's content area.
     detach(id: string, rect: WidgetRect): Promise<void>
     attach(id: string): Promise<void>
-    setAlwaysOnTop(id: string, alwaysOnTop: boolean): Promise<void>
+    setOptions(id: string, options: DetachedWindowOptions): Promise<void>
     // Hides or shows every detached widget (for Lockdown).
     setAllVisible(visible: boolean): Promise<void>
     // Size limits for the calling detached window.

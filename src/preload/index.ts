@@ -37,7 +37,7 @@ const api: NuggitApi = {
   widgetWindows: {
     detach: (id, rect) => ipcRenderer.invoke('widgetWindows:detach', id, rect),
     attach: (id) => ipcRenderer.invoke('widgetWindows:attach', id),
-    setAlwaysOnTop: (id, on) => ipcRenderer.invoke('widgetWindows:setAlwaysOnTop', id, on),
+    setOptions: (id, options) => ipcRenderer.invoke('widgetWindows:setOptions', id, options),
     setAllVisible: (visible) => ipcRenderer.invoke('widgetWindows:setAllVisible', visible),
     setSizeLimits: (min, max) => ipcRenderer.send('widgetWindows:setSizeLimits', min, max)
   }

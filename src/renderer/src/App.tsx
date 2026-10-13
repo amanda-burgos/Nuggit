@@ -19,6 +19,7 @@ function App(): React.JSX.Element {
         onAdd={desktopStore.addWidget}
         onShow={(id) => desktopStore.setHidden(id, false)}
         onAttach={desktopStore.attachWidget}
+        onRemoveAll={desktopStore.removeAllWidgets}
         onThemeChange={setTheme}
       />
       <Desktop desktop={desktop} store={desktopStore} />

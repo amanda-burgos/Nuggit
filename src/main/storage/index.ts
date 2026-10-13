@@ -32,7 +32,12 @@ function isWidgetInstance(value: unknown): value is WidgetInstance {
 }
 
 function isDetachedWidget(value: unknown): value is DetachedWidget {
-  return isObject(value) && isRect(value.bounds) && typeof value.alwaysOnTop === 'boolean'
+  return (
+    isObject(value) &&
+    isRect(value.bounds) &&
+    typeof value.alwaysOnTop === 'boolean' &&
+    ['boolean', 'undefined'].includes(typeof value.shadow)
+  )
 }
 
 // Accepts the current format, or an older grid-based file (the renderer converts it).

@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import type { WidgetRect } from '../shared/types'
+import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
@@ -8,7 +8,7 @@ import {
   attachWidget,
   detachWidget,
   setAllVisible,
-  setAlwaysOnTop,
+  setWindowOptions,
   setSizeLimits
 } from './widgetWindows'
 
@@ -50,8 +50,12 @@ export function registerIpc(): void {
   ipcMain.handle('widgetWindows:attach', (_event, id: unknown) => {
     if (typeof id === 'string') attachWidget(id)
   })
-  ipcMain.handle('widgetWindows:setAlwaysOnTop', (_event, id: unknown, on: unknown) => {
-    if (typeof id === 'string' && typeof on === 'boolean') setAlwaysOnTop(id, on)
+  ipcMain.handle('widgetWindows:setOptions', (_event, id: unknown, options: unknown) => {
+    if (typeof id !== 'string' || !isObject(options)) return
+    const valid: DetachedWindowOptions = {}
+    if (typeof options.alwaysOnTop === 'boolean') valid.alwaysOnTop = options.alwaysOnTop
+    if (typeof options.shadow === 'boolean') valid.shadow = options.shadow
+    setWindowOptions(id, valid)
   })
   ipcMain.handle('widgetWindows:setAllVisible', (_event, visible: unknown) => {
     if (typeof visible === 'boolean') setAllVisible(visible)

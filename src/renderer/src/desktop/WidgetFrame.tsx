@@ -7,12 +7,15 @@ import type { AnyWidgetDefinition } from '../widgets/types'
 interface Props {
   instance: WidgetInstance
   def: AnyWidgetDefinition
+  showTitle?: boolean // icon + name in the header
   onHeaderPointerDown?(e: React.PointerEvent): void
   onResizePointerDown?(e: React.PointerEvent): void
   onDetach?(): void
   onAttach?(): void
   alwaysOnTop?: boolean
   onToggleAlwaysOnTop?(): void
+  // Extra options shown at the top of the ⚙︎ panel (e.g. a detached window's options).
+  windowSettings?: React.ReactNode
   onHide?(): void
   onRemove?(): void
   onUpdateConfig(patch: Record<string, unknown>): void
@@ -22,12 +25,14 @@ interface Props {
 export function WidgetFrame({
   instance,
   def,
+  showTitle = true,
   onHeaderPointerDown,
   onResizePointerDown,
   onDetach,
   onAttach,
   alwaysOnTop,
   onToggleAlwaysOnTop,
+  windowSettings,
   onHide,
   onRemove,
   onUpdateConfig
@@ -44,12 +49,16 @@ export function WidgetFrame({
   return (
     <section className="widget" aria-label={def.name}>
       <header className="widget-header" onPointerDown={onHeaderPointerDown}>
-        <span className="widget-icon" aria-hidden>
-          {def.icon}
-        </span>
-        <span className="widget-title">{def.name}</span>
+        {showTitle && (
+          <>
+            <span className="widget-icon" aria-hidden>
+              {def.icon}
+            </span>
+            <span className="widget-title">{def.name}</span>
+          </>
+        )}
         <div className="widget-actions widget-no-drag">
-          {Settings && (
+          {(Settings || windowSettings) && (
             <button
               className={`icon-button${showSettings ? ' is-active' : ''}`}
               title="Ajustes del widget"
@@ -92,8 +101,11 @@ export function WidgetFrame({
         </div>
       </header>
       <div className="widget-body widget-no-drag">
-        {showSettings && Settings ? (
-          <Settings config={config} updateConfig={onUpdateConfig} />
+        {showSettings ? (
+          <>
+            {windowSettings}
+            {Settings && <Settings config={config} updateConfig={onUpdateConfig} />}
+          </>
         ) : (
           <Widget instanceId={instance.id} config={config} updateConfig={onUpdateConfig} />
         )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { SavedDesktop } from '../../../shared/types'
+import type { DetachedWindowOptions, SavedDesktop } from '../../../shared/types'
 import { getWidgetDefinition } from '../widgets/registry'
 import { WidgetFrame } from './WidgetFrame'
 import './desktop.css'
@@ -36,15 +36,30 @@ export function DetachedWidget({ id }: Props): React.JSX.Element {
   if (!instance || !def) return <div className="detached" />
 
   const report = (err: unknown): void => console.error('Could not update widget', err)
+  const setOptions = (options: DetachedWindowOptions): void => {
+    window.api.widgetWindows.setOptions(id, options).catch(report)
+  }
 
   return (
     <div className="detached">
       <WidgetFrame
         instance={instance}
         def={def}
+        showTitle={false}
         alwaysOnTop={entry?.alwaysOnTop ?? false}
-        onToggleAlwaysOnTop={() =>
-          window.api.widgetWindows.setAlwaysOnTop(id, !entry?.alwaysOnTop).catch(report)
+        onToggleAlwaysOnTop={() => setOptions({ alwaysOnTop: !entry?.alwaysOnTop })}
+        windowSettings={
+          <div className="window-settings">
+            <div className="window-settings-label">Ventana</div>
+            <label>
+              <input
+                type="checkbox"
+                checked={entry?.shadow ?? false}
+                onChange={(e) => setOptions({ shadow: e.target.checked })}
+              />
+              Sombra
+            </label>
+          </div>
         }
         onAttach={() => window.api.widgetWindows.attach(id).catch(report)}
         onUpdateConfig={(patch) => window.api.desktop.updateConfig(id, patch).catch(report)}

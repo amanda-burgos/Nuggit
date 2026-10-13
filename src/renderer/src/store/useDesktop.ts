@@ -70,6 +70,8 @@ export interface DesktopStore {
   setBoardSize(size: Size): void
   addWidget(type: string): void
   removeWidget(id: string): void
+  // Removes every widget, including the ones detached to the computer's desktop.
+  removeAllWidgets(): void
   setHidden(id: string, hidden: boolean): void
   bringToFront(id: string): void
   updateConfig(id: string, patch: Record<string, unknown>): void
@@ -143,6 +145,12 @@ export function useDesktop(): DesktopStore {
     [update]
   )
 
+  // Clearing `detached` makes the main process close the widget windows too.
+  const removeAllWidgets = useCallback(
+    () => update((s) => ({ ...s, widgets: [], positions: {}, detached: {} })),
+    [update]
+  )
+
   const bringToFront = useCallback(
     (id: string) =>
       update((s) => {
@@ -210,6 +218,7 @@ export function useDesktop(): DesktopStore {
     setBoardSize,
     addWidget,
     removeWidget,
+    removeAllWidgets,
     setHidden,
     bringToFront,
     updateConfig,

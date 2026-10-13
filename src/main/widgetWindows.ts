@@ -1,5 +1,10 @@
 import { BrowserWindow, nativeTheme, screen, type Rectangle, type WebContents } from 'electron'
-import type { DetachedWidget, SavedDesktop, WidgetRect } from '../shared/types'
+import type {
+  DetachedWidget,
+  DetachedWindowOptions,
+  SavedDesktop,
+  WidgetRect
+} from '../shared/types'
 import { createAppWindow } from './appWindow'
 import { getDesktop, onDesktopChange, setDetached } from './desktop'
 
@@ -93,6 +98,7 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
       maximizable: false,
       fullscreenable: false,
       skipTaskbar: true,
+      hasShadow: entry.shadow ?? false,
       backgroundColor: surfaceColor()
     },
     { widget: id }
@@ -131,10 +137,13 @@ function syncWindows(state: SavedDesktop): void {
   }
   for (const [id, entry] of Object.entries(detached)) {
     const win = windows.get(id)
-    if (!win) windows.set(id, createWidgetWindow(id, entry))
-    else if (win.isAlwaysOnTop() !== entry.alwaysOnTop) {
-      win.setAlwaysOnTop(entry.alwaysOnTop, 'floating')
+    if (!win) {
+      windows.set(id, createWidgetWindow(id, entry))
+      continue
     }
+    if (win.isAlwaysOnTop() !== entry.alwaysOnTop) win.setAlwaysOnTop(entry.alwaysOnTop, 'floating')
+    const shadow = entry.shadow ?? false
+    if (win.hasShadow() !== shadow) win.setHasShadow(shadow)
   }
 }
 
@@ -177,9 +186,9 @@ export function attachWidget(id: string): void {
   setDetached({ [id]: null })
 }
 
-export function setAlwaysOnTop(id: string, alwaysOnTop: boolean): void {
+export function setWindowOptions(id: string, options: DetachedWindowOptions): void {
   const entry = getDesktop()?.detached?.[id]
-  if (entry) setDetached({ [id]: { ...entry, alwaysOnTop } })
+  if (entry) setDetached({ [id]: { ...entry, ...options } })
 }
 
 // Lockdown hides every detached widget, and shows them again when it ends.

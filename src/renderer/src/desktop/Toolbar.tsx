@@ -16,6 +16,7 @@ interface Props {
   onAdd(type: string): void
   onShow(id: string): void
   onAttach(id: string): void
+  onRemoveAll(): void
   onThemeChange(theme: ThemePreference): void
 }
 
@@ -26,6 +27,7 @@ export function Toolbar({
   onAdd,
   onShow,
   onAttach,
+  onRemoveAll,
   onThemeChange
 }: Props): React.JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -128,6 +130,24 @@ export function Toolbar({
                       </button>
                     )
                   })}
+                </>
+              )}
+              {widgets.length > 0 && (
+                <>
+                  <div className="menu-separator" />
+                  <button
+                    role="menuitem"
+                    className="menu-item menu-item-danger"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      const count = widgets.length
+                      const message =
+                        count === 1 ? '¿Quitar el widget?' : `¿Quitar los ${count} widgets?`
+                      if (window.confirm(message)) onRemoveAll()
+                    }}
+                  >
+                    <span aria-hidden>🗑️</span> Quitar todos
+                  </button>
                 </>
               )}
             </div>
