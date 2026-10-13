@@ -43,6 +43,9 @@ export interface SavedDesktop {
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 
+// What the macOS menu bar shows while a task is "En curso".
+export type StatusIndicator = 'dot' | 'dot-title' | 'title' | 'off'
+
 export interface Settings {
   ai: {
     provider: 'none' | 'gemini'
@@ -50,6 +53,7 @@ export interface Settings {
     shareTasksWithAI: boolean
   }
   theme: ThemePreference
+  statusIndicator: StatusIndicator
   background?: string
 }
 
@@ -87,6 +91,7 @@ export interface TaskInput {
 
 export interface SettingsPatch {
   theme?: ThemePreference
+  statusIndicator?: StatusIndicator
 }
 
 // API exposed by the preload script on `window.api`.
@@ -112,6 +117,8 @@ export interface NuggitApi {
   settings: {
     load(): Promise<Settings>
     update(patch: SettingsPatch): Promise<Settings>
+    // Called when settings change from another window or the menu bar.
+    onChange(listener: (settings: Settings) => void): () => void
   }
   widgetWindows: {
     // rect is relative to the calling window's content area.

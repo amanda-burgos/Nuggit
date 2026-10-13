@@ -9,6 +9,7 @@ import { isTask, loadTasks, saveTasks } from './storage'
 let tasks: Task[] = []
 // If tasks.json could not be read, never save over it with an empty list.
 let loaded = false
+const listeners = new Set<(tasks: Task[]) => void>()
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
 const MAX_TITLE = 500
@@ -24,11 +25,16 @@ export function getTasks(): Task[] {
   return tasks
 }
 
+export function onTasksChange(listener: (tasks: Task[]) => void): void {
+  listeners.add(listener)
+}
+
 function commit(next: Task[]): void {
   if (!loaded) throw new Error('Tasks were not loaded, refusing to overwrite tasks.json')
   tasks = next
   saveTasks(next).catch((err) => console.error('[tasks] could not save', err))
   for (const win of BrowserWindow.getAllWindows()) win.webContents.send('tasks:changed', next)
+  listeners.forEach((listener) => listener(next))
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {

@@ -10,7 +10,8 @@ import { readJson, writeJson } from './jsonStore'
 
 const DEFAULT_SETTINGS: Settings = {
   ai: { provider: 'none', shareTasksWithAI: false },
-  theme: 'system'
+  theme: 'system',
+  statusIndicator: 'dot'
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -104,6 +105,8 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 
 // --- Settings ---
 
+const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
+
 export async function loadSettings(): Promise<Settings> {
   const data = await readJson<Partial<Settings>>('settings', {})
   return {
@@ -117,6 +120,9 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
   const current = await loadSettings()
   if (isObject(patch) && ['light', 'dark', 'system'].includes(patch.theme as string)) {
     current.theme = patch.theme as Settings['theme']
+  }
+  if (isObject(patch) && STATUS_INDICATORS.includes(patch.statusIndicator as string)) {
+    current.statusIndicator = patch.statusIndicator as Settings['statusIndicator']
   }
   await writeJson('settings', current)
   return current

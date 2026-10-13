@@ -1,7 +1,8 @@
-import { ipcMain, nativeTheme } from 'electron'
+import { ipcMain } from 'electron'
 import type { WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
-import { loadSettings, updateSettings } from './storage'
+import { changeSettings } from './settings'
+import { loadSettings } from './storage'
 import { createTask, getTasks, removeTask, restoreTasks, updateTask } from './tasks'
 import {
   attachWidget,
@@ -41,12 +42,7 @@ export function registerIpc(): void {
   ipcMain.handle('tasks:restore', (_event, tasks: unknown) => restoreTasks(tasks))
 
   ipcMain.handle('settings:load', () => loadSettings())
-  ipcMain.handle('settings:update', async (_event, patch: unknown) => {
-    const settings = await updateSettings(patch)
-    // Every window (including detached widgets) follows the theme through the OS setting.
-    nativeTheme.themeSource = settings.theme
-    return settings
-  })
+  ipcMain.handle('settings:update', (_event, patch: unknown) => changeSettings(patch))
 
   ipcMain.handle('widgetWindows:detach', (event, id: unknown, rect: unknown) => {
     if (typeof id === 'string' && isRect(rect)) detachWidget(id, rect, event.sender)

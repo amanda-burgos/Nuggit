@@ -1,4 +1,5 @@
 import type { WidgetDefinition } from '../types'
+import { TasksSettings } from './TasksSettings'
 import { TasksWidget, type TasksConfig } from './TasksWidget'
 
 export const tasksWidget: WidgetDefinition<TasksConfig> = {
@@ -9,5 +10,6 @@ export const tasksWidget: WidgetDefinition<TasksConfig> = {
   minSize: { w: 260, h: 220 },
   maxSize: { w: 900, h: 1400 },
   defaultConfig: { collapsed: {} },
-  component: TasksWidget
+  component: TasksWidget,
+  settingsComponent: TasksSettings
 }

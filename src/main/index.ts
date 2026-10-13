@@ -1,8 +1,11 @@
 import { app, nativeTheme, type BrowserWindow } from 'electron'
+import type { StatusIndicator } from '../shared/types'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
 import { registerIpc } from './ipc'
+import { changeSettings } from './settings'
+import { initStatusTray } from './statusTray'
 import { initTasks } from './tasks'
 import { loadSettings } from './storage'
 import { flushWrites } from './storage/jsonStore'
@@ -44,9 +47,11 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
+  let statusIndicator: StatusIndicator = 'dot'
   try {
     const settings = await loadSettings()
     nativeTheme.themeSource = settings.theme
+    statusIndicator = settings.statusIndicator
     await initDesktop()
   } catch (err) {
     console.error('[startup] could not load saved data', err)
@@ -60,6 +65,20 @@ app.whenReady().then(async () => {
   registerIpc()
   createWindow()
   initWidgetWindows()
+  initStatusTray({
+    mode: statusIndicator,
+    openApp: () => {
+      if (!mainWindow) return createWindow()
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.show()
+      mainWindow.focus()
+    },
+    chooseMode: (mode) => {
+      changeSettings({ statusIndicator: mode }).catch((err) =>
+        console.error('[settings] could not save', err)
+      )
+    }
+  })
 
   // Clicking the Dock icon brings the board back, even if detached widgets are open.
   app.on('activate', () => {
