@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { NuggitApi, SavedDesktop, Settings, Task } from '../shared/types'
+import type { AIStatus, NuggitApi, SavedDesktop, Settings, Task } from '../shared/types'
 
 // Safe API exposed to the renderer. All disk access goes through the main process.
 const api: NuggitApi = {
@@ -32,6 +32,28 @@ const api: NuggitApi = {
       const handler = (_event: IpcRendererEvent, settings: Settings): void => listener(settings)
       ipcRenderer.on('settings:changed', handler)
       return () => ipcRenderer.removeListener('settings:changed', handler)
+    }
+  },
+  ai: {
+    saveKey: (key) => ipcRenderer.invoke('ai:saveKey', key),
+    removeKey: () => ipcRenderer.invoke('ai:removeKey'),
+    setProvider: (provider) => ipcRenderer.invoke('ai:setProvider', provider),
+    test: () => ipcRenderer.invoke('ai:test'),
+    status: () => ipcRenderer.invoke('ai:status'),
+    onStatusChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, status: AIStatus): void => listener(status)
+      ipcRenderer.on('ai:status', handler)
+      return () => ipcRenderer.removeListener('ai:status', handler)
+    },
+    chat: (messages) => ipcRenderer.invoke('ai:chat', messages),
+    proposePersonality: (messages) => ipcRenderer.invoke('ai:proposePersonality', messages)
+  },
+  app: {
+    openSettings: () => ipcRenderer.send('app:openSettings'),
+    onOpenSettings: (listener) => {
+      const handler = (): void => listener()
+      ipcRenderer.on('app:openSettings', handler)
+      return () => ipcRenderer.removeListener('app:openSettings', handler)
     }
   },
   widgetWindows: {

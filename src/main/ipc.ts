@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
+import * as ai from './ai'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
 import { createTask, getTasks, removeTask, restoreTasks, updateTask } from './tasks'
@@ -24,7 +25,11 @@ function isSize(value: unknown): value is { w: number; h: number } {
   return isObject(value) && Number.isFinite(value.w) && Number.isFinite(value.h)
 }
 
-export function registerIpc(): void {
+interface IpcDeps {
+  openSettings(): void
+}
+
+export function registerIpc({ openSettings }: IpcDeps): void {
   ipcMain.handle('desktop:load', () => getDesktop())
   ipcMain.handle('desktop:save', (event, state: unknown) => replaceDesktop(state, event.sender))
   ipcMain.handle('desktop:updateConfig', (_event, id: unknown, patch: unknown) => {
@@ -43,6 +48,18 @@ export function registerIpc(): void {
 
   ipcMain.handle('settings:load', () => loadSettings())
   ipcMain.handle('settings:update', (_event, patch: unknown) => changeSettings(patch))
+
+  ipcMain.handle('ai:saveKey', (_event, key: unknown) => ai.saveKey(key))
+  ipcMain.handle('ai:removeKey', () => ai.removeKey())
+  ipcMain.handle('ai:setProvider', (_event, provider: unknown) => ai.setProvider(provider))
+  ipcMain.handle('ai:test', () => ai.testConnection())
+  ipcMain.handle('ai:status', () => ai.getStatus())
+  ipcMain.handle('ai:chat', (_event, messages: unknown) => ai.chat(messages))
+  ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
+    ai.proposePersonality(messages)
+  )
+
+  ipcMain.on('app:openSettings', () => openSettings())
 
   ipcMain.handle('widgetWindows:detach', (event, id: unknown, rect: unknown) => {
     if (typeof id === 'string' && isRect(rect)) detachWidget(id, rect, event.sender)

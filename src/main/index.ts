@@ -1,6 +1,7 @@
 import { app, nativeTheme, type BrowserWindow } from 'electron'
 import type { StatusIndicator } from '../shared/types'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
+import { initAI } from './ai'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
 import { registerIpc } from './ipc'
@@ -19,7 +20,7 @@ if (process.env['NUGGIT_USER_DATA']) {
 
 let mainWindow: BrowserWindow | null = null
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   const win = createAppWindow({
     width: 1100,
     height: 720,
@@ -37,6 +38,23 @@ function createWindow(): void {
   win.on('closed', () => {
     if (mainWindow === win) mainWindow = null
   })
+  return win
+}
+
+// Brings the board window to the front (creating it if it was closed).
+function showMainWindow(): BrowserWindow {
+  if (!mainWindow) return createWindow()
+  if (mainWindow.isMinimized()) mainWindow.restore()
+  mainWindow.show()
+  mainWindow.focus()
+  return mainWindow
+}
+
+function openSettings(): void {
+  const win = showMainWindow()
+  const send = (): void => win.webContents.send('app:openSettings')
+  if (win.webContents.isLoading()) win.webContents.once('did-finish-load', send)
+  else send()
 }
 
 app.whenReady().then(async () => {
@@ -61,17 +79,19 @@ app.whenReady().then(async () => {
   } catch (err) {
     console.error('[startup] could not load tasks', err)
   }
+  try {
+    await initAI()
+  } catch (err) {
+    console.error('[startup] could not check the AI key', err)
+  }
 
-  registerIpc()
+  registerIpc({ openSettings })
   createWindow()
   initWidgetWindows()
   initStatusTray({
     mode: statusIndicator,
     openApp: () => {
-      if (!mainWindow) return createWindow()
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.show()
-      mainWindow.focus()
+      showMainWindow()
     },
     chooseMode: (mode) => {
       changeSettings({ statusIndicator: mode }).catch((err) =>

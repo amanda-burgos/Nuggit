@@ -1,0 +1,236 @@
+import { BrowserWindow } from 'electron'
+import type {
+  AIBackend,
+  AIChatResult,
+  AIMessage,
+  AIPersonalityResult,
+  AISaveKeyResult,
+  AIStatus,
+  AITestResult,
+  Settings
+} from '../../shared/types'
+import { changeAIProvider } from '../settings'
+import { loadSettings, MAX_PERSONALITY, setAIProvider } from '../storage'
+import { getTasks } from '../tasks'
+import { dipInstructions, PERSONALITY_SCHEMA, personalityInstructions } from './dip'
+import { createGeminiProvider, DEFAULT_GEMINI_MODEL } from './gemini'
+import * as keyStore from './keyStore'
+import { createOllamaProvider, currentOllamaModel, listOllamaModels } from './ollama'
+import { AIError, type AIProvider } from './provider'
+
+const providers: Record<AIBackend, AIProvider> = {
+  gemini: createGeminiProvider(keyStore.loadKey, async () => {
+    const settings = await loadSettings()
+    return settings.ai.model || DEFAULT_GEMINI_MODEL
+  }),
+  ollama: createOllamaProvider(async () => (await loadSettings()).ai.ollamaModel)
+}
+
+const MAX_MESSAGES = 30
+const MAX_MESSAGE_LENGTH = 4000
+// How often to check whether Ollama was opened or closed.
+const STATUS_INTERVAL_MS = 10_000
+
+function errorMessage(err: unknown): string {
+  return err instanceof AIError ? err.message : 'Algo salió mal. Intenta otra vez.'
+}
+
+// --- What Dip can use right now ---
+
+let status: AIStatus = { active: null, gemini: false, ollama: false }
+
+function pickActive(
+  choice: Settings['ai']['provider'],
+  gemini: boolean,
+  ollama: boolean
+): AIBackend | null {
+  if (choice === 'gemini') return gemini ? 'gemini' : null
+  if (choice === 'ollama') return ollama ? 'ollama' : null
+  // auto: Gemini first when there is a key (faster and smarter), then Ollama.
+  if (gemini) return 'gemini'
+  return ollama ? 'ollama' : null
+}
+
+export async function refreshStatus(): Promise<AIStatus> {
+  const [settings, key, models] = await Promise.all([
+    loadSettings(),
+    keyStore.loadKey(),
+    listOllamaModels().catch(() => [])
+  ])
+  const gemini = Boolean(key)
+  const ollama = models.length > 0
+  const next: AIStatus = {
+    active: pickActive(settings.ai.provider, gemini, ollama),
+    gemini,
+    ollama
+  }
+  if (JSON.stringify(next) !== JSON.stringify(status)) {
+    status = next
+    for (const win of BrowserWindow.getAllWindows()) win.webContents.send('ai:status', status)
+  }
+  return status
+}
+
+export function getStatus(): AIStatus {
+  return status
+}
+
+// Which providers to try, in order. In auto mode, if one fails the next one is tried.
+async function candidates(settings: Settings): Promise<AIBackend[]> {
+  const choice = settings.ai.provider
+  if (choice === 'gemini' || choice === 'ollama') return [choice]
+  return (await keyStore.loadKey()) ? ['gemini', 'ollama'] : ['ollama']
+}
+
+async function withFallback<T>(
+  settings: Settings,
+  run: (provider: AIProvider, backend: AIBackend) => Promise<T>
+): Promise<{ value: T; backend: AIBackend }> {
+  const errors: unknown[] = []
+  for (const backend of await candidates(settings)) {
+    try {
+      return { value: await run(providers[backend], backend), backend }
+    } catch (err) {
+      errors.push(err)
+    }
+  }
+  refreshStatus().catch(() => undefined)
+  // The first error is the most useful: it is about the provider Dip wanted to use.
+  throw errors[0]
+}
+
+// Keeps settings.ai.provider valid. Runs at startup, before any window or the menu bar
+// exist, so it only touches the saved file. Then keeps the status up to date.
+export async function initAI(): Promise<void> {
+  const settings = await loadSettings()
+  if (!['gemini', 'ollama', 'auto'].includes(settings.ai.provider)) await setAIProvider('auto')
+  await refreshStatus()
+  setInterval(() => refreshStatus().catch(() => undefined), STATUS_INTERVAL_MS)
+}
+
+export async function setProvider(input: unknown): Promise<void> {
+  if (input === 'auto' || input === 'gemini' || input === 'ollama') {
+    await changeAIProvider(input)
+    await refreshStatus()
+  }
+}
+
+// --- Gemini key ---
+
+export async function saveKey(input: unknown): Promise<AISaveKeyResult> {
+  const key = typeof input === 'string' ? input.trim() : ''
+  if (!/^\S{10,200}$/.test(key)) {
+    return { ok: false, error: 'Eso no parece una key de Gemini. Cópiala completa, sin espacios.' }
+  }
+  if (!keyStore.canEncrypt()) {
+    return {
+      ok: false,
+      error: 'Este equipo no permite guardar la key cifrada, así que no la guardé.'
+    }
+  }
+  try {
+    await keyStore.saveKey(key)
+    await refreshStatus()
+    return { ok: true }
+  } catch (err) {
+    console.error('[ai] could not save the key', err)
+    return { ok: false, error: 'No pude guardar la key. Intenta otra vez.' }
+  }
+}
+
+export async function removeKey(): Promise<void> {
+  await keyStore.removeKey()
+  await refreshStatus()
+}
+
+// --- Using the AI ---
+
+// Lists the models of what Dip uses now, then makes one tiny call with the chosen one.
+export async function testConnection(): Promise<AITestResult> {
+  try {
+    const settings = await loadSettings()
+    const { value, backend } = await withFallback(settings, async (provider, backend) => {
+      const models = await provider.listModels()
+      await provider.chat([{ role: 'user', content: 'Responde solo con la palabra: ok' }])
+      const model =
+        backend === 'ollama'
+          ? await currentOllamaModel(settings.ai.ollamaModel)
+          : settings.ai.model || DEFAULT_GEMINI_MODEL
+      return { models, model }
+    })
+    await refreshStatus()
+    return { ok: true, backend, ...value }
+  } catch (err) {
+    return { ok: false, error: errorMessage(err) }
+  }
+}
+
+function isChatMessage(value: unknown): value is AIMessage {
+  if (typeof value !== 'object' || value === null) return false
+  const { role, content } = value as Record<string, unknown>
+  return (role === 'user' || role === 'assistant') && typeof content === 'string'
+}
+
+// Only user/assistant messages from the interface, trimmed; must end with the user's turn.
+function cleanMessages(input: unknown): AIMessage[] | null {
+  const messages = (Array.isArray(input) ? input : [])
+    .filter(isChatMessage)
+    .slice(-MAX_MESSAGES)
+    .map((m) => ({ role: m.role, content: m.content.slice(0, MAX_MESSAGE_LENGTH) }))
+  if (messages.length === 0 || messages[messages.length - 1].role !== 'user') return null
+  return messages
+}
+
+// Chat with Dip. Dip's instructions and (with permission) the pending tasks are added here.
+export async function chat(input: unknown): Promise<AIChatResult> {
+  const messages = cleanMessages(input)
+  if (!messages) return { ok: false, error: 'No hay nada que preguntar todavía.' }
+  try {
+    const settings = await loadSettings()
+    const tasks = settings.ai.shareTasksWithAI ? getTasks() : null
+    const system = dipInstructions(tasks, settings.dipPersonality)
+    const { value, backend } = await withFallback(settings, (provider) =>
+      provider.chat([{ role: 'system', content: system }, ...messages])
+    )
+    return { ok: true, text: value, backend }
+  } catch (err) {
+    return { ok: false, error: errorMessage(err) }
+  }
+}
+
+// Reads {"reply", "personality"} from the model, even if it wrapped it in extra text.
+function parsePersonality(text: string): { reply: string; personality: string } {
+  const json = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)
+  try {
+    const data = JSON.parse(json) as Record<string, unknown>
+    const reply = typeof data.reply === 'string' ? data.reply.trim() : ''
+    const personality = typeof data.personality === 'string' ? data.personality.trim() : ''
+    if (reply && personality) {
+      return { reply, personality: personality.slice(0, MAX_PERSONALITY) }
+    }
+  } catch {
+    // falls through to the friendly error
+  }
+  throw new AIError('Dip se enredó al escribir su nueva personalidad. ¿Lo intentas otra vez?')
+}
+
+// The "talk to Dip about how it should be" chat in Settings. Nothing is saved here: the
+// interface shows the proposal and saves it only if the user approves.
+export async function proposePersonality(input: unknown): Promise<AIPersonalityResult> {
+  const messages = cleanMessages(input)
+  if (!messages) return { ok: false, error: 'Cuéntale a Dip cómo quieres que sea.' }
+  try {
+    const settings = await loadSettings()
+    const system = personalityInstructions(settings.dipPersonality)
+    const { value } = await withFallback(settings, async (provider) =>
+      parsePersonality(
+        await provider.chat([{ role: 'system', content: system }, ...messages], {
+          schema: PERSONALITY_SCHEMA
+        })
+      )
+    )
+    return { ok: true, ...value }
+  } catch (err) {
+    return { ok: false, error: errorMessage(err) }
+  }
+}

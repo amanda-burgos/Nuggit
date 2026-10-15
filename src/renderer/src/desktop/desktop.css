@@ -340,3 +340,26 @@
 .window-settings input {
   accent-color: var(--color-accent);
 }
+
+/* Shown instead of a widget that needs AI while no key is saved. */
+.ai-notice {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.ai-notice p {
+  margin: 0;
+  max-width: 280px;
+}
+
+.ai-notice-title {
+  font-weight: 600;
+  color: var(--color-text);
+}

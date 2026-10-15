@@ -27,7 +27,18 @@ export function useSettings(): SettingsStore {
   }, [settings?.theme])
 
   const update = useCallback((patch: SettingsPatch) => {
-    setSettings((prev) => (prev ? { ...prev, ...patch } : prev))
+    setSettings((prev) => {
+      if (!prev) return prev
+      const ai = { ...prev.ai }
+      if (patch.ai?.shareTasksWithAI !== undefined) ai.shareTasksWithAI = patch.ai.shareTasksWithAI
+      for (const key of ['model', 'ollamaModel'] as const) {
+        if (patch.ai && key in patch.ai) ai[key] = patch.ai[key] || undefined
+      }
+      const { dipPersonality, ...rest } = patch
+      const next = { ...prev, ...rest, ai }
+      if (dipPersonality !== undefined) next.dipPersonality = dipPersonality?.trim() || undefined
+      return next
+    })
     window.api.settings
       .update(patch)
       .then(setSettings)

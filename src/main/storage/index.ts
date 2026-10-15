@@ -9,7 +9,7 @@ import type {
 import { readJson, writeJson } from './jsonStore'
 
 const DEFAULT_SETTINGS: Settings = {
-  ai: { provider: 'none', shareTasksWithAI: false },
+  ai: { provider: 'auto', shareTasksWithAI: false },
   theme: 'system',
   statusIndicator: 'dot'
 }
@@ -111,6 +111,9 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 // --- Settings ---
 
 const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
+// Gemini ids look like "gemini-flash-latest"; Ollama ones like "llama3.2:3b" or "user/model".
+export const MAX_PERSONALITY = 1500
+const MODEL_ID = /^[a-z0-9][a-z0-9._:/-]{0,99}$/i
 
 export async function loadSettings(): Promise<Settings> {
   const data = await readJson<Partial<Settings>>('settings', {})
@@ -129,6 +132,28 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
   if (isObject(patch) && STATUS_INDICATORS.includes(patch.statusIndicator as string)) {
     current.statusIndicator = patch.statusIndicator as Settings['statusIndicator']
   }
+  if (isObject(patch) && typeof patch.dipPersonality === 'string' && patch.dipPersonality.trim()) {
+    current.dipPersonality = patch.dipPersonality.trim().slice(0, MAX_PERSONALITY)
+  } else if (isObject(patch) && (patch.dipPersonality === null || patch.dipPersonality === '')) {
+    delete current.dipPersonality
+  }
+  if (isObject(patch) && isObject(patch.ai)) {
+    const { shareTasksWithAI } = patch.ai
+    for (const key of ['model', 'ollamaModel'] as const) {
+      const value = patch.ai[key]
+      if (typeof value === 'string' && MODEL_ID.test(value.trim())) current.ai[key] = value.trim()
+      else if (value === null || value === '') delete current.ai[key]
+    }
+    if (typeof shareTasksWithAI === 'boolean') current.ai.shareTasksWithAI = shareTasksWithAI
+  }
+  await writeJson('settings', current)
+  return current
+}
+
+// Only the main process sets the provider, when a key is saved or removed.
+export async function setAIProvider(provider: Settings['ai']['provider']): Promise<Settings> {
+  const current = await loadSettings()
+  current.ai.provider = provider
   await writeJson('settings', current)
   return current
 }

@@ -18,6 +18,7 @@ interface Props {
   onAttach(id: string): void
   onRemoveAll(): void
   onThemeChange(theme: ThemePreference): void
+  onOpenSettings(): void
 }
 
 export function Toolbar({
@@ -28,7 +29,8 @@ export function Toolbar({
   onShow,
   onAttach,
   onRemoveAll,
-  onThemeChange
+  onThemeChange,
+  onOpenSettings
 }: Props): React.JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -64,6 +66,10 @@ export function Toolbar({
         >
           <span aria-hidden>{themeInfo.icon}</span>
           <span className="hide-narrow">{themeInfo.label}</span>
+        </button>
+        <button className="button-ghost" title="Ajustes" onClick={onOpenSettings}>
+          <span aria-hidden>⚙︎</span>
+          <span className="hide-narrow">Ajustes</span>
         </button>
         <div className="menu-anchor" ref={menuRef}>
           <button

@@ -49,14 +49,21 @@ export type ThemePreference = 'light' | 'dark' | 'system'
 // What the macOS menu bar shows while a task is "En curso".
 export type StatusIndicator = 'dot' | 'dot-title' | 'title' | 'off'
 
+// Gemini runs online with a key; Ollama runs on this computer. "auto" (the default) uses
+// whichever is available. "none" is only found in older settings files (read as "auto").
+export type AIProviderId = 'none' | 'gemini' | 'ollama' | 'auto'
+export type AIBackend = 'gemini' | 'ollama'
+
 export interface Settings {
   ai: {
-    provider: 'none' | 'gemini'
-    model?: string
+    provider: AIProviderId
+    model?: string // Gemini model
+    ollamaModel?: string // local Ollama model; the first installed one if not set
     shareTasksWithAI: boolean
   }
   theme: ThemePreference
   statusIndicator: StatusIndicator
+  dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
   background?: string
 }
 
@@ -95,7 +102,45 @@ export interface TaskInput {
 export interface SettingsPatch {
   theme?: ThemePreference
   statusIndicator?: StatusIndicator
+  dipPersonality?: string | null // null or '' restores the original Dip
+  // The provider is not here: it is set through window.api.ai.setProvider.
+  ai?: {
+    model?: string | null // null or '' goes back to the default model
+    ollamaModel?: string | null
+    shareTasksWithAI?: boolean
+  }
 }
+
+// --- AI ---
+
+export interface AIMessage {
+  role: 'user' | 'assistant' | 'system'
+  content: string
+}
+
+export interface AIModelOption {
+  id: string // e.g. "gemini-flash-latest"
+  label: string
+}
+
+// AI calls never throw across IPC: they return a friendly message to show instead.
+export type AIChatResult =
+  { ok: true; text: string; backend: AIBackend } | { ok: false; error: string }
+export type AITestResult =
+  | { ok: true; backend: AIBackend; model: string; models: AIModelOption[] }
+  | { ok: false; error: string }
+// Dip's suggestion for a new personality text, to approve before saving.
+export type AIPersonalityResult =
+  { ok: true; reply: string; personality: string } | { ok: false; error: string }
+
+// What Dip can use right now. Ollama counts only when it is open and has a model.
+export interface AIStatus {
+  active: AIBackend | null // what the next chat will use (null = no AI available)
+  gemini: boolean // a key is saved
+  ollama: boolean
+}
+
+export type AISaveKeyResult = { ok: true } | { ok: false; error: string }
 
 // API exposed by the preload script on `window.api`.
 export interface NuggitApi {
@@ -122,6 +167,26 @@ export interface NuggitApi {
     update(patch: SettingsPatch): Promise<Settings>
     // Called when settings change from another window or the menu bar.
     onChange(listener: (settings: Settings) => void): () => void
+  }
+  ai: {
+    // The key goes to the main process and is never sent back to the interface.
+    saveKey(key: string): Promise<AISaveKeyResult>
+    removeKey(): Promise<void>
+    setProvider(provider: 'auto' | 'gemini' | 'ollama'): Promise<void>
+    status(): Promise<AIStatus>
+    // Called when what Dip can use changes (key saved, Ollama opened or closed...).
+    onStatusChange(listener: (status: AIStatus) => void): () => void
+    // Tests what Dip is using right now.
+    test(): Promise<AITestResult>
+    // Only "user" and "assistant" messages; Dip's instructions are added by the main process.
+    chat(messages: AIMessage[]): Promise<AIChatResult>
+    // A conversation about how Dip should be; returns a proposed personality text.
+    proposePersonality(messages: AIMessage[]): Promise<AIPersonalityResult>
+  }
+  app: {
+    // Brings up the main window with Settings open (works from detached widgets too).
+    openSettings(): void
+    onOpenSettings(listener: () => void): () => void
   }
   widgetWindows: {
     // rect is relative to the calling window's content area.

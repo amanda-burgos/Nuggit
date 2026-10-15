@@ -50,7 +50,7 @@ Estas reglas existen para que el proyecto **se termine** y no se abandone a la m
 2. **Cada sesión termina con algo que funciona** y se puede abrir y usar.
 3. **Primero que funcione, después que se vea bonito.** Estilo base limpio desde el inicio; los detalles de pulido van en una fase propia al final.
 4. **Responsive desde el día 1.** La app debe verse bien en una laptop, en un monitor grande y con la ventana pequeña. Los widgets se reacomodan solos si no caben. Nunca scroll horizontal.
-5. **Una sola pantalla principal** (el escritorio de widgets) + Settings. Las features nuevas son **widgets**, no pantallas nuevas.
+5. **Centro de control con pocas pestañas** (ver 9.0). Cada feature tiene **un solo componente** que se usa en dos tamaños: como widget y como panel completo. Nunca diseñar una pantalla desde cero si ya existe el widget.
 6. **Nunca subir claves ni datos personales a GitHub.** `.gitignore` configurado desde la Fase 0.
 7. Código en inglés (nombres de variables, archivos, commits). La interfaz puede estar en español/inglés.
 8. Antes de cambios grandes o de instalar librerías nuevas, explicar en una frase qué y por qué.
@@ -83,7 +83,8 @@ src/
     ai/
       provider.ts       # interfaz AIProvider
       gemini.ts         # adaptador de Gemini
-      (futuro) openai.ts, claude.ts, ollama.ts
+      ollama.ts         # adaptador de Ollama (local)
+      (futuro) openai.ts, claude.ts
     ipc.ts              # canales entre main y la interfaz
   preload/
     index.ts            # expone una API segura a la interfaz
@@ -175,7 +176,7 @@ interface Note {
 
 interface Settings {
   ai: {
-    provider: "none" | "gemini";   // más proveedores después
+    provider: "none" | "gemini" | "ollama" | "auto";   // "auto" = usa el que esté disponible
     model?: string;                // configurable, no hardcodear
     shareTasksWithAI: boolean;     // permiso para que la IA lea las tareas
   };
@@ -223,12 +224,32 @@ La IA **propone**, el usuario **confirma**. Toda acción que cambie datos (crear
 
 ### Proveedores
 
-- **Fase actual:** Gemini con API key gratuita de Google AI Studio. El usuario la pega en Settings.
-- **Después:** "Sign in with ChatGPT" (OpenAI, para apps open-source y locales), Claude con API key, modelos locales con Ollama.
+- **Actuales: Gemini y Ollama, los dos.**
+  - **Gemini**: con API key de Google AI Studio, pegada en Settings.
+  - **Ollama**: modelo local en la Mac, sin cuenta ni clave. Nuggit detecta si Ollama está corriendo.
+  - **Modo "auto"** (por defecto): si uno no está disponible (sin key, sin internet, Ollama apagado), usa el otro. Si ninguno está, la app funciona sin IA y Dip lo dice amablemente.
+  - En Settings se ve cuál se está usando ahora.
+- **La personalidad de Dip** (sección "Nombres") se manda como **system prompt** en cada conversación, igual con cualquier proveedor. No se entrena ningún modelo.
+- **Respuestas estructuradas** (Tenders, Brain Dump): con Ollama usar la opción `format` con JSON schema; con Gemini, su modo de respuesta JSON. Siempre validar el JSON.
+- **Después:** "Sign in with ChatGPT" (OpenAI, para apps open-source y locales), Claude con API key.
 
 ---
 
 ## 9. Features
+
+### 9.0 Centro de control (navegación)
+La ventana principal de Nuggit tiene una **barra lateral** con pestañas. Cada pestaña es un panel a pantalla completa:
+- **Inicio**: el tablero de widgets (lo que ya existe).
+- **Dip**: el chat con Dip en grande, con historial.
+- **Tareas**: la lista de tareas completa, con subtareas/tenders, filtros simples (hoy, pendientes, hechas).
+- **Ajustes**: Settings (IA, personalidad de Dip, barra de menú, tema...).
+- Más adelante, cuando existan: **Notas**, **Focus**.
+
+Reglas:
+- El panel y el widget de una misma feature usan **el mismo componente** (prop `size: "widget" | "full"`), para no duplicar código ni diseño.
+- La barra lateral es colapsable (solo íconos) y responsive.
+- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘, Ajustes.
+- Recordar la última pestaña abierta.
 
 ### 9.1 Escritorio de widgets
 Una pantalla con widgets que se pueden mover, redimensionar, ocultar, mostrar, añadir y quitar. Todo se guarda. Responsive.
@@ -288,6 +309,16 @@ Nuggit vive también en la **barra de menú** de macOS (`src/main/statusTray.ts`
 - Cuando exista Next Action (Fase 5), la barra muestra lo mismo que ese widget, y "Marcar como hecha" pasa al siguiente tender.
 - Lockdown (Fase 7) puede usarla para mostrar la tarea y el tiempo restante.
 
+### 9.12 Personalidad de Dip (personalizable)
+En Settings hay una sección **"Dip"** para cambiar cómo es Dip. Dos formas:
+1. **Cajita de texto**: el usuario escribe directamente cómo quiere que sea Dip ("háblame en inglés", "sé más serio", "usa muchos emojis"...).
+2. **Hablar con Dip**: un mini chat donde el usuario le dice cómo lo quiere ("quiero que seas más directo"). Dip propone el nuevo texto de personalidad y el usuario lo **aprueba** antes de guardarlo (se ve el texto final en la cajita).
+
+Reglas:
+- La personalidad base (sección "Nombres") es el valor por defecto. Botón **"Restaurar Dip original"**.
+- El texto del usuario se suma al system prompt. Pero hay reglas que **no se pueden cambiar**: Dip nunca cambia datos sin confirmación, nunca regaña ni hace sentir culpable, y la app sigue funcionando sin IA.
+- Se guarda en `settings.json` y aplica con Gemini y con Ollama.
+
 ## 10. Diseño visual
 
 - Colores base: **navy blue**, **lavender**, **white**, acentos suaves.
@@ -331,11 +362,21 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 - Guardado en `tasks.json`.
 - **Listo cuando:** puedo manejar mis tareas de hoy sin IA.
 
-### Fase 3 — Conectar Gemini + Dip
+### Fase 3 — Conectar Gemini + Ollama + Dip
 - Settings: pegar la API key de Gemini (guardada con `safeStorage`), botón "Probar conexión", interruptor "Compartir tareas con la IA".
 - Widget de Dip con chat básico.
 - Guía corta dentro de Settings de cómo sacar la key gratis.
 - **Listo cuando:** le pregunto algo y contesta. Sin key, la app funciona igual y el widget dice amablemente cómo conectarla.
+
+### Fase 3.5 — Personalidad de Dip
+- Sección "Dip" en Settings según 9.12: cajita de texto + mini chat para ajustar la personalidad, con aprobación antes de guardar.
+- **Listo cuando:** escribo "háblame como pirata", Dip responde como pirata, y "Restaurar Dip original" lo devuelve a la normalidad.
+
+### Fase 3.7 — Centro de control
+- Barra lateral con pestañas Inicio, Dip, Tareas y Ajustes según 9.0.
+- Dip y Tareas a pantalla completa, reutilizando los componentes de sus widgets.
+- Mover Settings a la pestaña Ajustes.
+- **Listo cuando:** puedo chatear con Dip en grande y manejar mis tareas en su pestaña sin tocar el tablero, y ⌘1/⌘2/⌘3 cambian de pestaña.
 
 ### Fase 4 — Tenders
 - Flujo completo de la sección 9.3.

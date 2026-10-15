@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
+import { useAIStatus } from '../store/useAIStatus'
 import type { AnyWidgetDefinition } from '../widgets/types'
 
 // Actions are shown only when their handler is given: the board and a detached
@@ -38,6 +39,9 @@ export function WidgetFrame({
   onUpdateConfig
 }: Props): React.JSX.Element {
   const [showSettings, setShowSettings] = useState(false)
+  const aiStatus = useAIStatus()
+  // Widgets that need AI show a friendly notice instead while no AI is available.
+  const missingAI = def.needsAI && aiStatus !== null && aiStatus.active === null
   const config = { ...def.defaultConfig, ...(instance.config as object) }
   const Widget = def.component
   const Settings = def.settingsComponent
@@ -106,6 +110,17 @@ export function WidgetFrame({
             {windowSettings}
             {Settings && <Settings config={config} updateConfig={onUpdateConfig} />}
           </>
+        ) : missingAI ? (
+          <div className="ai-notice">
+            <p className="ai-notice-title">Dip no tiene una IA disponible ahora 💤</p>
+            <p>
+              Abre Ollama en tu Mac, o conecta Gemini en Ajustes. Todo lo demás en Nuggit funciona
+              igual sin IA.
+            </p>
+            <button className="button-primary" onClick={() => window.api.app.openSettings()}>
+              Ir a Ajustes
+            </button>
+          </div>
         ) : (
           <Widget instanceId={instance.id} config={config} updateConfig={onUpdateConfig} />
         )}
