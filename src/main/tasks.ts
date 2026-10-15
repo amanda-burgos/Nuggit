@@ -114,6 +114,39 @@ export function createTask(input: unknown): Task {
   return task
 }
 
+// A big task and its tenders, saved in one go (so one undo removes them all).
+export function createTaskWithSteps(input: unknown): Task[] {
+  if (!isObject(input) || !cleanText(input.title, MAX_TITLE)) throw new Error('Task needs a title')
+  const steps = (Array.isArray(input.steps) ? input.steps : [])
+    .filter(
+      (s): s is Record<string, unknown> => isObject(s) && Boolean(cleanText(s.title, MAX_TITLE))
+    )
+    .slice(0, 30)
+  const now = new Date().toISOString()
+  const base = { priority: 'medium', status: 'todo', createdAt: now, updatedAt: now } as const
+  const topOrder = tasks.filter((t) => !t.parentId).reduce((max, t) => Math.max(max, t.order), -1)
+
+  const parent = applyInput(
+    { ...base, id: randomUUID(), title: '', order: topOrder + 1 },
+    {
+      title: input.title,
+      dueDate: input.dueDate,
+      estimateMin: steps.reduce((sum, s) => sum + (Number(s.minutes) || 0), 0) || undefined
+    }
+  )
+  const children = steps.map((step, order) =>
+    applyInput(
+      { ...base, id: randomUUID(), title: '', order, parentId: parent.id },
+      {
+        title: step.title,
+        estimateMin: step.minutes
+      }
+    )
+  )
+  commit([...tasks, parent, ...children])
+  return [parent, ...children]
+}
+
 export function updateTask(id: string, patch: unknown): void {
   const current = tasks.find((t) => t.id === id)
   if (!current) return

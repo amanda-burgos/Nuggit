@@ -31,7 +31,7 @@ const MAX_MESSAGE_LENGTH = 4000
 // How often to check whether Ollama was opened or closed.
 const STATUS_INTERVAL_MS = 10_000
 
-function errorMessage(err: unknown): string {
+export function errorMessage(err: unknown): string {
   return err instanceof AIError ? err.message : 'Algo salió mal. Intenta otra vez.'
 }
 
@@ -82,7 +82,7 @@ async function candidates(settings: Settings): Promise<AIBackend[]> {
   return (await keyStore.loadKey()) ? ['gemini', 'ollama'] : ['ollama']
 }
 
-async function withFallback<T>(
+export async function withFallback<T>(
   settings: Settings,
   run: (provider: AIProvider, backend: AIBackend) => Promise<T>
 ): Promise<{ value: T; backend: AIBackend }> {

@@ -2,10 +2,18 @@ import { ipcMain } from 'electron'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
+import { proposeTenders, tenderQuestions } from './ai/tenders'
 import { clearDipChat, getDipChat, retryDip, sendToDip } from './dipChat'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
-import { createTask, getTasks, removeTask, restoreTasks, updateTask } from './tasks'
+import {
+  createTask,
+  createTaskWithSteps,
+  getTasks,
+  removeTask,
+  restoreTasks,
+  updateTask
+} from './tasks'
 import {
   attachWidget,
   detachWidget,
@@ -45,6 +53,7 @@ export function registerIpc({ openSettings }: IpcDeps): void {
   ipcMain.handle('tasks:remove', (_event, id: unknown) =>
     typeof id === 'string' ? removeTask(id) : []
   )
+  ipcMain.handle('tasks:createWithSteps', (_event, input: unknown) => createTaskWithSteps(input))
   ipcMain.handle('tasks:restore', (_event, tasks: unknown) => restoreTasks(tasks))
 
   ipcMain.handle('settings:load', () => loadSettings())
@@ -56,6 +65,8 @@ export function registerIpc({ openSettings }: IpcDeps): void {
   ipcMain.handle('ai:test', () => ai.testConnection())
   ipcMain.handle('ai:status', () => ai.getStatus())
   ipcMain.handle('ai:chat', (_event, messages: unknown) => ai.chat(messages))
+  ipcMain.handle('ai:tenderQuestions', (_event, task: unknown) => tenderQuestions(task))
+  ipcMain.handle('ai:proposeTenders', (_event, request: unknown) => proposeTenders(request))
   ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
     ai.proposePersonality(messages)
   )

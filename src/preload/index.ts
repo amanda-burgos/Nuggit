@@ -25,6 +25,7 @@ const api: NuggitApi = {
     create: (input) => ipcRenderer.invoke('tasks:create', input),
     update: (id, patch) => ipcRenderer.invoke('tasks:update', id, patch),
     remove: (id) => ipcRenderer.invoke('tasks:remove', id),
+    createWithSteps: (input) => ipcRenderer.invoke('tasks:createWithSteps', input),
     restore: (tasks) => ipcRenderer.invoke('tasks:restore', tasks),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, tasks: Task[]): void => listener(tasks)
@@ -53,6 +54,8 @@ const api: NuggitApi = {
       return () => ipcRenderer.removeListener('ai:status', handler)
     },
     chat: (messages) => ipcRenderer.invoke('ai:chat', messages),
+    tenderQuestions: (task) => ipcRenderer.invoke('ai:tenderQuestions', task),
+    proposeTenders: (request) => ipcRenderer.invoke('ai:proposeTenders', request),
     proposePersonality: (messages) => ipcRenderer.invoke('ai:proposePersonality', messages)
   },
   dipChat: {

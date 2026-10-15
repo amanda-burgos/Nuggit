@@ -60,9 +60,11 @@ function describeTasks(tasks: Task[]): string {
   return `Tareas pendientes de la persona:\n${lines.join('\n')}`
 }
 
-export function dipInstructions(
-  tasks: Task[] | null,
+// Who Dip is (with the user's style), its fixed rules and today's date. Every prompt starts
+// from this; the style goes last because small local models follow best what they read last.
+export function dipBase(
   personality: string | undefined,
+  extra: string[],
   now = new Date()
 ): string {
   const when = now.toLocaleString('es', {
@@ -73,18 +75,22 @@ export function dipInstructions(
     hour: '2-digit',
     minute: '2-digit'
   })
-  const context = tasks
-    ? describeTasks(tasks)
-    : 'No tienes permiso para ver las tareas de la persona. Si pregunta por ellas, dile con cariño que puede activarlo en Ajustes → "Compartir tareas con Dip".'
   return [
     PERSONALITY,
     FIXED_RULES,
     `Ahora es ${when} (fecha ISO de hoy: ${toISODate(now)}).`,
-    context,
+    ...extra,
     personality ? customStyle(personality) : null
   ]
     .filter(Boolean)
     .join('\n\n')
+}
+
+export function dipInstructions(tasks: Task[] | null, personality: string | undefined): string {
+  const context = tasks
+    ? describeTasks(tasks)
+    : 'No tienes permiso para ver las tareas de la persona. Si pregunta por ellas, dile con cariño que puede activarlo en Ajustes → "Compartir tareas con Dip".'
+  return dipBase(personality, [context])
 }
 
 // For the "talk to Dip about its personality" chat in Settings.

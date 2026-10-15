@@ -2,9 +2,15 @@ import type { AnyWidgetDefinition } from './types'
 import { clockWidget } from './clock'
 import { dipWidget } from './dip'
 import { tasksWidget } from './tasks'
+import { tendersWidget } from './tenders'
 
 // Every available widget. Adding a widget = create its folder + add it here.
-export const widgetRegistry: AnyWidgetDefinition[] = [clockWidget, tasksWidget, dipWidget]
+export const widgetRegistry: AnyWidgetDefinition[] = [
+  clockWidget,
+  tasksWidget,
+  tendersWidget,
+  dipWidget
+]
 
 export function getWidgetDefinition(type: string): AnyWidgetDefinition | undefined {
   return widgetRegistry.find((def) => def.type === type)

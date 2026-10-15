@@ -158,6 +158,30 @@ export interface DipChatState {
   pending: boolean // Dip is answering
 }
 
+// --- Tenders (SPEC 9.3): a big task split into small steps ---
+
+export interface TenderStep {
+  title: string
+  minutes: number
+}
+
+export interface TenderAnswer {
+  question: string
+  answer: string // may be empty if the user skipped it
+}
+
+export interface TenderRequest {
+  task: string // what the user wrote, e.g. "proyecto de ciencias"
+  answers: TenderAnswer[]
+  feedback?: string // "Cambiar": what to change about the previous proposal
+  previous?: TenderStep[]
+}
+
+export type TenderQuestionsResult = { ok: true; questions: string[] } | { ok: false; error: string }
+
+export type TenderPlanResult =
+  { ok: true; title: string; dueDate?: string; steps: TenderStep[] } | { ok: false; error: string }
+
 // Dip's suggestion for a new personality text, to approve before saving.
 export type AIPersonalityResult =
   { ok: true; reply: string; personality: string } | { ok: false; error: string }
@@ -186,6 +210,12 @@ export interface NuggitApi {
     update(id: string, patch: TaskInput): Promise<void>
     // Removes the task and its subtasks; returns what was removed so it can be restored.
     remove(id: string): Promise<Task[]>
+    // Creates a big task and its tenders in one go; returns them (parent first).
+    createWithSteps(input: {
+      title: string
+      dueDate?: string
+      steps: TenderStep[]
+    }): Promise<Task[]>
     // Puts back tasks returned by remove() (undo).
     restore(tasks: Task[]): Promise<void>
     // Called whenever any window changes the tasks.
@@ -209,6 +239,9 @@ export interface NuggitApi {
     test(): Promise<AITestResult>
     // Only "user" and "assistant" messages; Dip's instructions are added by the main process.
     chat(messages: AIMessage[]): Promise<AIChatResult>
+    // Tenders: 2 or 3 short questions about a big task, then a proposal of small steps.
+    tenderQuestions(task: string): Promise<TenderQuestionsResult>
+    proposeTenders(request: TenderRequest): Promise<TenderPlanResult>
     // A conversation about how Dip should be; returns a proposed personality text.
     proposePersonality(messages: AIMessage[]): Promise<AIPersonalityResult>
   }
