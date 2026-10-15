@@ -319,6 +319,23 @@ Reglas:
 - El texto del usuario se suma al system prompt. Pero hay reglas que **no se pueden cambiar**: Dip nunca cambia datos sin confirmación, nunca regaña ni hace sentir culpable, y la app sigue funcionando sin IA.
 - Se guarda en `settings.json` y aplica con Gemini y con Ollama.
 
+### 9.13 Dailies (rutinas que se repiten)
+Cosas que se repiten con un horario: "bañarme" (todos los días), "gimnasio" (solo miércoles), "tarea" (lunes a viernes), "lavar ropa" (sábados).
+- Cada daily tiene: título, **repetición** (todos los días / días de la semana elegidos / cada X días), hora opcional, duración estimada.
+- Cada día se generan solos como tareas de "hoy". Al marcarlos como hechos, vuelven el próximo día que toque.
+- Racha opcional (cuántos días seguidos), sin culpa si se rompe.
+- **Planear con Dip**: "ayúdame a armar mi rutina de la semana" → Dip hace preguntas cortas y propone los dailies → el usuario aprueba antes de guardar.
+- Next Action (Fase 5) tiene en cuenta los dailies de hoy.
+
+### 9.14 Calendario y sincronización
+- Vista de **calendario** dentro de Nuggit (pestaña + widget) con tareas con fecha, dailies y eventos.
+- Sincronización, de lo más fácil a lo más difícil:
+  1. **Exportar a calendario (una vía)**: Nuggit genera un archivo/feed `.ics` que funciona con **Apple Calendar y Google Calendar**.
+  2. **Apple Calendar en dos vías**: leer y escribir eventos usando el calendario del Mac (EventKit, con permiso del sistema).
+  3. **Google Calendar en dos vías**: con la API oficial de Google Calendar y OAuth (iniciar sesión con Google). Requiere configurar un proyecto en Google Cloud.
+- Igual que con la IA: se puede usar **uno, el otro, o ninguno**, y la app funciona sin calendario conectado.
+- Nunca borrar ni cambiar eventos del calendario del usuario sin confirmación.
+
 ## 10. Diseño visual
 
 - Colores base: **navy blue**, **lavender**, **white**, acentos suaves.
@@ -388,17 +405,39 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 - En el chat, "ya terminé X" propone marcarla como hecha y sugiere la siguiente.
 - **Listo cuando:** abro la app y sé qué hacer en menos de 5 segundos.
 
+### Fase 5.5 — Dailies
+- Dailies según 9.13: crear, repetir por días, marcarlos hechos, y planearlos con Dip (con aprobación).
+- **Listo cuando:** creo "gimnasio" solo los miércoles y "bañarme" todos los días, y el miércoles aparecen los dos en hoy y el jueves solo "bañarme".
+
 ### Fase 6 — Brain Dump + Quick Notes
 
 ### Fase 7 — Focus + Lockdown
 
 ### Fase 8 — Voz básica
 
-### Fase 9 — Pulido visual
-Animaciones suaves, detalles de diseño, fondos, más temas.
+### Fase 8.5 — Calendario
+- Vista de calendario (pestaña + widget) según 9.14.
+- Paso 1: exportar a `.ics` (Apple y Google). Paso 2: Apple Calendar en dos vías. Paso 3 (si da tiempo): Google Calendar en dos vías.
+- **Listo cuando:** veo mis tareas y dailies en el calendario de Nuggit y también aparecen en mi calendario del Mac.
+
+### Fase 9 — Pulido visual + personalización
+- Animaciones suaves y detalles de diseño.
+- **Personalización** en Ajustes → "Apariencia": elegir tema (claro/oscuro/sistema), **color de acento**, **fondo** del tablero (colores o imagen propia), y estilo de los widgets (sombra, transparencia, esquinas).
+- Ícono y logo definitivos de Nuggit.
+
+### Fase 10 — Ayuda, tutorial y FAQ
+- **Bienvenida (primera vez que se abre):** un tour corto de 4–5 pasos con burbujitas que señalan cada parte: el tablero, cómo despegar widgets, la barra de menú, Dip y Ajustes. Botón "Saltar" siempre visible. Se puede repetir desde Ayuda.
+- **Pestaña "Ayuda"** en el centro de control con:
+  - **Cómo se usa** cada feature (tareas, tenders, Dip, Focus, Lockdown, widgets, barra de menú), con explicaciones cortas.
+  - **Dónde personalizar** cada cosa (colores, fondo, tema, personalidad de Dip, barra de menú), con botón que lleva directo a ese ajuste.
+  - **FAQ**: preguntas frecuentes (¿Funciona sin internet? ¿Dónde se guardan mis datos? ¿Cómo conecto Gemini u Ollama? ¿Cómo salgo de Lockdown? ¿Cómo regreso un widget al tablero?...).
+  - **Atajos de teclado**.
+- Los textos de ayuda viven en un archivo (ej: `help.json` o Markdown) para editarlos fácil.
+- Dip puede responder "¿cómo hago X en Nuggit?" usando esos mismos textos de ayuda.
+- **Listo cuando:** alguien que nunca vio Nuggit puede abrirla, seguir el tour y saber usarla sin preguntarme nada.
 
 ### Después del MVP (ideas)
-QOTD (banco de preguntas incluido + generadas por código + IA para conversar), Calendario, School, Recordatorios (con la app en la barra de menú), tareas recurrentes, exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
+QOTD (banco de preguntas incluido + generadas por código + IA para conversar), School, Recordatorios (con la app en la barra de menú), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 
 ---
 
