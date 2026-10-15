@@ -2,6 +2,7 @@ import type { Settings, SettingsPatch, ThemePreference } from '../../../shared/t
 import { TasksSettings } from '../widgets/tasks/TasksSettings'
 import { AISettings } from './AISettings'
 import { DipPersonality } from './DipPersonality'
+import { DipTraySettings } from './DipTraySettings'
 import './settings.css'
 
 interface Props {
@@ -32,6 +33,7 @@ export function SettingsPanel({ settings, update }: Props): React.JSX.Element {
           <section className="settings-section">
             <h3>📍 Barra de menú</h3>
             <TasksSettings />
+            <DipTraySettings settings={settings} update={update} />
           </section>
 
           <section className="settings-section">

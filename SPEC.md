@@ -336,6 +336,16 @@ Cosas que se repiten con un horario: "bañarme" (todos los días), "gimnasio" (s
 - Igual que con la IA: se puede usar **uno, el otro, o ninguno**, y la app funciona sin calendario conectado.
 - Nunca borrar ni cambiar eventos del calendario del usuario sin confirmación.
 
+### 9.15 Dip en la barra de menú (mini chat)
+Dip tiene **su propio ícono** en la barra de menú de macOS, aparte del de Nuggit (9.11).
+- Al hacer clic se abre una **ventanita flotante** (popover) debajo del ícono con un **mini chat** con Dip.
+- Sirve para cosas rápidas: "ponme tarea de lengua para el jueves", "ya terminé mate", "¿qué hago ahora?".
+- Se cierra al hacer clic afuera, con la X o con Esc. **La conversación se guarda** y es la misma que la pestaña Dip del centro de control (un solo historial).
+- Las acciones (crear, completar o cambiar tareas) usan las mismas tarjetas de confirmación de 8 ("Acciones de la IA"). Lo que se guarda aparece en **Tareas** de la app al momento.
+- Atajo global opcional para abrirlo desde cualquier app (ej: ⌥ + Espacio), configurable en Ajustes.
+- En Ajustes: mostrar u ocultar el ícono de Dip.
+- Ícono: silueta simple de un solo color (template image de macOS, ~18 px), que se vea bien en modo claro y oscuro.
+
 ## 10. Diseño visual
 
 - Colores base: **navy blue**, **lavender**, **white**, acentos suaves.
@@ -398,6 +408,10 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 ### Fase 4 — Tenders
 - Flujo completo de la sección 9.3.
 - **Listo cuando:** le doy "proyecto de ciencias", me hace preguntas y me guarda los tenders después de confirmar.
+
+### Fase 4.5 — Dip en la barra de menú
+- Ícono de Dip + mini chat flotante según 9.15, compartiendo historial y acciones con el Dip de la app.
+- **Listo cuando:** desde cualquier app, abro el mini chat, escribo "anota tarea de lengua para el jueves", confirmo, cierro la ventanita y la tarea ya está en Tareas.
 
 ### Fase 5 — Next Action + "ya terminé"
 - Conectar la barra de menú (9.11) con Next Action: misma tarea y mismo siguiente paso.

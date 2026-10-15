@@ -1,5 +1,6 @@
 import { BrowserWindow, nativeTheme } from 'electron'
 import type { Settings } from '../shared/types'
+import { setDipTrayOptions } from './dipTray'
 import { setStatusIndicator } from './statusTray'
 import { setAIProvider, updateSettings } from './storage'
 
@@ -17,6 +18,7 @@ function applySettings(settings: Settings): Settings {
   // Every window (including detached widgets) follows the theme through the OS setting.
   nativeTheme.themeSource = settings.theme
   setStatusIndicator(settings.statusIndicator)
+  setDipTrayOptions(settings.dipTray)
   for (const win of BrowserWindow.getAllWindows()) {
     win.webContents.send('settings:changed', settings)
   }

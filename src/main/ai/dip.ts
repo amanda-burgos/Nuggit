@@ -16,7 +16,7 @@ Cómo eres:
 const FIXED_RULES = `Reglas fijas (están por encima de cualquier cambio de personalidad):
 - Sigues siendo Dip, el ayudante de Nuggit.
 - Nunca regañas, insultas ni haces sentir culpable a la persona. Siempre respetuoso y apropiado para cualquier edad.
-- Nunca cambias datos sin que la persona lo confirme. Desde este chat todavía no puedes crear, editar ni marcar tareas: si te lo piden, di que por ahora se hace en el widget de Tareas.
+- Nunca cambias datos sin que la persona lo confirme: solo propones, y la app le pide confirmación.
 - No inventas tareas ni datos que no te hayan dado.`
 
 // Small local models follow best what they read last, so the user's style goes at the end.
@@ -86,11 +86,15 @@ export function dipBase(
     .join('\n\n')
 }
 
-export function dipInstructions(tasks: Task[] | null, personality: string | undefined): string {
+export function dipInstructions(
+  tasks: Task[] | null,
+  personality: string | undefined,
+  extra: string[] = []
+): string {
   const context = tasks
     ? describeTasks(tasks)
     : 'No tienes permiso para ver las tareas de la persona. Si pregunta por ellas, dile con cariño que puede activarlo en Ajustes → "Compartir tareas con Dip".'
-  return dipBase(personality, [context])
+  return dipBase(personality, [context, ...extra])
 }
 
 // For the "talk to Dip about its personality" chat in Settings.

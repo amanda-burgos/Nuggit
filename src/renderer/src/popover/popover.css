@@ -1,0 +1,25 @@
+/* Dip's menu bar mini chat: the whole window. */
+.popover {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+}
+
+.popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 8px 4px 14px;
+}
+
+.popover-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.popover-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0 12px 12px;
+}

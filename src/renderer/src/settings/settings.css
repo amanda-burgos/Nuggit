@@ -281,3 +281,18 @@
 .settings-choices input {
   accent-color: var(--color-accent);
 }
+
+.settings-select {
+  align-self: flex-start;
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+}
+
+.settings-select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}

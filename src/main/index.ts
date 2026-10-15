@@ -1,8 +1,9 @@
 import { app, nativeTheme, type BrowserWindow } from 'electron'
-import type { StatusIndicator } from '../shared/types'
+import type { Settings, StatusIndicator } from '../shared/types'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { initAI } from './ai'
 import { initDipChat } from './dipChat'
+import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
 import { registerIpc } from './ipc'
@@ -67,10 +68,12 @@ app.whenReady().then(async () => {
   })
 
   let statusIndicator: StatusIndicator = 'dot'
+  let dipTray: Settings['dipTray'] = { visible: true, shortcut: '' }
   try {
     const settings = await loadSettings()
     nativeTheme.themeSource = settings.theme
     statusIndicator = settings.statusIndicator
+    dipTray = settings.dipTray
     await initDesktop()
   } catch (err) {
     console.error('[startup] could not load saved data', err)
@@ -105,6 +108,8 @@ app.whenReady().then(async () => {
       )
     }
   })
+
+  initDipTray(dipTray)
 
   // Clicking the Dock icon brings the board back, even if detached widgets are open.
   app.on('activate', () => {

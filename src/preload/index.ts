@@ -63,11 +63,18 @@ const api: NuggitApi = {
     send: (text) => ipcRenderer.invoke('dipChat:send', text),
     retry: () => ipcRenderer.invoke('dipChat:retry'),
     clear: () => ipcRenderer.invoke('dipChat:clear'),
+    applyAction: (id, edits) => ipcRenderer.invoke('dipChat:applyAction', id, edits),
+    cancelAction: (id) => ipcRenderer.invoke('dipChat:cancelAction', id),
+    undoAction: (id) => ipcRenderer.invoke('dipChat:undoAction', id),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: DipChatState): void => listener(state)
       ipcRenderer.on('dipChat:changed', handler)
       return () => ipcRenderer.removeListener('dipChat:changed', handler)
     }
+  },
+  popover: {
+    hide: () => ipcRenderer.send('popover:hide'),
+    shortcutWorks: () => ipcRenderer.invoke('popover:shortcutWorks')
   },
   app: {
     openSettings: () => ipcRenderer.send('app:openSettings'),

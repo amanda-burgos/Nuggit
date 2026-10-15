@@ -46,6 +46,9 @@ export interface SavedDesktop {
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 
+// Global shortcut that opens Dip's mini chat from any app ('' = none).
+export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'Command+Shift+Space'
+
 // Tabs of the control center (SPEC 9.0).
 export type AppTab = 'home' | 'dip' | 'tasks' | 'settings'
 
@@ -73,6 +76,7 @@ export interface Settings {
   }
   theme: ThemePreference
   statusIndicator: StatusIndicator
+  dipTray: { visible: boolean; shortcut: DipShortcut } // Dip's own menu bar icon (9.15)
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
   ui: UISettings
   background?: string
@@ -113,6 +117,7 @@ export interface TaskInput {
 export interface SettingsPatch {
   theme?: ThemePreference
   statusIndicator?: StatusIndicator
+  dipTray?: { visible?: boolean; shortcut?: DipShortcut }
   dipPersonality?: string | null // null or '' restores the original Dip
   ui?: {
     tab?: AppTab
@@ -146,11 +151,33 @@ export type AITestResult =
   | { ok: true; backend: AIBackend; model: string; models: AIModelOption[] }
   | { ok: false; error: string }
 // The conversation with Dip, shared by every window. Kept in dip-chat.json.
+// Something Dip proposes to change. It is shown as a card and only happens if the user
+// confirms it (SPEC 8, "Acciones de la IA").
+export interface DipTaskFields {
+  title?: string
+  dueDate?: string // YYYY-MM-DD
+  priority?: Priority
+}
+
+export type DipAction =
+  | ({ type: 'create'; title: string } & DipTaskFields)
+  | { type: 'complete'; taskId: string; taskTitle: string }
+  | { type: 'update'; taskId: string; taskTitle: string; changes: DipTaskFields }
+
+export type DipActionState = 'pending' | 'saved' | 'cancelled' | 'undone'
+
+// Edits made with "Cambiar" before saving.
+export interface DipActionEdits extends DipTaskFields {
+  taskId?: string // complete: a different task
+}
+
 export interface DipChatMessage {
   id: string
   role: 'user' | 'assistant'
   content: string
   at: string // ISO date-time
+  action?: DipAction
+  actionState?: DipActionState
 }
 
 export interface DipChatState {
@@ -251,7 +278,17 @@ export interface NuggitApi {
     send(text: string): Promise<AIChatResult>
     retry(): Promise<AIChatResult>
     clear(): Promise<void>
+    // The action card of a message: save it (with optional edits), cancel it, or undo it.
+    applyAction(messageId: string, edits?: DipActionEdits): Promise<{ ok: boolean; error?: string }>
+    cancelAction(messageId: string): Promise<void>
+    undoAction(messageId: string): Promise<void>
     onChange(listener: (state: DipChatState) => void): () => void
+  }
+  popover: {
+    // Closes Dip's mini chat (the calling window).
+    hide(): void
+    // False if the chosen global shortcut is taken by another app.
+    shortcutWorks(): Promise<boolean>
   }
   app: {
     // Brings up the main window with Settings open (works from detached widgets too).

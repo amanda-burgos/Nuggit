@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { AIChatResult } from '../../../../shared/types'
 import { useDipChat } from '../../store/useDipChat'
 import type { WidgetProps } from '../types'
+import { ActionCard } from './ActionCard'
 import './dip.css'
 
 // Dip has no options yet.
@@ -17,6 +18,7 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
   const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const messages = chat?.messages ?? []
   const thinking = chat?.pending ?? false
   const lastIsUser = messages[messages.length - 1]?.role === 'user'
@@ -25,6 +27,15 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
     const list = listRef.current
     if (list) list.scrollTop = list.scrollHeight
   }, [messages.length, thinking, error])
+
+  // In the menu bar mini chat, typing can start as soon as it opens.
+  useEffect(() => {
+    if (size !== 'popover') return
+    const focus = (): void => inputRef.current?.focus()
+    focus()
+    window.addEventListener('focus', focus)
+    return () => window.removeEventListener('focus', focus)
+  }, [size])
 
   const run = async (call: () => Promise<AIChatResult>): Promise<void> => {
     setError(null)
@@ -46,14 +57,15 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
   }
 
   return (
-    <div className={`dip${size === 'full' ? ' is-full' : ''}`}>
+    <div className={`dip is-${size}`}>
       <div className="dip-messages" ref={listRef} aria-live="polite">
         <div className="dip-thread">
           <p className="dip-bubble is-assistant">{GREETING}</p>
           {messages.map((m) => (
-            <p key={m.id} className={`dip-bubble is-${m.role}`}>
-              {m.content}
-            </p>
+            <div key={m.id} className={`dip-message is-${m.role}`}>
+              <p className={`dip-bubble is-${m.role}`}>{m.content}</p>
+              {m.action && <ActionCard message={m} />}
+            </div>
           ))}
           {thinking && <p className="dip-bubble is-assistant is-thinking">Dip está pensando…</p>}
           {!thinking && (error || lastIsUser) && (
@@ -86,6 +98,7 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
           </button>
         )}
         <textarea
+          ref={inputRef}
           rows={1}
           value={draft}
           placeholder="Escríbele a Dip…"

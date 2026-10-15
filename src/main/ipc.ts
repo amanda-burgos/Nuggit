@@ -3,7 +3,16 @@ import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
 import { proposeTenders, tenderQuestions } from './ai/tenders'
-import { clearDipChat, getDipChat, retryDip, sendToDip } from './dipChat'
+import {
+  applyAction,
+  cancelAction,
+  clearDipChat,
+  getDipChat,
+  retryDip,
+  sendToDip,
+  undoAction
+} from './dipChat'
+import { dipShortcutWorks, hidePopover } from './dipTray'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
 import {
@@ -75,6 +84,14 @@ export function registerIpc({ openSettings }: IpcDeps): void {
   ipcMain.handle('dipChat:send', (_event, text: unknown) => sendToDip(text))
   ipcMain.handle('dipChat:retry', () => retryDip())
   ipcMain.handle('dipChat:clear', () => clearDipChat())
+  ipcMain.handle('dipChat:applyAction', (_event, id: unknown, edits: unknown) =>
+    applyAction(id, edits)
+  )
+  ipcMain.handle('dipChat:cancelAction', (_event, id: unknown) => cancelAction(id))
+  ipcMain.handle('dipChat:undoAction', (_event, id: unknown) => undoAction(id))
+
+  ipcMain.on('popover:hide', () => hidePopover())
+  ipcMain.handle('popover:shortcutWorks', () => dipShortcutWorks())
 
   ipcMain.on('app:openSettings', () => openSettings())
 

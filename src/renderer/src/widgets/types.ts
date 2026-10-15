@@ -2,8 +2,9 @@ import type React from 'react'
 
 export interface WidgetProps<Config> {
   instanceId: string
-  // The same component is used as a widget on the board and as a full tab (SPEC 9.0).
-  size: 'widget' | 'full'
+  // The same component is used as a widget on the board and as a full tab (SPEC 9.0);
+  // Dip is also used in the menu bar mini chat (SPEC 9.15).
+  size: 'widget' | 'full' | 'popover'
   config: Config
   updateConfig: (patch: Partial<Config>) => void
 }
