@@ -51,12 +51,14 @@ export function TasksWidget({ config, updateConfig }: WidgetProps<TasksConfig>):
     setNewTitle('')
   }
 
-  const remove = (task: Task): void => {
+  const remove = (task: Task, label = task.parentId ? 'Paso borrado' : 'Tarea borrada'): void => {
     store.removeTask(task.id).then((removed) => {
-      if (removed.length)
-        setUndo({ removed, label: task.parentId ? 'Paso borrado' : 'Tarea borrada' })
+      if (removed.length) setUndo({ removed, label })
     })
   }
+
+  // A finished task leaves the list right away (with its steps); "Deshacer" brings it back.
+  const complete = (task: Task): void => remove(task, '¡Tarea hecha! ✅')
 
   return (
     <div className="tasks">
@@ -118,6 +120,7 @@ export function TasksWidget({ config, updateConfig }: WidgetProps<TasksConfig>):
                         }
                         store={store}
                         onRemove={remove}
+                        onComplete={complete}
                       />
                     ))}
                   </ul>

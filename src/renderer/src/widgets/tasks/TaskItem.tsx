@@ -12,6 +12,7 @@ interface Props {
   onToggleExpanded(): void
   store: TasksStore
   onRemove(task: Task): void
+  onComplete(task: Task): void
 }
 
 function CheckButton({
@@ -105,7 +106,8 @@ export function TaskItem({
   expanded,
   onToggleExpanded,
   store,
-  onRemove
+  onRemove,
+  onComplete
 }: Props): React.JSX.Element {
   const [editing, setEditing] = useState(false)
   const [newStep, setNewStep] = useState('')
@@ -126,7 +128,7 @@ export function TaskItem({
         <CheckButton
           done={done}
           title={task.title}
-          onClick={() => store.updateTask(task.id, { status: done ? 'todo' : 'done' })}
+          onClick={() => (done ? store.updateTask(task.id, { status: 'todo' }) : onComplete(task))}
         />
         <button className="task-main" aria-expanded={expanded} onClick={onToggleExpanded}>
           <span className="task-title">{task.title}</span>
