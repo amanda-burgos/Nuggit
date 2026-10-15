@@ -1,42 +1,28 @@
 import { useEffect, useRef, useState } from 'react'
-import type { DetachedWidget, ThemePreference, WidgetInstance } from '../../../shared/types'
+import type { DetachedWidget, WidgetInstance } from '../../../shared/types'
 import { getWidgetDefinition, widgetRegistry } from '../widgets/registry'
-
-const THEME_CYCLE: Record<ThemePreference, { next: ThemePreference; icon: string; label: string }> =
-  {
-    system: { next: 'light', icon: '🖥️', label: 'Tema: sistema' },
-    light: { next: 'dark', icon: '☀️', label: 'Tema: claro' },
-    dark: { next: 'system', icon: '🌙', label: 'Tema: oscuro' }
-  }
 
 interface Props {
   widgets: WidgetInstance[]
   detached: Record<string, DetachedWidget>
-  theme: ThemePreference
   onAdd(type: string): void
   onShow(id: string): void
   onAttach(id: string): void
   onRemoveAll(): void
-  onThemeChange(theme: ThemePreference): void
-  onOpenSettings(): void
 }
 
 export function Toolbar({
   widgets,
   detached,
-  theme,
   onAdd,
   onShow,
   onAttach,
-  onRemoveAll,
-  onThemeChange,
-  onOpenSettings
+  onRemoveAll
 }: Props): React.JSX.Element {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const hidden = widgets.filter((w) => w.hidden && !detached[w.id])
   const outside = widgets.filter((w) => detached[w.id])
-  const themeInfo = THEME_CYCLE[theme]
 
   // Close the menu on outside click or Esc.
   useEffect(() => {
@@ -57,20 +43,10 @@ export function Toolbar({
 
   return (
     <header className="toolbar">
-      <div className="brand">Nuggit</div>
+      <h1 className="toolbar-title">
+        <span aria-hidden>🏠</span> Inicio
+      </h1>
       <div className="toolbar-actions">
-        <button
-          className="button-ghost"
-          title={`${themeInfo.label} (clic para cambiar)`}
-          onClick={() => onThemeChange(themeInfo.next)}
-        >
-          <span aria-hidden>{themeInfo.icon}</span>
-          <span className="hide-narrow">{themeInfo.label}</span>
-        </button>
-        <button className="button-ghost" title="Ajustes" onClick={onOpenSettings}>
-          <span aria-hidden>⚙︎</span>
-          <span className="hide-narrow">Ajustes</span>
-        </button>
         <div className="menu-anchor" ref={menuRef}>
           <button
             className="button-primary"

@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { Settings, SettingsPatch, ThemePreference } from '../../../shared/types'
+import type { Settings, SettingsPatch } from '../../../shared/types'
 
 export interface SettingsStore {
   settings: Settings | null
-  setTheme(theme: ThemePreference): void
   update(patch: SettingsPatch): void
 }
 
@@ -34,8 +33,12 @@ export function useSettings(): SettingsStore {
       for (const key of ['model', 'ollamaModel'] as const) {
         if (patch.ai && key in patch.ai) ai[key] = patch.ai[key] || undefined
       }
-      const { dipPersonality, ...rest } = patch
-      const next = { ...prev, ...rest, ai }
+      const { dipPersonality, ui: uiPatch, ...rest } = patch
+      const ui = { ...prev.ui }
+      if (uiPatch?.tab) ui.tab = uiPatch.tab
+      if (uiPatch?.sidebarCollapsed !== undefined) ui.sidebarCollapsed = uiPatch.sidebarCollapsed
+      if (uiPatch?.panel) ui.panels = { ...ui.panels, [uiPatch.panel.type]: uiPatch.panel.config }
+      const next = { ...prev, ...rest, ai, ui }
       if (dipPersonality !== undefined) next.dipPersonality = dipPersonality?.trim() || undefined
       return next
     })
@@ -45,7 +48,5 @@ export function useSettings(): SettingsStore {
       .catch((err) => console.error('Could not save settings', err))
   }, [])
 
-  const setTheme = useCallback((theme: ThemePreference) => update({ theme }), [update])
-
-  return { settings, setTheme, update }
+  return { settings, update }
 }

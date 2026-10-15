@@ -1,5 +1,12 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
-import type { AIStatus, NuggitApi, SavedDesktop, Settings, Task } from '../shared/types'
+import type {
+  AIStatus,
+  DipChatState,
+  NuggitApi,
+  SavedDesktop,
+  Settings,
+  Task
+} from '../shared/types'
 
 // Safe API exposed to the renderer. All disk access goes through the main process.
 const api: NuggitApi = {
@@ -47,6 +54,17 @@ const api: NuggitApi = {
     },
     chat: (messages) => ipcRenderer.invoke('ai:chat', messages),
     proposePersonality: (messages) => ipcRenderer.invoke('ai:proposePersonality', messages)
+  },
+  dipChat: {
+    load: () => ipcRenderer.invoke('dipChat:load'),
+    send: (text) => ipcRenderer.invoke('dipChat:send', text),
+    retry: () => ipcRenderer.invoke('dipChat:retry'),
+    clear: () => ipcRenderer.invoke('dipChat:clear'),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, state: DipChatState): void => listener(state)
+      ipcRenderer.on('dipChat:changed', handler)
+      return () => ipcRenderer.removeListener('dipChat:changed', handler)
+    }
   },
   app: {
     openSettings: () => ipcRenderer.send('app:openSettings'),

@@ -2,6 +2,8 @@ import type React from 'react'
 
 export interface WidgetProps<Config> {
   instanceId: string
+  // The same component is used as a widget on the board and as a full tab (SPEC 9.0).
+  size: 'widget' | 'full'
   config: Config
   updateConfig: (patch: Partial<Config>) => void
 }

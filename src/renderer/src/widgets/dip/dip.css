@@ -10,6 +10,9 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+}
+
+.dip-thread {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -89,4 +92,28 @@
 
 .dip-input .icon-button {
   align-self: center;
+}
+
+/* --- Full size (Dip tab): a centered column, like a chat app --- */
+
+.dip.is-full {
+  font-size: 0.98rem;
+  gap: 14px;
+}
+
+.dip.is-full .dip-thread,
+.dip.is-full .dip-input {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.dip.is-full .dip-bubble {
+  max-width: 75%;
+  padding: 10px 14px;
+}
+
+.dip.is-full .dip-input textarea {
+  max-height: 200px;
+  padding: 10px 12px;
 }

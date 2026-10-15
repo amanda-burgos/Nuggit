@@ -1,41 +1,6 @@
-.settings-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 56px 16px 16px;
-  background: rgba(20, 26, 51, 0.35);
-}
-
-.settings-panel {
-  width: min(520px, 100%);
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-popover);
-  outline: none;
-}
-
-.settings-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 14px 4px 20px;
-}
-
-.settings-header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-}
-
-.settings-body {
-  overflow: auto;
-  padding: 4px 20px 20px;
+.settings-page {
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .settings-section {
@@ -288,4 +253,31 @@
 .personality-proposal p {
   margin: 0;
   white-space: pre-wrap;
+}
+
+.settings-choices {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.settings-choices legend {
+  padding: 0;
+  margin-bottom: 6px;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.settings-choices label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.settings-choices input {
+  accent-color: var(--color-accent);
 }

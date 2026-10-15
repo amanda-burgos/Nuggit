@@ -1,54 +1,57 @@
-import { useEffect, useRef } from 'react'
-import type { Settings, SettingsPatch } from '../../../shared/types'
+import type { Settings, SettingsPatch, ThemePreference } from '../../../shared/types'
+import { TasksSettings } from '../widgets/tasks/TasksSettings'
 import { AISettings } from './AISettings'
 import { DipPersonality } from './DipPersonality'
 import './settings.css'
 
 interface Props {
-  settings: Settings | null
+  settings: Settings
   update(patch: SettingsPatch): void
-  onClose(): void
 }
 
-export function SettingsPanel({ settings, update, onClose }: Props): React.JSX.Element {
-  const dialogRef = useRef<HTMLDivElement>(null)
+const THEMES: Array<{ value: ThemePreference; label: string }> = [
+  { value: 'system', label: '🖥️ Como el sistema' },
+  { value: 'light', label: '☀️ Claro' },
+  { value: 'dark', label: '🌙 Oscuro' }
+]
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKey)
-    dialogRef.current?.focus()
-    return () => document.removeEventListener('keydown', onKey)
-  }, [onClose])
-
+// The Ajustes tab.
+export function SettingsPanel({ settings, update }: Props): React.JSX.Element {
   return (
-    <div
-      className="settings-overlay"
-      onPointerDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
-      <div
-        className="settings-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="settings-title"
-        tabIndex={-1}
-        ref={dialogRef}
-      >
-        <header className="settings-header">
-          <h2 id="settings-title">Ajustes</h2>
-          <button className="icon-button" title="Cerrar (Esc)" onClick={onClose}>
-            ×
-          </button>
-        </header>
-        {settings && (
-          <div className="settings-body">
-            <AISettings settings={settings} update={update} />
-            <DipPersonality settings={settings} update={update} />
-          </div>
-        )}
+    <div className="panel">
+      <header className="panel-header">
+        <h1>
+          <span aria-hidden>⚙︎</span> Ajustes
+        </h1>
+      </header>
+      <div className="panel-body">
+        <div className="settings-page">
+          <AISettings settings={settings} update={update} />
+          <DipPersonality settings={settings} update={update} />
+
+          <section className="settings-section">
+            <h3>📍 Barra de menú</h3>
+            <TasksSettings />
+          </section>
+
+          <section className="settings-section">
+            <h3>🎨 Apariencia</h3>
+            <fieldset className="settings-choices">
+              <legend>Tema</legend>
+              {THEMES.map((t) => (
+                <label key={t.value}>
+                  <input
+                    type="radio"
+                    name="theme"
+                    checked={settings.theme === t.value}
+                    onChange={() => update({ theme: t.value })}
+                  />
+                  {t.label}
+                </label>
+              ))}
+            </fieldset>
+          </section>
+        </div>
       </div>
     </div>
   )

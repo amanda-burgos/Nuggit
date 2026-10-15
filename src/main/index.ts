@@ -2,6 +2,7 @@ import { app, nativeTheme, type BrowserWindow } from 'electron'
 import type { StatusIndicator } from '../shared/types'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { initAI } from './ai'
+import { initDipChat } from './dipChat'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
 import { registerIpc } from './ipc'
@@ -78,6 +79,11 @@ app.whenReady().then(async () => {
     await initTasks()
   } catch (err) {
     console.error('[startup] could not load tasks', err)
+  }
+  try {
+    await initDipChat()
+  } catch (err) {
+    console.error('[startup] could not load the Dip chat', err)
   }
   try {
     await initAI()

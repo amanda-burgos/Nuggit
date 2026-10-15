@@ -21,6 +21,8 @@ tasks.json
 notes.json
 settings.json
 desktop.json
+dip-chat.json
+gemini-key.bin
 
 # OS / editor / tooling
 .DS_Store

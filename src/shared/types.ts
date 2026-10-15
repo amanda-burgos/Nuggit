@@ -46,6 +46,16 @@ export interface SavedDesktop {
 
 export type ThemePreference = 'light' | 'dark' | 'system'
 
+// Tabs of the control center (SPEC 9.0).
+export type AppTab = 'home' | 'dip' | 'tasks' | 'settings'
+
+export interface UISettings {
+  tab: AppTab // last open tab
+  sidebarCollapsed: boolean
+  // Options of the full-size panels (e.g. folded task groups), by widget type.
+  panels: Record<string, Record<string, unknown>>
+}
+
 // What the macOS menu bar shows while a task is "En curso".
 export type StatusIndicator = 'dot' | 'dot-title' | 'title' | 'off'
 
@@ -64,6 +74,7 @@ export interface Settings {
   theme: ThemePreference
   statusIndicator: StatusIndicator
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
+  ui: UISettings
   background?: string
 }
 
@@ -103,6 +114,11 @@ export interface SettingsPatch {
   theme?: ThemePreference
   statusIndicator?: StatusIndicator
   dipPersonality?: string | null // null or '' restores the original Dip
+  ui?: {
+    tab?: AppTab
+    sidebarCollapsed?: boolean
+    panel?: { type: string; config: Record<string, unknown> } // replaces that panel's options
+  }
   // The provider is not here: it is set through window.api.ai.setProvider.
   ai?: {
     model?: string | null // null or '' goes back to the default model
@@ -129,6 +145,19 @@ export type AIChatResult =
 export type AITestResult =
   | { ok: true; backend: AIBackend; model: string; models: AIModelOption[] }
   | { ok: false; error: string }
+// The conversation with Dip, shared by every window. Kept in dip-chat.json.
+export interface DipChatMessage {
+  id: string
+  role: 'user' | 'assistant'
+  content: string
+  at: string // ISO date-time
+}
+
+export interface DipChatState {
+  messages: DipChatMessage[]
+  pending: boolean // Dip is answering
+}
+
 // Dip's suggestion for a new personality text, to approve before saving.
 export type AIPersonalityResult =
   { ok: true; reply: string; personality: string } | { ok: false; error: string }
@@ -182,6 +211,14 @@ export interface NuggitApi {
     chat(messages: AIMessage[]): Promise<AIChatResult>
     // A conversation about how Dip should be; returns a proposed personality text.
     proposePersonality(messages: AIMessage[]): Promise<AIPersonalityResult>
+  }
+  dipChat: {
+    load(): Promise<DipChatState>
+    // Adds the user's message to the shared conversation and gets Dip's answer.
+    send(text: string): Promise<AIChatResult>
+    retry(): Promise<AIChatResult>
+    clear(): Promise<void>
+    onChange(listener: (state: DipChatState) => void): () => void
   }
   app: {
     // Brings up the main window with Settings open (works from detached widgets too).

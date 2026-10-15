@@ -2,6 +2,7 @@ import { ipcMain } from 'electron'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
+import { clearDipChat, getDipChat, retryDip, sendToDip } from './dipChat'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
 import { createTask, getTasks, removeTask, restoreTasks, updateTask } from './tasks'
@@ -58,6 +59,11 @@ export function registerIpc({ openSettings }: IpcDeps): void {
   ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
     ai.proposePersonality(messages)
   )
+
+  ipcMain.handle('dipChat:load', () => getDipChat())
+  ipcMain.handle('dipChat:send', (_event, text: unknown) => sendToDip(text))
+  ipcMain.handle('dipChat:retry', () => retryDip())
+  ipcMain.handle('dipChat:clear', () => clearDipChat())
 
   ipcMain.on('app:openSettings', () => openSettings())
 

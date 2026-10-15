@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
+import { AINotice } from './AINotice'
 import type { AnyWidgetDefinition } from '../widgets/types'
 
 // Actions are shown only when their handler is given: the board and a detached
@@ -111,18 +112,14 @@ export function WidgetFrame({
             {Settings && <Settings config={config} updateConfig={onUpdateConfig} />}
           </>
         ) : missingAI ? (
-          <div className="ai-notice">
-            <p className="ai-notice-title">Dip no tiene una IA disponible ahora 💤</p>
-            <p>
-              Abre Ollama en tu Mac, o conecta Gemini en Ajustes. Todo lo demás en Nuggit funciona
-              igual sin IA.
-            </p>
-            <button className="button-primary" onClick={() => window.api.app.openSettings()}>
-              Ir a Ajustes
-            </button>
-          </div>
+          <AINotice />
         ) : (
-          <Widget instanceId={instance.id} config={config} updateConfig={onUpdateConfig} />
+          <Widget
+            instanceId={instance.id}
+            size="widget"
+            config={config}
+            updateConfig={onUpdateConfig}
+          />
         )}
       </div>
       {onResizePointerDown && (

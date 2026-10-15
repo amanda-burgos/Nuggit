@@ -1,70 +1,70 @@
 import { useEffect, useRef, useState } from 'react'
-import type { AIMessage } from '../../../../shared/types'
+import type { AIChatResult } from '../../../../shared/types'
+import { useDipChat } from '../../store/useDipChat'
+import type { WidgetProps } from '../types'
 import './dip.css'
 
 // Dip has no options yet.
 export type DipConfig = Record<string, never>
 
-type ChatMessage = AIMessage & { id: number }
-
 const GREETING = '¡Hola! Soy Dip 👋 Pregúntame lo que quieras, o cuéntame qué tienes pendiente.'
 
-let nextId = 1
+const failed = (): AIChatResult => ({ ok: false, error: 'Algo salió mal. Intenta otra vez.' })
 
-// A small chat with Dip. The conversation lives only while the widget is open.
-export function DipWidget(): React.JSX.Element {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+// A chat with Dip. Small on the board, big in the Dip tab; same conversation in both.
+export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
+  const chat = useDipChat()
   const [draft, setDraft] = useState('')
-  const [thinking, setThinking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  const messages = chat?.messages ?? []
+  const thinking = chat?.pending ?? false
+  const lastIsUser = messages[messages.length - 1]?.role === 'user'
 
   useEffect(() => {
     const list = listRef.current
     if (list) list.scrollTop = list.scrollHeight
-  }, [messages, thinking, error])
+  }, [messages.length, thinking, error])
 
-  const ask = async (history: ChatMessage[]): Promise<void> => {
-    setThinking(true)
+  const run = async (call: () => Promise<AIChatResult>): Promise<void> => {
     setError(null)
-    const result = await window.api.ai
-      .chat(history.map(({ role, content }) => ({ role, content })))
-      .catch(() => ({ ok: false as const, error: 'Algo salió mal. Intenta otra vez.' }))
-    setThinking(false)
-    if (result.ok) {
-      setMessages([...history, { id: nextId++, role: 'assistant', content: result.text }])
-    } else {
-      setError(result.error)
-    }
+    const result = await call().catch(failed)
+    if (!result.ok) setError(result.error)
   }
 
   const send = (): void => {
     const text = draft.trim()
     if (!text || thinking) return
-    const history = [...messages, { id: nextId++, role: 'user' as const, content: text }]
-    setMessages(history)
     setDraft('')
-    ask(history)
+    run(() => window.api.dipChat.send(text))
+  }
+
+  const clear = (): void => {
+    if (!window.confirm('¿Empezar una conversación nueva? Se borra el historial con Dip.')) return
+    setError(null)
+    window.api.dipChat.clear().catch((err) => console.error('Could not clear chat', err))
   }
 
   return (
-    <div className="dip">
+    <div className={`dip${size === 'full' ? ' is-full' : ''}`}>
       <div className="dip-messages" ref={listRef} aria-live="polite">
-        <p className="dip-bubble is-assistant">{GREETING}</p>
-        {messages.map((m) => (
-          <p key={m.id} className={`dip-bubble is-${m.role}`}>
-            {m.content}
-          </p>
-        ))}
-        {thinking && <p className="dip-bubble is-assistant is-thinking">Dip está pensando…</p>}
-        {error && (
-          <div className="dip-error" role="alert">
-            <p>{error}</p>
-            <button className="button-ghost" onClick={() => ask(messages)}>
-              Reintentar
-            </button>
-          </div>
-        )}
+        <div className="dip-thread">
+          <p className="dip-bubble is-assistant">{GREETING}</p>
+          {messages.map((m) => (
+            <p key={m.id} className={`dip-bubble is-${m.role}`}>
+              {m.content}
+            </p>
+          ))}
+          {thinking && <p className="dip-bubble is-assistant is-thinking">Dip está pensando…</p>}
+          {!thinking && (error || lastIsUser) && (
+            <div className="dip-error" role="alert">
+              <p>{error ?? 'Dip no alcanzó a contestar.'}</p>
+              <button className="button-ghost" onClick={() => run(window.api.dipChat.retry)}>
+                Reintentar
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <form
@@ -80,10 +80,7 @@ export function DipWidget(): React.JSX.Element {
             className="icon-button"
             title="Nueva conversación"
             disabled={thinking}
-            onClick={() => {
-              setMessages([])
-              setError(null)
-            }}
+            onClick={clear}
           >
             ↺
           </button>
@@ -93,6 +90,7 @@ export function DipWidget(): React.JSX.Element {
           value={draft}
           placeholder="Escríbele a Dip…"
           aria-label="Mensaje para Dip"
+          autoFocus={size === 'full'}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
             // Enter sends; Shift+Enter makes a new line.

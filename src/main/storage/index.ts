@@ -11,7 +11,8 @@ import { readJson, writeJson } from './jsonStore'
 const DEFAULT_SETTINGS: Settings = {
   ai: { provider: 'auto', shareTasksWithAI: false },
   theme: 'system',
-  statusIndicator: 'dot'
+  statusIndicator: 'dot',
+  ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -113,6 +114,7 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
 // Gemini ids look like "gemini-flash-latest"; Ollama ones like "llama3.2:3b" or "user/model".
 export const MAX_PERSONALITY = 1500
+const TABS = ['home', 'dip', 'tasks', 'settings']
 const MODEL_ID = /^[a-z0-9][a-z0-9._:/-]{0,99}$/i
 
 export async function loadSettings(): Promise<Settings> {
@@ -120,7 +122,12 @@ export async function loadSettings(): Promise<Settings> {
   return {
     ...DEFAULT_SETTINGS,
     ...data,
-    ai: { ...DEFAULT_SETTINGS.ai, ...(isObject(data.ai) ? data.ai : {}) }
+    ai: { ...DEFAULT_SETTINGS.ai, ...(isObject(data.ai) ? data.ai : {}) },
+    ui: {
+      ...DEFAULT_SETTINGS.ui,
+      ...(isObject(data.ui) ? data.ui : {}),
+      panels: isObject(data.ui) && isObject(data.ui.panels) ? data.ui.panels : {}
+    }
   }
 }
 
@@ -136,6 +143,14 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     current.dipPersonality = patch.dipPersonality.trim().slice(0, MAX_PERSONALITY)
   } else if (isObject(patch) && (patch.dipPersonality === null || patch.dipPersonality === '')) {
     delete current.dipPersonality
+  }
+  if (isObject(patch) && isObject(patch.ui)) {
+    const { tab, sidebarCollapsed, panel } = patch.ui
+    if (TABS.includes(tab as string)) current.ui.tab = tab as Settings['ui']['tab']
+    if (typeof sidebarCollapsed === 'boolean') current.ui.sidebarCollapsed = sidebarCollapsed
+    if (isObject(panel) && typeof panel.type === 'string' && isObject(panel.config)) {
+      current.ui.panels = { ...current.ui.panels, [panel.type]: panel.config }
+    }
   }
   if (isObject(patch) && isObject(patch.ai)) {
     const { shareTasksWithAI } = patch.ai
