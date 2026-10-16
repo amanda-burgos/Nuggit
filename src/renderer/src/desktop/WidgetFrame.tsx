@@ -14,10 +14,15 @@ interface Props {
   onResizePointerDown?(e: React.PointerEvent): void
   onDetach?(): void
   onAttach?(): void
-  alwaysOnTop?: boolean
-  onToggleAlwaysOnTop?(): void
-  // Extra options shown at the top of the ⚙︎ panel (e.g. a detached window's options).
-  windowSettings?: React.ReactNode
+  // "Fijar" (the 📌 button): no moving, no resizing, no edit controls; only a small lock
+  // to undo it.
+  locked: boolean
+  onSetLocked(locked: boolean): void
+  // Detached windows only: the macOS window shadow, and "Pin on back".
+  shadow?: boolean
+  onSetShadow?(shadow: boolean): void
+  pinBack?: boolean
+  onSetPinBack?(pinBack: boolean): void
   onHide?(): void
   onRemove?(): void
   onUpdateConfig(patch: Record<string, unknown>): void
@@ -32,9 +37,12 @@ export function WidgetFrame({
   onResizePointerDown,
   onDetach,
   onAttach,
-  alwaysOnTop,
-  onToggleAlwaysOnTop,
-  windowSettings,
+  locked,
+  onSetLocked,
+  shadow,
+  onSetShadow,
+  pinBack,
+  onSetPinBack,
   onHide,
   onRemove,
   onUpdateConfig
@@ -51,9 +59,16 @@ export function WidgetFrame({
     if (window.confirm(`¿Quitar "${def.name}" del escritorio?`)) onRemove?.()
   }
 
+  const lock = (): void => {
+    setShowSettings(false)
+    onSetLocked(true)
+  }
+  // Top of the ⚙︎ panel: options every widget can have (here, the detached-window ones).
+  const hasGeneral = Boolean(onSetShadow || onSetPinBack)
+
   return (
-    <section className="widget" aria-label={def.name}>
-      <header className="widget-header" onPointerDown={onHeaderPointerDown}>
+    <section className={`widget${locked ? ' is-locked' : ''}`} aria-label={def.name}>
+      <header className="widget-header" onPointerDown={locked ? undefined : onHeaderPointerDown}>
         {showTitle && (
           <>
             <span className="widget-icon" aria-hidden>
@@ -63,54 +78,94 @@ export function WidgetFrame({
           </>
         )}
         <div className="widget-actions widget-no-drag">
-          {(Settings || windowSettings) && (
+          {locked ? (
             <button
-              className={`icon-button${showSettings ? ' is-active' : ''}`}
-              title="Ajustes del widget"
-              aria-pressed={showSettings}
-              onClick={() => setShowSettings((v) => !v)}
+              className="icon-button widget-lock"
+              title="Fijado. Clic para desfijar"
+              onClick={() => onSetLocked(false)}
             >
-              ⚙︎
+              🔒
             </button>
-          )}
-          {onToggleAlwaysOnTop && (
-            <button
-              className={`icon-button${alwaysOnTop ? ' is-active' : ''}`}
-              title={alwaysOnTop ? 'Mantener encima: sí' : 'Mantener encima: no'}
-              aria-pressed={alwaysOnTop}
-              onClick={onToggleAlwaysOnTop}
-            >
-              <span className={`pin${alwaysOnTop ? ' is-on' : ''}`}>📌</span>
-            </button>
-          )}
-          {onDetach && (
-            <button className="icon-button" title="Despegar al escritorio" onClick={onDetach}>
-              ↗
-            </button>
-          )}
-          {onAttach && (
-            <button className="icon-button" title="Regresar al tablero" onClick={onAttach}>
-              ↙
-            </button>
-          )}
-          {onHide && (
-            <button className="icon-button" title="Ocultar" onClick={onHide}>
-              –
-            </button>
-          )}
-          {onRemove && (
-            <button className="icon-button" title="Quitar" onClick={confirmRemove}>
-              ×
-            </button>
+          ) : (
+            <>
+              <button className="icon-button" title="Fijar: que no se mueva" onClick={lock}>
+                📌
+              </button>
+              {(hasGeneral || Settings) && (
+                <button
+                  className={`icon-button${showSettings ? ' is-active' : ''}`}
+                  title="Ajustes del widget"
+                  aria-pressed={showSettings}
+                  onClick={() => setShowSettings((v) => !v)}
+                >
+                  ⚙︎
+                </button>
+              )}
+              {onDetach && (
+                <button className="icon-button" title="Despegar al escritorio" onClick={onDetach}>
+                  ↗
+                </button>
+              )}
+              {onAttach && (
+                <button className="icon-button" title="Regresar al tablero" onClick={onAttach}>
+                  ↙
+                </button>
+              )}
+              {onHide && (
+                <button className="icon-button" title="Ocultar" onClick={onHide}>
+                  –
+                </button>
+              )}
+              {onRemove && (
+                <button className="icon-button" title="Quitar" onClick={confirmRemove}>
+                  ×
+                </button>
+              )}
+            </>
           )}
         </div>
       </header>
       <div className="widget-body widget-no-drag">
-        {showSettings ? (
-          <>
-            {windowSettings}
-            {Settings && <Settings config={config} updateConfig={onUpdateConfig} />}
-          </>
+        {showSettings && !locked ? (
+          <div className="widget-settings">
+            {/* Top: the same general options for every widget (SPEC 9.16). */}
+            {hasGeneral && (
+              <div className="widget-settings-general">
+                {onSetShadow && (
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={shadow ?? false}
+                      onChange={(e) => onSetShadow(e.target.checked)}
+                    />
+                    <span>Sombra</span>
+                  </label>
+                )}
+                {onSetPinBack && (
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={pinBack ?? false}
+                      onChange={(e) => onSetPinBack(e.target.checked)}
+                    />
+                    <span>
+                      Pin on back: siempre al fondo
+                      <small>
+                        Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe
+                        clics: para quitarlo, usa los widgets rápidos 🧩 de la barra de menú.
+                      </small>
+                    </span>
+                  </label>
+                )}
+              </div>
+            )}
+            {/* Bottom: this widget's own options, if it has any. */}
+            {Settings && (
+              <div className={`widget-settings-own${hasGeneral ? ' has-divider' : ''}`}>
+                <Settings config={config} updateConfig={onUpdateConfig} />
+              </div>
+            )}
+          </div>
         ) : missingAI ? (
           <AINotice />
         ) : (
@@ -122,7 +177,7 @@ export function WidgetFrame({
           />
         )}
       </div>
-      {onResizePointerDown && (
+      {onResizePointerDown && !locked && (
         <div
           className="widget-resize-handle"
           title="Cambiar tamaño"

@@ -1,4 +1,5 @@
 import { BrowserWindow, nativeTheme, screen, type Rectangle, type WebContents } from 'electron'
+import { randomUUID } from 'crypto'
 import type {
   DetachedWidget,
   DetachedWindowOptions,
@@ -6,7 +7,14 @@ import type {
   WidgetRect
 } from '../shared/types'
 import { createAppWindow } from './appWindow'
-import { getDesktop, onDesktopChange, setDetached } from './desktop'
+import {
+  addDetachedWidget,
+  getDesktop,
+  onDesktopChange,
+  raiseOnBoard,
+  setDetached,
+  setWidgetHidden
+} from './desktop'
 
 // Detached widgets: each one is a small frameless window on the computer's desktop.
 // The windows always follow `desktop.detached`; change that and they open/close to match.
@@ -16,6 +24,9 @@ const HEADER_HEIGHT = 32 // the part of the window you grab to move it
 const MIN_VISIBLE = 48 // px of the header that must stay on some screen
 
 const windows = new Map<string, BrowserWindow>()
+// Windows created at the desktop level ("Pin on back"). macOS fixes a window's type when it
+// is created, so turning it on or off means opening the window again.
+const backWindows = new WeakSet<BrowserWindow>()
 const closingByApp = new WeakSet<BrowserWindow>()
 const focusOnShow = new Set<string>()
 const pendingBounds = new Map<string, WidgetRect>()
@@ -84,6 +95,24 @@ function flushBounds(): void {
   if (Object.keys(changes).length > 0) setDetached(changes)
 }
 
+// "Pin on top" (and on every desktop), and "Fijar": the window can't be moved or resized.
+function applyWindowState(win: BrowserWindow, entry: DetachedWidget, locked: boolean): void {
+  const onTop = entry.alwaysOnTop && !entry.pinBack
+  if (win.isAlwaysOnTop() !== onTop) win.setAlwaysOnTop(onTop, 'floating')
+  const allSpaces = onTop && (entry.allSpaces ?? false)
+  if (win.isVisibleOnAllWorkspaces() !== allSpaces) {
+    win.setVisibleOnAllWorkspaces(allSpaces, { visibleOnFullScreen: allSpaces })
+  }
+  if (win.isMovable() === locked) win.setMovable(!locked)
+  if (win.isResizable() === locked) win.setResizable(!locked)
+  const shadow = entry.shadow ?? false
+  if (win.hasShadow() !== shadow) win.setHasShadow(shadow)
+}
+
+function isLocked(id: string): boolean {
+  return getDesktop()?.widgets.find((w) => w.id === id)?.locked ?? false
+}
+
 function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
   const saved = toRectangle(entry.bounds)
   const bounds = ensureVisible(saved)
@@ -99,13 +128,19 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
       fullscreenable: false,
       skipTaskbar: true,
       hasShadow: entry.shadow ?? false,
-      backgroundColor: surfaceColor()
+      backgroundColor: surfaceColor(),
+      // "Pin on back": the desktop picture's level, behind its files and icons.
+      ...(entry.pinBack ? { type: 'desktop' } : {})
     },
     { widget: id }
   )
-  if (entry.alwaysOnTop) win.setAlwaysOnTop(true, 'floating')
+  if (entry.pinBack) backWindows.add(win)
+  applyWindowState(win, entry, isLocked(id))
 
   win.once('ready-to-show', () => {
+    // Set again now: macOS ignores "can't move / resize" set before a window first shows.
+    const current = getDesktop()?.detached?.[id]
+    if (current) applyWindowState(win, current, isLocked(id))
     if (hiddenForLockdown) return
     // Just detached: bring it forward. Restored at launch: don't steal focus.
     if (focusOnShow.delete(id)) win.show()
@@ -137,13 +172,18 @@ function syncWindows(state: SavedDesktop): void {
   }
   for (const [id, entry] of Object.entries(detached)) {
     const win = windows.get(id)
+    if (win && backWindows.has(win) !== Boolean(entry.pinBack)) {
+      // "Pin on back" changed: open the window again with the other type.
+      closingByApp.add(win)
+      win.close()
+      windows.set(id, createWidgetWindow(id, entry))
+      continue
+    }
     if (!win) {
       windows.set(id, createWidgetWindow(id, entry))
       continue
     }
-    if (win.isAlwaysOnTop() !== entry.alwaysOnTop) win.setAlwaysOnTop(entry.alwaysOnTop, 'floating')
-    const shadow = entry.shadow ?? false
-    if (win.hasShadow() !== shadow) win.setHasShadow(shadow)
+    applyWindowState(win, entry, state.widgets.find((w) => w.id === id)?.locked ?? false)
   }
 }
 
@@ -186,9 +226,81 @@ export function attachWidget(id: string): void {
   setDetached({ [id]: null })
 }
 
-export function setWindowOptions(id: string, options: DetachedWindowOptions): void {
-  const entry = getDesktop()?.detached?.[id]
-  if (entry) setDetached({ [id]: { ...entry, ...options } })
+// A free-looking spot near the middle of the screen with the mouse, a little lower and to
+// the right for each widget already there, so new ones don't land on top of each other.
+function spotOnScreen(size: { w: number; h: number }): WidgetRect {
+  const { workArea: a } = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+  const w = Math.min(size.w, a.width)
+  const h = Math.min(size.h, a.height)
+  const offset = (windows.size % 6) * 28
+  return {
+    x: Math.round(clamp(a.x + (a.width - w) / 2 + offset, a.x, a.x + a.width - w)),
+    y: Math.round(clamp(a.y + (a.height - h) / 3 + offset, a.y, a.y + a.height - h)),
+    w,
+    h
+  }
+}
+
+// "Pin on top" and "Pin on back" are never on together: turning one on turns the other off.
+// Turning either on for a widget still on the board takes it out to the desktop first.
+export function setWindowOptions(id: string, input: DetachedWindowOptions): void {
+  const options = { ...input }
+  if (options.alwaysOnTop) options.pinBack = false
+  if (options.pinBack) options.alwaysOnTop = false
+  const state = getDesktop()
+  const entry = state?.detached?.[id]
+  if (entry) {
+    setDetached({ [id]: { ...entry, ...options } })
+    return
+  }
+  if (!(options.alwaysOnTop || options.pinBack) || !state?.widgets.some((w) => w.id === id)) return
+  const size = state.positions?.[id] ?? { w: 360, h: 320 }
+  focusOnShow.add(id)
+  setWidgetHidden(id, false)
+  setDetached({ [id]: { bounds: spotOnScreen(size), alwaysOnTop: false, ...options } })
+}
+
+const WIDGET_TYPE = /^[a-z][a-z0-9-]{0,40}$/
+
+// Quick pickup: a new widget, straight onto the computer's desktop.
+export function openWidget(input: unknown): void {
+  if (typeof input !== 'object' || input === null) return
+  const { type, config, size } = input as Record<string, unknown>
+  if (typeof type !== 'string' || !WIDGET_TYPE.test(type)) return
+  const s = (typeof size === 'object' && size !== null ? size : {}) as Record<string, unknown>
+  const w = clamp(Number(s.w) || 360, 120, 2000)
+  const h = clamp(Number(s.h) || 320, 100, 2000)
+  const id = `${type}-${randomUUID().slice(0, 8)}`
+  focusOnShow.add(id)
+  addDetachedWidget(
+    {
+      id,
+      type,
+      config: typeof config === 'object' && config !== null ? config : {},
+      hidden: false
+    },
+    { bounds: spotOnScreen({ w, h }), alwaysOnTop: false }
+  )
+}
+
+// Quick pickup: a detached widget's window comes to the front; one on the board is shown
+// on top of the others, and the board is opened (showBoard).
+export function focusWidget(id: string, showBoard: () => void): void {
+  const win = windows.get(id)
+  if (win) {
+    win.show()
+    win.focus()
+    return
+  }
+  raiseOnBoard(id)
+  showBoard()
+}
+
+// Quick pickup: "Cerrar". A detached widget goes back to the board; one on the board is
+// hidden (it can be shown again from "+ Widget" or the quick pickup).
+export function closeWidget(id: string): void {
+  if (getDesktop()?.detached?.[id]) setDetached({ [id]: null })
+  else setWidgetHidden(id, true)
 }
 
 // Lockdown hides every detached widget, and shows them again when it ends.

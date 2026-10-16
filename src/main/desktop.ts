@@ -1,5 +1,5 @@
 import { BrowserWindow, type WebContents } from 'electron'
-import type { DetachedWidget, SavedDesktop } from '../shared/types'
+import type { DetachedWidget, SavedDesktop, WidgetInstance } from '../shared/types'
 import { isSavedDesktop, loadDesktop, saveDesktop } from './storage'
 
 // The main process holds the one true copy of the desktop, because several windows
@@ -59,4 +59,39 @@ export function setDetached(changes: Record<string, DetachedWidget | null>): voi
     else delete detached[id]
   }
   commit({ ...state, detached })
+}
+
+function updateWidget(id: string, patch: Partial<WidgetInstance>): void {
+  if (!state || !state.widgets.some((w) => w.id === id)) return
+  commit({ ...state, widgets: state.widgets.map((w) => (w.id === id ? { ...w, ...patch } : w)) })
+}
+
+// "Fijar" (SPEC 9.16): the widget can't be moved or resized, wherever it is.
+export function setWidgetLocked(id: string, locked: boolean): void {
+  updateWidget(id, { locked })
+}
+
+export function setWidgetHidden(id: string, hidden: boolean): void {
+  updateWidget(id, { hidden })
+}
+
+// Moves a widget to the top of the board's stack (and shows it if it was hidden).
+export function raiseOnBoard(id: string): void {
+  const widget = state?.widgets.find((w) => w.id === id)
+  if (!state || !widget) return
+  commit({
+    ...state,
+    widgets: [...state.widgets.filter((w) => w !== widget), { ...widget, hidden: false }]
+  })
+}
+
+// A new widget that lives on the computer's desktop from the start. The board gives it a
+// spot of its own the next time it loads (for when it is sent back with "Regresar").
+export function addDetachedWidget(widget: WidgetInstance, entry: DetachedWidget): void {
+  if (!state) state = { widgets: [], positions: {}, detached: {}, gridVersion: 4 }
+  commit({
+    ...state,
+    widgets: [...state.widgets, widget],
+    detached: { ...state.detached, [widget.id]: entry }
+  })
 }

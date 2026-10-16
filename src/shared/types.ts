@@ -13,16 +13,26 @@ export interface WidgetInstance {
   type: string // points to WidgetDefinition.type
   config: unknown
   hidden: boolean
+  locked?: boolean // "Fijar": can't be moved or resized, no edit controls (SPEC 9.16)
 }
 
 // A widget popped out of the board into its own window on the computer's desktop.
 export interface DetachedWidget {
   bounds: WidgetRect // screen pixels
-  alwaysOnTop: boolean
+  alwaysOnTop: boolean // "Pin on top", only set from the quick pickup (SPEC 9.16)
+  allSpaces?: boolean // with alwaysOnTop: on every desktop (Space) and over full screen apps
+  // "Pin on back": behind every window, at the level of the desktop picture (behind its
+  // files and icons). macOS sends such a window no clicks. Never together with alwaysOnTop.
+  pinBack?: boolean
   shadow?: boolean // macOS window shadow; off unless turned on
 }
 
-export type DetachedWindowOptions = Partial<Pick<DetachedWidget, 'alwaysOnTop' | 'shadow'>>
+export type DetachedWindowOptions = Partial<
+  Pick<DetachedWidget, 'alwaysOnTop' | 'allSpaces' | 'pinBack' | 'shadow'>
+>
+
+// Where the quick pickup lives: its own menu bar icon, inside Nuggit's menu, or nowhere.
+export type PickupTrayMode = 'icon' | 'menu' | 'off'
 
 export interface DesktopState {
   widgets: WidgetInstance[] // array order is the stacking order (last = on top)
@@ -77,6 +87,7 @@ export interface Settings {
   theme: ThemePreference
   statusIndicator: StatusIndicator
   dipTray: { visible: boolean; shortcut: DipShortcut } // Dip's own menu bar icon (9.15)
+  pickupTray: PickupTrayMode // the quick pickup's menu bar icon (9.16)
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
   ui: UISettings
   background?: string
@@ -135,6 +146,7 @@ export interface SettingsPatch {
   theme?: ThemePreference
   statusIndicator?: StatusIndicator
   dipTray?: { visible?: boolean; shortcut?: DipShortcut }
+  pickupTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
   ui?: {
     tab?: AppTab
@@ -245,6 +257,8 @@ export interface NuggitApi {
     load(): Promise<SavedDesktop | null>
     save(state: DesktopState): Promise<void>
     updateConfig(id: string, patch: Record<string, unknown>): Promise<void>
+    // "Fijar" (works for board and detached widgets).
+    setLocked(id: string, locked: boolean): Promise<void>
     // Called whenever another window (or the main process) changes the desktop.
     onChange(listener: (state: SavedDesktop) => void): () => void
   }
@@ -317,7 +331,7 @@ export interface NuggitApi {
     onChange(listener: (state: NextActionState) => void): () => void
   }
   popover: {
-    // Closes Dip's mini chat (the calling window).
+    // Closes the calling menu bar window (Dip's mini chat or the quick pickup).
     hide(): void
     // False if the chosen global shortcut is taken by another app.
     shortcutWorks(): Promise<boolean>
@@ -331,7 +345,15 @@ export interface NuggitApi {
     // rect is relative to the calling window's content area.
     detach(id: string, rect: WidgetRect): Promise<void>
     attach(id: string): Promise<void>
+    // Turning on "Pin on top" or "Pin on back" for a widget on the board detaches it first.
+    // The two can't be on together: turning one on turns the other off.
     setOptions(id: string, options: DetachedWindowOptions): Promise<void>
+    // Quick pickup: a new widget straight onto the computer's desktop.
+    open(widget: { type: string; config: unknown; size: { w: number; h: number } }): Promise<void>
+    // Quick pickup: bring a widget to the front (its window, or the board), or close it
+    // (a detached one goes back to the board; one on the board is hidden).
+    focus(id: string): Promise<void>
+    close(id: string): Promise<void>
     // Hides or shows every detached widget (for Lockdown).
     setAllVisible(visible: boolean): Promise<void>
     // Size limits for the calling detached window.

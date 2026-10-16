@@ -13,6 +13,7 @@ const DEFAULT_SETTINGS: Settings = {
   theme: 'system',
   statusIndicator: 'dot',
   dipTray: { visible: true, shortcut: '' },
+  pickupTray: 'icon',
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -38,6 +39,8 @@ function isDetachedWidget(value: unknown): value is DetachedWidget {
     isObject(value) &&
     isRect(value.bounds) &&
     typeof value.alwaysOnTop === 'boolean' &&
+    ['boolean', 'undefined'].includes(typeof value.allSpaces) &&
+    ['boolean', 'undefined'].includes(typeof value.pinBack) &&
     ['boolean', 'undefined'].includes(typeof value.shadow)
   )
 }
@@ -116,6 +119,7 @@ const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
 // Gemini ids look like "gemini-flash-latest"; Ollama ones like "llama3.2:3b" or "user/model".
 export const MAX_PERSONALITY = 1500
 const TABS = ['home', 'dip', 'tasks', 'next', 'tenders', 'settings']
+const PICKUP_MODES = ['icon', 'menu', 'off']
 const SHORTCUTS = ['', 'Alt+Space', 'Control+Alt+Space', 'Command+Shift+Space']
 const MODEL_ID = /^[a-z0-9][a-z0-9._:/-]{0,99}$/i
 
@@ -153,6 +157,9 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     if (SHORTCUTS.includes(shortcut as string)) {
       current.dipTray.shortcut = shortcut as Settings['dipTray']['shortcut']
     }
+  }
+  if (isObject(patch) && PICKUP_MODES.includes(patch.pickupTray as string)) {
+    current.pickupTray = patch.pickupTray as Settings['pickupTray']
   }
   if (isObject(patch) && isObject(patch.ui)) {
     const { tab, sidebarCollapsed, panel } = patch.ui

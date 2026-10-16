@@ -3,6 +3,7 @@ import { TasksSettings } from '../widgets/tasks/TasksSettings'
 import { AISettings } from './AISettings'
 import { DipPersonality } from './DipPersonality'
 import { DipTraySettings } from './DipTraySettings'
+import { PickupTraySettings } from './PickupTraySettings'
 import './settings.css'
 
 interface Props {
@@ -34,6 +35,7 @@ export function SettingsPanel({ settings, update }: Props): React.JSX.Element {
             <h3>📍 Barra de menú</h3>
             <TasksSettings />
             <DipTraySettings settings={settings} update={update} />
+            <PickupTraySettings settings={settings} update={update} />
           </section>
 
           <section className="settings-section">

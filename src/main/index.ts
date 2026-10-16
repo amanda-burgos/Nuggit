@@ -7,6 +7,7 @@ import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
 import { initNextAction } from './nextAction'
+import { initPickupTray } from './pickupTray'
 import { registerIpc } from './ipc'
 import { changeSettings } from './settings'
 import { initStatusTray } from './statusTray'
@@ -70,11 +71,13 @@ app.whenReady().then(async () => {
 
   let statusIndicator: StatusIndicator = 'dot'
   let dipTray: Settings['dipTray'] = { visible: true, shortcut: '' }
+  let pickupTray: Settings['pickupTray'] = 'icon'
   try {
     const settings = await loadSettings()
     nativeTheme.themeSource = settings.theme
     statusIndicator = settings.statusIndicator
     dipTray = settings.dipTray
+    pickupTray = settings.pickupTray
     await initDesktop()
   } catch (err) {
     console.error('[startup] could not load saved data', err)
@@ -100,7 +103,15 @@ app.whenReady().then(async () => {
     console.error('[startup] could not check the AI key', err)
   }
 
-  registerIpc({ openSettings })
+  registerIpc({
+    openSettings,
+    openBoard: () => {
+      showMainWindow()
+      changeSettings({ ui: { tab: 'home' } }).catch((err) =>
+        console.error('[settings] could not save', err)
+      )
+    }
+  })
   createWindow()
   initWidgetWindows()
   initStatusTray({
@@ -116,6 +127,7 @@ app.whenReady().then(async () => {
   })
 
   initDipTray(dipTray)
+  initPickupTray(pickupTray)
 
   // Clicking the Dock icon brings the board back, even if detached widgets are open.
   app.on('activate', () => {

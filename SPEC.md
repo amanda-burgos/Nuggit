@@ -354,6 +354,45 @@ Dip tiene **su propio ícono** en la barra de menú de macOS, aparte del de Nugg
 - En Ajustes: mostrar u ocultar el ícono de Dip.
 - Ícono: silueta simple de un solo color (template image de macOS, ~18 px), que se vea bien en modo claro y oscuro: `resources/icons/dipTemplate.png` (+ `@2x`). Dentro de la app, Dip usa `resources/icons/dip-icon.svg` (toma el color del texto).
 
+### 9.16 Widgets siempre visibles, fijos y "quick pickup"
+**Pin on top (siempre al frente).** Cualquier widget que el usuario elija se puede poner **siempre encima** de todas las ventanas (ideal para "¿Qué hago ahora?", Dip o el timer):
+- Se quedan visibles aunque hagas clic en otra app.
+- Opción "En todos los escritorios": siguen visibles al cambiar de escritorio (Spaces) y encima de apps en pantalla completa.
+- En Electron: `setAlwaysOnTop(true, "floating")` y `setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })`.
+- Lo elige el usuario, widget por widget, y **solo se maneja desde el quick pickup** (no desde el engranaje normal). Por defecto apagado en todos.
+
+**Pin on back (siempre al fondo).** Opción en el engranaje normal (parte de arriba, opciones generales) de cualquier widget despegado:
+- El widget se queda **detrás de todas las ventanas**, aunque le hagas clic. Nunca sube al frente ni tapa otras cosas.
+- Objetivo: que se comporte como parte del fondo de pantalla, idealmente **detrás de los archivos e íconos del escritorio** (ej. screenshots guardados en el Escritorio quedan por encima del widget).
+- Implementación a probar en macOS: `BrowserWindow` con `type: "desktop"` (nivel de ventana del escritorio). Verificar que el widget siga recibiendo clics para sus botones; si no, ofrecer el modo "fondo" sin interacción y desactivarlo con el atajo o desde el quick pickup.
+- "Pin on top" y "Pin on back" no pueden estar activos a la vez.
+
+**Fijar (pin) de verdad.** Hoy el pin no hace nada; debe funcionar así:
+- Se fija con el botón **📌** del encabezado del widget (visible al pasar el mouse), no desde el engranaje.
+- Un widget fijado **no se puede mover ni redimensionar**.
+- Desaparecen todos los controles de edición (bordes de resize, arrastre, cerrar, engranaje...). Solo queda un **candadito** pequeño para desfijar (visible al pasar el mouse).
+- Funciona igual en el tablero y en los widgets despegados al escritorio.
+- Fijar + "siempre al frente" + "en todos los escritorios" = el widget queda clavado en la pantalla pase lo que pase.
+
+**Menú del engranaje (estructura).** Todos los widgets usan el mismo menú, en dos partes separadas por una línea divisoria:
+1. **Arriba — opciones generales** (iguales para cualquier widget): Sombra, Pin on back, Transparencia, Fondo (color/imagen). "Fijar" no va aquí (es el botón 📌) y "Siempre al frente" tampoco: se maneja solo desde el quick pickup.
+2. **Abajo — opciones propias del widget** (las define cada widget en su `settingsComponent`). Ej. reloj: mostrar segundos, formato 12 horas.
+Si un widget no tiene opciones propias, no se muestra la línea ni la parte de abajo.
+
+**Quick pickup (ícono propio en la barra de menú).** Otro ícono en la barra de menú para sacar widgets rápido:
+- Al hacer clic se abre una ventanita con un **buscador** y la lista de widgets (los abiertos y los que se pueden añadir), con su ícono.
+- Al elegir uno que no está abierto, aparece **despegado en el escritorio** al instante.
+- Cada widget de la lista tiene su botón de **Ajustes** con la opción **"Pin on top"**: el widget se queda siempre encima de las demás ventanas (y opción "En todos los escritorios"). Desde ahí mismo se quita.
+- Muestra también los widgets que ya están abiertos, para traerlos al frente o cerrarlos.
+- En Ajustes se puede ocultar este ícono o **unirlo al menú de Nuggit** (9.11) si hay demasiados íconos en la barra.
+
+### 9.17 Widget de imagen
+Un widget que solo muestra imágenes, para decorar el escritorio.
+- Elegir **una imagen** o **varias** (carrusel que cambia cada X segundos, configurable).
+- Ajuste de la imagen: rellenar, ajustar o centrar. Esquinas redondeadas como los demás widgets.
+- Las imágenes se **copian** a la carpeta de datos de Nuggit para que no se pierdan si se mueve el archivo original.
+- Funciona en el tablero y despegado al escritorio, con las opciones generales (fijar, sombra, transparencia...) y, desde el quick pickup, "Pin on top".
+
 ## 10. Diseño visual
 
 - Colores base: **navy blue**, **lavender**, **white**, acentos suaves.
@@ -427,6 +466,19 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 - En el chat, "ya terminé X" propone marcarla como hecha y sugiere la siguiente.
 - **Listo cuando:** abro la app y sé qué hacer en menos de 5 segundos.
 
+### Fase 5.3 — Widgets siempre visibles, pin y quick pickup
+- Arreglar el **pin** según 9.16 (no se mueve, sin controles de edición, solo candado para desfijar).
+- "Pin on top" y "En todos los escritorios" desde el quick pickup.
+- "Pin on back" desde el engranaje (detrás de todo, idealmente detrás de los archivos del Escritorio).
+- Ícono de **quick pickup** en la barra de menú.
+- **Listo cuando:** fijo "¿Qué hago ahora?" siempre al frente, cambio de app y de escritorio y sigue ahí sin poder moverlo; y desde el quick pickup saco el timer al escritorio con un clic.
+
+Cómo quedó (Fase 5.3):
+- Pin on back usa `type: "desktop"`: queda detrás de los archivos del Escritorio, pero macOS no le manda clics. Se quita desde el quick pickup. Como macOS fija el tipo de ventana al crearla, activarlo o quitarlo vuelve a abrir la ventana.
+- Transparencia y Fondo por widget quedan para la Fase 9 (ver ahí). Sombra y Pin on back solo aplican a widgets despegados.
+- Cerrar desde el quick pickup: un widget despegado vuelve al tablero; uno del tablero se oculta.
+- Si el quick pickup está "dentro del menú de Nuggit", se abre desde "🧩 Widgets…" de ese menú, que solo aparece mientras hay algo en curso.
+
 ### Fase 5.5 — Dailies
 - Dailies según 9.13: crear, repetir por días, marcarlos hechos, y planearlos con Dip (con aprobación).
 - **Listo cuando:** creo "gimnasio" solo los miércoles y "bañarme" todos los días, y el miércoles aparecen los dos en hoy y el jueves solo "bañarme".
@@ -445,6 +497,11 @@ Cada fase termina con algo que se puede abrir y usar. **No pasar a la siguiente 
 ### Fase 9 — Pulido visual + personalización
 - Animaciones suaves y detalles de diseño.
 - **Personalización** en Ajustes → "Apariencia": elegir tema (claro/oscuro/sistema), **color de acento**, **fondo** del tablero (colores o imagen propia), y estilo de los widgets (sombra, transparencia, esquinas).
+- **Fondo de los widgets** con dos niveles:
+  - **General**: un color o una imagen para todos los widgets (Ajustes → Apariencia).
+  - **Por widget**: desde el engranaje (parte de arriba, opciones generales), cada widget puede tener **su propio color o imagen**, que manda sobre el general. Botón "Usar el general".
+  - Con imagen, el texto debe seguir leyéndose (capa oscura/clara automática encima de la imagen).
+- **Widget de imagen** (9.17).
 - Ícono y logo definitivos de Nuggit.
 
 ### Fase 10 — Ayuda, tutorial y FAQ

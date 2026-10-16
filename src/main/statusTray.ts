@@ -2,6 +2,7 @@ import { Menu, nativeImage, Tray, type MenuItemConstructorOptions } from 'electr
 import type { StatusIndicator, Task } from '../shared/types'
 import { pickNextActions, toISODate, type NextAction } from '../shared/nextAction'
 import { getNextActionState, onNextActionChange, skipAction, startAction } from './nextAction'
+import { getPickupMode, onPickupModeChange, showPickup } from './pickupTray'
 import { completeTask, getTasks, onTasksChange, setStatuses, updateTask } from './tasks'
 
 // While something is "En curso", Nuggit shows a small indicator in the macOS menu bar, so
@@ -96,6 +97,10 @@ function buildMenu(top: NextAction, others: Task[]): Menu {
   }
   items.push(
     { type: 'separator' },
+    // The quick pickup can live here instead of having its own icon (SPEC 9.16).
+    ...(getPickupMode() === 'menu'
+      ? [{ label: '🧩 Widgets…', click: () => showPickup() } as MenuItemConstructorOptions]
+      : []),
     {
       label: 'Mostrar en la barra',
       submenu: (Object.keys(MODE_LABELS) as StatusIndicator[]).map((m) => ({
@@ -155,4 +160,5 @@ export function initStatusTray(options: {
   render()
   onTasksChange(render)
   onNextActionChange(render)
+  onPickupModeChange(render)
 }

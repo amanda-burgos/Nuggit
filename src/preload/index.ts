@@ -15,6 +15,7 @@ const api: NuggitApi = {
     load: () => ipcRenderer.invoke('desktop:load'),
     save: (state) => ipcRenderer.invoke('desktop:save', state),
     updateConfig: (id, patch) => ipcRenderer.invoke('desktop:updateConfig', id, patch),
+    setLocked: (id, locked) => ipcRenderer.invoke('desktop:setLocked', id, locked),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: SavedDesktop): void => listener(state)
       ipcRenderer.on('desktop:changed', handler)
@@ -103,6 +104,9 @@ const api: NuggitApi = {
     detach: (id, rect) => ipcRenderer.invoke('widgetWindows:detach', id, rect),
     attach: (id) => ipcRenderer.invoke('widgetWindows:attach', id),
     setOptions: (id, options) => ipcRenderer.invoke('widgetWindows:setOptions', id, options),
+    open: (widget) => ipcRenderer.invoke('widgetWindows:open', widget),
+    focus: (id) => ipcRenderer.invoke('widgetWindows:focus', id),
+    close: (id) => ipcRenderer.invoke('widgetWindows:close', id),
     setAllVisible: (visible) => ipcRenderer.invoke('widgetWindows:setAllVisible', visible),
     setSizeLimits: (min, max) => ipcRenderer.send('widgetWindows:setSizeLimits', min, max)
   }

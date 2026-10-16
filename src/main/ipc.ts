@@ -1,6 +1,6 @@
-import { ipcMain } from 'electron'
+import { BrowserWindow, ipcMain } from 'electron'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
-import { getDesktop, replaceDesktop, updateWidgetConfig } from './desktop'
+import { getDesktop, replaceDesktop, setWidgetLocked, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
 import { proposeTenders, tenderQuestions } from './ai/tenders'
 import {
@@ -12,7 +12,7 @@ import {
   sendToDip,
   undoAction
 } from './dipChat'
-import { dipShortcutWorks, hidePopover } from './dipTray'
+import { dipShortcutWorks } from './dipTray'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
@@ -28,7 +28,10 @@ import {
 } from './tasks'
 import {
   attachWidget,
+  closeWidget,
   detachWidget,
+  focusWidget,
+  openWidget,
   setAllVisible,
   setWindowOptions,
   setSizeLimits
@@ -48,13 +51,17 @@ function isSize(value: unknown): value is { w: number; h: number } {
 
 interface IpcDeps {
   openSettings(): void
+  openBoard(): void // the main window, on the Inicio tab
 }
 
-export function registerIpc({ openSettings }: IpcDeps): void {
+export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('desktop:load', () => getDesktop())
   ipcMain.handle('desktop:save', (event, state: unknown) => replaceDesktop(state, event.sender))
   ipcMain.handle('desktop:updateConfig', (_event, id: unknown, patch: unknown) => {
     if (typeof id === 'string' && isObject(patch)) updateWidgetConfig(id, patch)
+  })
+  ipcMain.handle('desktop:setLocked', (_event, id: unknown, locked: unknown) => {
+    if (typeof id === 'string' && typeof locked === 'boolean') setWidgetLocked(id, locked)
   })
 
   ipcMain.handle('tasks:load', () => getTasks())
@@ -103,7 +110,8 @@ export function registerIpc({ openSettings }: IpcDeps): void {
   ipcMain.handle('dipChat:cancelAction', (_event, id: unknown) => cancelAction(id))
   ipcMain.handle('dipChat:undoAction', (_event, id: unknown) => undoAction(id))
 
-  ipcMain.on('popover:hide', () => hidePopover())
+  // Hides whichever menu bar window asked (Dip's mini chat or the quick pickup).
+  ipcMain.on('popover:hide', (event) => BrowserWindow.fromWebContents(event.sender)?.hide())
   ipcMain.handle('popover:shortcutWorks', () => dipShortcutWorks())
 
   ipcMain.on('app:openSettings', () => openSettings())
@@ -118,8 +126,17 @@ export function registerIpc({ openSettings }: IpcDeps): void {
     if (typeof id !== 'string' || !isObject(options)) return
     const valid: DetachedWindowOptions = {}
     if (typeof options.alwaysOnTop === 'boolean') valid.alwaysOnTop = options.alwaysOnTop
+    if (typeof options.allSpaces === 'boolean') valid.allSpaces = options.allSpaces
+    if (typeof options.pinBack === 'boolean') valid.pinBack = options.pinBack
     if (typeof options.shadow === 'boolean') valid.shadow = options.shadow
     setWindowOptions(id, valid)
+  })
+  ipcMain.handle('widgetWindows:open', (_event, widget: unknown) => openWidget(widget))
+  ipcMain.handle('widgetWindows:focus', (_event, id: unknown) => {
+    if (typeof id === 'string') focusWidget(id, openBoard)
+  })
+  ipcMain.handle('widgetWindows:close', (_event, id: unknown) => {
+    if (typeof id === 'string') closeWidget(id)
   })
   ipcMain.handle('widgetWindows:setAllVisible', (_event, visible: unknown) => {
     if (typeof visible === 'boolean') setAllVisible(visible)

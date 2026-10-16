@@ -1,6 +1,7 @@
 import { BrowserWindow, nativeTheme } from 'electron'
 import type { Settings } from '../shared/types'
 import { setDipTrayOptions } from './dipTray'
+import { setPickupMode } from './pickupTray'
 import { setStatusIndicator } from './statusTray'
 import { setAIProvider, updateSettings } from './storage'
 
@@ -19,6 +20,7 @@ function applySettings(settings: Settings): Settings {
   nativeTheme.themeSource = settings.theme
   setStatusIndicator(settings.statusIndicator)
   setDipTrayOptions(settings.dipTray)
+  setPickupMode(settings.pickupTray)
   for (const win of BrowserWindow.getAllWindows()) {
     win.webContents.send('settings:changed', settings)
   }

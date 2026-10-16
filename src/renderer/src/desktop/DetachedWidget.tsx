@@ -9,7 +9,8 @@ interface Props {
 }
 
 // One widget in its own window on the computer's desktop. The window itself is moved by
-// its header and resized from its edges; changes go through the main process.
+// its header and resized from its edges (unless it is fixed); changes go through the main
+// process. "Pin on top" is set from the quick pickup only (SPEC 9.16).
 export function DetachedWidget({ id }: Props): React.JSX.Element {
   const [desktop, setDesktop] = useState<SavedDesktop | null>(null)
   const instance = desktop?.widgets.find((w) => w.id === id)
@@ -46,21 +47,12 @@ export function DetachedWidget({ id }: Props): React.JSX.Element {
         instance={instance}
         def={def}
         showTitle={false}
-        alwaysOnTop={entry?.alwaysOnTop ?? false}
-        onToggleAlwaysOnTop={() => setOptions({ alwaysOnTop: !entry?.alwaysOnTop })}
-        windowSettings={
-          <div className="window-settings">
-            <div className="window-settings-label">Ventana</div>
-            <label>
-              <input
-                type="checkbox"
-                checked={entry?.shadow ?? false}
-                onChange={(e) => setOptions({ shadow: e.target.checked })}
-              />
-              Sombra
-            </label>
-          </div>
-        }
+        locked={instance.locked ?? false}
+        onSetLocked={(locked) => window.api.desktop.setLocked(id, locked).catch(report)}
+        shadow={entry?.shadow ?? false}
+        onSetShadow={(shadow) => setOptions({ shadow })}
+        pinBack={entry?.pinBack ?? false}
+        onSetPinBack={(pinBack) => setOptions({ pinBack })}
         onAttach={() => window.api.widgetWindows.attach(id).catch(report)}
         onUpdateConfig={(patch) => window.api.desktop.updateConfig(id, patch).catch(report)}
       />

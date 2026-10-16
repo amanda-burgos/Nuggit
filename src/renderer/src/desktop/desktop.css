@@ -263,17 +263,14 @@
   opacity: 1;
 }
 
-/* The pin is greyed out until "Mantener encima" is on. */
-.pin {
-  display: inline-block;
-  font-size: 0.85rem;
-  filter: grayscale(1);
-  opacity: 0.6;
+/* --- Fixed ("Fijar"): no grabbing, only the lock shows on hover --- */
+
+.widget.is-locked .widget-header {
+  cursor: default;
 }
 
-.pin.is-on {
-  filter: none;
-  opacity: 1;
+.widget-lock {
+  font-size: 0.8rem;
 }
 
 /* --- Detached widget: the whole window is the widget (macOS rounds its corners) --- */
@@ -299,33 +296,47 @@
   -webkit-app-region: no-drag;
 }
 
-/* Options of a detached window, shown above the widget's own settings. */
-.window-settings {
+/* A fixed window can't be dragged around. */
+.detached .widget.is-locked .widget-header {
+  -webkit-app-region: no-drag;
+}
+
+/* --- The ⚙︎ panel: general options on top, the widget's own below a line --- */
+
+.widget-settings {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   font-size: 0.9rem;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid var(--color-border);
 }
 
-.window-settings-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-}
-
-.window-settings label {
+.widget-settings-general {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.widget-settings-general label {
+  display: flex;
+  align-items: flex-start;
   gap: 8px;
   cursor: pointer;
 }
 
-.window-settings input {
+.widget-settings-general input {
+  margin-top: 3px;
   accent-color: var(--color-accent);
+}
+
+.widget-settings-general small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.widget-settings-own.has-divider {
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
 }
 
 /* Shown instead of a widget that needs AI while no key is saved. */

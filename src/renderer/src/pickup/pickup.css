@@ -1,0 +1,152 @@
+/* The quick pickup (SPEC 9.16): the whole window. */
+.pickup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+.pickup-search {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+}
+
+.pickup-search:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.pickup-lists {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pickup-lists h3 {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.pickup-lists ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pickup-row,
+.pickup-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.pickup-row:hover,
+.pickup-main:hover {
+  background: var(--color-surface-muted);
+}
+
+.pickup-row.is-open-widget {
+  padding: 0;
+  gap: 2px;
+  cursor: default;
+}
+
+.pickup-row.is-open-widget:hover {
+  background: none;
+}
+
+.pickup-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.pickup-icon {
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.pickup-name {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+
+.pickup-name small {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.pickup-hint {
+  color: var(--color-text-muted);
+}
+
+.pickup-open.is-open {
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-sm);
+}
+
+.pickup-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 4px 10px 10px 40px;
+}
+
+.pickup-settings label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.pickup-settings label.is-disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pickup-settings input {
+  margin-top: 3px;
+  accent-color: var(--color-accent);
+}
+
+.pickup-settings span {
+  display: flex;
+  flex-direction: column;
+}
+
+.pickup-settings small {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.pickup-empty {
+  margin: 12px 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}

@@ -1,6 +1,6 @@
-import { app, BrowserWindow, globalShortcut, nativeImage, screen, Tray } from 'electron'
+import { app, globalShortcut, nativeImage, Tray } from 'electron'
 import type { DipShortcut, Settings } from '../shared/types'
-import { createAppWindow } from './appWindow'
+import { createTrayPopover, type TrayPopover } from './trayPopover'
 import dipTemplate from '../../resources/icons/dipTemplate.png?asset'
 
 // SPEC 9.15: Dip's own menu bar icon (apart from Nuggit's, 9.11). Clicking it opens a small
@@ -8,10 +8,8 @@ import dipTemplate from '../../resources/icons/dipTemplate.png?asset'
 // It closes on a click outside, with its X or with Esc. An optional global shortcut opens it
 // from any app.
 
-const POPOVER = { width: 360, height: 500 }
-
 let tray: Tray | null = null
-let popover: BrowserWindow | null = null
+let popover: TrayPopover | null = null
 let shortcut: DipShortcut = ''
 let shortcutOk = true
 
@@ -25,70 +23,8 @@ function dipIcon(): Electron.NativeImage {
   return icon
 }
 
-function createPopover(): BrowserWindow {
-  const win = createAppWindow(
-    {
-      ...POPOVER,
-      frame: false,
-      resizable: false,
-      movable: false,
-      minimizable: false,
-      maximizable: false,
-      fullscreenable: false,
-      skipTaskbar: true,
-      alwaysOnTop: true,
-      // A non-activating panel: it opens over any app (even full screen) without bringing
-      // Nuggit's other windows to the front.
-      type: 'panel',
-      title: 'Dip'
-    },
-    { view: 'popover' }
-  )
-  win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })
-  win.on('blur', () => win.hide())
-  win.on('closed', () => {
-    if (popover === win) popover = null
-  })
-  return win
-}
-
-// Under the menu bar icon, or at the top center of the screen with the mouse.
-function place(win: BrowserWindow): void {
-  const anchor = tray?.getBounds()
-  const point =
-    anchor && anchor.width ? { x: anchor.x, y: anchor.y } : screen.getCursorScreenPoint()
-  const { workArea } = screen.getDisplayNearestPoint(point)
-  const x =
-    anchor && anchor.width
-      ? anchor.x + anchor.width / 2 - POPOVER.width / 2
-      : workArea.x + workArea.width / 2 - POPOVER.width / 2
-  win.setPosition(
-    Math.round(
-      Math.min(Math.max(x, workArea.x + 8), workArea.x + workArea.width - POPOVER.width - 8)
-    ),
-    Math.round(workArea.y + 6)
-  )
-}
-
-export function showPopover(): void {
-  if (!popover) popover = createPopover()
-  const win = popover
-  place(win)
-  const show = (): void => {
-    win.show()
-    win.focus()
-  }
-  if (win.webContents.isLoading()) win.webContents.once('did-finish-load', show)
-  else show()
-}
-
-export function hidePopover(): void {
-  popover?.hide()
-}
-
 function togglePopover(): void {
-  if (popover?.isVisible()) hidePopover()
-  else showPopover()
+  popover?.toggle(tray?.getBounds())
 }
 
 function setTrayVisible(visible: boolean): void {
@@ -121,8 +57,7 @@ export function dipShortcutWorks(): boolean {
 }
 
 export function initDipTray(options: Settings['dipTray']): void {
+  popover = createTrayPopover({ size: { width: 360, height: 500 }, view: 'popover', title: 'Dip' })
   setDipTrayOptions(options)
   app.on('will-quit', () => globalShortcut.unregisterAll())
-  // Load it ahead of time so it opens instantly the first time.
-  popover = createPopover()
 }

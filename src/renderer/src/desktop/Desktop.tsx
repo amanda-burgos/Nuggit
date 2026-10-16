@@ -129,6 +129,12 @@ export function Desktop({ desktop, store }: Props): React.JSX.Element {
                       y: origin.top + rect.y
                     })
                   }}
+                  locked={instance.locked ?? false}
+                  onSetLocked={(locked) =>
+                    window.api.desktop
+                      .setLocked(instance.id, locked)
+                      .catch((err) => console.error('Could not fix widget', err))
+                  }
                   onHide={() => store.setHidden(instance.id, true)}
                   onRemove={() => store.removeWidget(instance.id)}
                   onUpdateConfig={(patch) => store.updateConfig(instance.id, patch)}
