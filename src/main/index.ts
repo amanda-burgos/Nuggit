@@ -6,6 +6,7 @@ import { initDipChat } from './dipChat'
 import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
 import { initDesktop } from './desktop'
+import { initNextAction } from './nextAction'
 import { registerIpc } from './ipc'
 import { changeSettings } from './settings'
 import { initStatusTray } from './statusTray'
@@ -82,6 +83,11 @@ app.whenReady().then(async () => {
     await initTasks()
   } catch (err) {
     console.error('[startup] could not load tasks', err)
+  }
+  try {
+    await initNextAction()
+  } catch (err) {
+    console.error('[startup] could not load Next Action', err)
   }
   try {
     await initDipChat()

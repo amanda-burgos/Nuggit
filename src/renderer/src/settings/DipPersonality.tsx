@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { AIMessage } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
+import { DipIcon } from '../theme/DipIcon'
 import { StatusMessage, type SectionProps, type Status } from './shared'
 
 const MAX_LENGTH = 1500
@@ -34,7 +35,9 @@ export function DipPersonality({ settings, update }: SectionProps): React.JSX.El
 
   return (
     <section className="settings-section">
-      <h3>🫙 Dip</h3>
+      <h3>
+        <DipIcon /> Dip
+      </h3>
       <p className="settings-hint">
         Cambia cómo es Dip. Hay cosas que no cambian: nunca te regaña ni cambia tus datos sin
         preguntarte.

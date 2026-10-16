@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { DipShortcut } from '../../../shared/types'
+import { DipIcon } from '../theme/DipIcon'
 import type { SectionProps } from './shared'
 
 const SHORTCUTS: Array<{ value: DipShortcut; label: string }> = [
@@ -31,7 +32,9 @@ export function DipTraySettings({ settings, update }: SectionProps): React.JSX.E
 
   return (
     <div className="settings-subsection">
-      <h4>🫙 Dip en la barra de menú</h4>
+      <h4>
+        <DipIcon /> Dip en la barra de menú
+      </h4>
       <label className="settings-check">
         <input
           type="checkbox"

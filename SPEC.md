@@ -282,6 +282,12 @@ Funciona **sin IA**, con reglas simples:
 
 Botones: **[✅ Hecho]** (pasa al siguiente), **[Saltar]**, **[Solo empieza]** (convierte el paso en una versión de 2 minutos).
 
+Cómo quedó (Fase 5):
+- Las reglas viven en `src/shared/nextAction.ts`, las mismas para el widget, la barra de menú (9.11) y el chat de Dip.
+- "Tengo 15 min / 30 min / 1 h / Sin límite" para la regla 4. "Saltar" manda la acción al final de la fila. Las dos cosas duran solo el día (`next-action.json`).
+- "Hecho" en el último tender termina también la tarea grande. Siempre con "Deshacer".
+- "Solo empieza" marca la tarea en curso, muestra una cuenta atrás de 2 minutos y una versión chiquita del paso: la escribe Dip si hay IA y permiso para compartir tareas; si no, una frase fija.
+
 ### 9.6 Brain Dump
 Caja de texto para soltar todo rápido. Con IA: lo separa en tareas y notas y lo muestra para revisar antes de guardar. Sin IA: se guarda como nota.
 
@@ -344,7 +350,7 @@ Dip tiene **su propio ícono** en la barra de menú de macOS, aparte del de Nugg
 - Las acciones (crear, completar o cambiar tareas) usan las mismas tarjetas de confirmación de 8 ("Acciones de la IA"). Lo que se guarda aparece en **Tareas** de la app al momento.
 - Atajo global opcional para abrirlo desde cualquier app (ej: ⌥ + Espacio), configurable en Ajustes.
 - En Ajustes: mostrar u ocultar el ícono de Dip.
-- Ícono: silueta simple de un solo color (template image de macOS, ~18 px), que se vea bien en modo claro y oscuro.
+- Ícono: silueta simple de un solo color (template image de macOS, ~18 px), que se vea bien en modo claro y oscuro: `resources/icons/dipTemplate.png` (+ `@2x`). Dentro de la app, Dip usa `resources/icons/dip-icon.svg` (toma el color del texto).
 
 ## 10. Diseño visual
 

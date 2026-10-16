@@ -17,7 +17,7 @@ export interface WidgetSettingsProps<Config> {
 export interface WidgetDefinition<Config = unknown> {
   type: string // unique id, e.g. "tasks"
   name: string // visible name, e.g. "Tareas"
-  icon: string // emoji or icon name
+  icon: React.ReactNode // an emoji, or an icon component
   defaultSize: { w: number; h: number }
   minSize?: { w: number; h: number }
   maxSize?: { w: number; h: number }

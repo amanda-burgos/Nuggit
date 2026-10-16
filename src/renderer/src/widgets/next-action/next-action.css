@@ -1,0 +1,255 @@
+.next-action {
+  height: 100%;
+  container-type: size;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+}
+
+.next-action.is-full {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* --- "Tengo 15 min / 30 min / ..." --- */
+
+.next-action-time {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.next-action-time-label {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  margin-right: 2px;
+}
+
+.next-action-chip {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.next-action-chip:hover {
+  color: var(--color-text);
+  background: var(--color-surface-muted);
+}
+
+.next-action-chip.is-active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* --- The one thing to do --- */
+
+.next-action-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+}
+
+.next-action-card.is-started {
+  border-color: var(--color-accent);
+}
+
+.next-action-from {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.next-action-from:empty {
+  display: none;
+}
+
+.next-action-badge {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.next-action-title {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.next-action.is-full .next-action-title {
+  font-size: 1.6rem;
+}
+
+.next-action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.next-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.next-action-after {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.next-action-after span {
+  color: var(--color-text);
+}
+
+/* --- "Solo empieza" --- */
+
+.next-action-tiny {
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  border: 1px dashed var(--color-accent);
+}
+
+.next-action-tiny p {
+  margin: 4px 0 0;
+  line-height: 1.4;
+  user-select: text;
+}
+
+.next-action-tiny-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.next-action-countdown {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+}
+
+.next-action-tiny-end {
+  color: var(--color-text-muted);
+}
+
+/* --- Empty --- */
+
+.next-action-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.next-action-empty p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.next-action-empty .next-action-hint {
+  font-weight: normal;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  max-width: 280px;
+}
+
+/* --- After this --- */
+
+.next-action-later h3 {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.next-action-later ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.next-action-later li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+
+.next-action-later-root,
+.next-action-later-min {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.next-action-later-min {
+  white-space: nowrap;
+}
+
+/* In a small widget, the one thing to do comes first: "Después" only if there is room. */
+@container (max-height: 360px) {
+  .next-action.is-widget .next-action-later {
+    display: none;
+  }
+}
+
+/* --- Undo --- */
+
+.next-action-undo {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 999px;
+  background: var(--navy-800);
+  color: #f2f0fb;
+  box-shadow: var(--shadow-popover);
+}
+
+.next-action-undo .button-ghost {
+  color: var(--lavender-300);
+  font-weight: 600;
+}
+
+.next-action-undo .button-ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}

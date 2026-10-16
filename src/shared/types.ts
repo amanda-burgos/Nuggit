@@ -102,6 +102,23 @@ export interface Task {
   completedAt?: string
 }
 
+// A task's status before a change, so it can be undone.
+export interface TaskStatusChange {
+  id: string
+  status: TaskStatus
+}
+
+// Next Action (SPEC 9.5): what the user said today. Owned by the main process so the
+// widget and the menu bar agree. It is reset when the day changes.
+export interface NextActionState {
+  day: string // YYYY-MM-DD the values below belong to
+  skipped: string[] // task ids sent to the back of the line with "Saltar", oldest first
+  availableMin: number | null // "Tengo 30 min"; null = no limit
+}
+
+// "Solo empieza": a 2-minute version of a step.
+export type TinyStepResult = { ok: true; text: string; byAI: boolean }
+
 // Fields the interface may set. Empty strings / null clear an optional field.
 export interface TaskInput {
   title?: string
@@ -243,6 +260,10 @@ export interface NuggitApi {
       dueDate?: string
       steps: TenderStep[]
     }): Promise<Task[]>
+    // Marks a task or tender as done. If it was the last pending tender, its big task is
+    // done too. Returns what changed, so it can be undone with restoreStatuses().
+    complete(id: string): Promise<TaskStatusChange[]>
+    restoreStatuses(changes: TaskStatusChange[]): Promise<void>
     // Puts back tasks returned by remove() (undo).
     restore(tasks: Task[]): Promise<void>
     // Called whenever any window changes the tasks.
@@ -283,6 +304,17 @@ export interface NuggitApi {
     cancelAction(messageId: string): Promise<void>
     undoAction(messageId: string): Promise<void>
     onChange(listener: (state: DipChatState) => void): () => void
+  }
+  nextAction: {
+    load(): Promise<NextActionState>
+    setAvailable(minutes: number | null): Promise<void>
+    // "Saltar": sends that task or tender to the back of the line.
+    skip(taskId: string): Promise<void>
+    // "Empezar": the task becomes "En curso".
+    start(taskId: string): Promise<void>
+    // "Solo empieza": a 2-minute version of the step (Dip's, or a simple one without AI).
+    tinyStep(taskId: string): Promise<TinyStepResult>
+    onChange(listener: (state: NextActionState) => void): () => void
   }
   popover: {
     // Closes Dip's mini chat (the calling window).

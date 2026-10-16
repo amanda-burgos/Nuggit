@@ -1,9 +1,11 @@
+import type React from 'react'
 import type { AppTab } from '../../../shared/types'
+import { DipIcon } from '../theme/DipIcon'
 
 export interface TabInfo {
   key: AppTab
   label: string
-  icon: string
+  icon: React.ReactNode
   shortcut: string // the key pressed with ⌘
   widgetType?: string // tabs that show a widget at full size
 }
@@ -11,7 +13,7 @@ export interface TabInfo {
 // SPEC 9.0. Later, when they exist: Notas, Focus.
 export const TABS: TabInfo[] = [
   { key: 'home', label: 'Inicio', icon: '🏠', shortcut: '1' },
-  { key: 'dip', label: 'Dip', icon: '🫙', shortcut: '2', widgetType: 'dip' },
+  { key: 'dip', label: 'Dip', icon: <DipIcon />, shortcut: '2', widgetType: 'dip' },
   { key: 'tasks', label: 'Tareas', icon: '✅', shortcut: '3', widgetType: 'tasks' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]

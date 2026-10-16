@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type {
   AIStatus,
   DipChatState,
+  NextActionState,
   NuggitApi,
   SavedDesktop,
   Settings,
@@ -27,6 +28,8 @@ const api: NuggitApi = {
     remove: (id) => ipcRenderer.invoke('tasks:remove', id),
     createWithSteps: (input) => ipcRenderer.invoke('tasks:createWithSteps', input),
     restore: (tasks) => ipcRenderer.invoke('tasks:restore', tasks),
+    complete: (id) => ipcRenderer.invoke('tasks:complete', id),
+    restoreStatuses: (changes) => ipcRenderer.invoke('tasks:restoreStatuses', changes),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, tasks: Task[]): void => listener(tasks)
       ipcRenderer.on('tasks:changed', handler)
@@ -70,6 +73,18 @@ const api: NuggitApi = {
       const handler = (_event: IpcRendererEvent, state: DipChatState): void => listener(state)
       ipcRenderer.on('dipChat:changed', handler)
       return () => ipcRenderer.removeListener('dipChat:changed', handler)
+    }
+  },
+  nextAction: {
+    load: () => ipcRenderer.invoke('nextAction:load'),
+    setAvailable: (minutes) => ipcRenderer.invoke('nextAction:setAvailable', minutes),
+    skip: (id) => ipcRenderer.invoke('nextAction:skip', id),
+    start: (id) => ipcRenderer.invoke('nextAction:start', id),
+    tinyStep: (id) => ipcRenderer.invoke('nextAction:tinyStep', id),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, state: NextActionState): void => listener(state)
+      ipcRenderer.on('nextAction:changed', handler)
+      return () => ipcRenderer.removeListener('nextAction:changed', handler)
     }
   },
   popover: {

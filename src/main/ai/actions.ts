@@ -1,4 +1,6 @@
 import type { AIBackend, DipAction, Priority, Task } from '../../shared/types'
+import { pickNextActions } from '../../shared/nextAction'
+import { getNextActionState } from '../nextAction'
 import { loadSettings } from '../storage'
 import { getTasks } from '../tasks'
 import { dipInstructions } from './dip'
@@ -229,6 +231,17 @@ function parse(raw: string, tasks: Task[], userText: string): { text: string; ac
   }
 }
 
+// What the Next Action widget shows, so "¿qué hago ahora?" gets the same answer everywhere.
+function nextActionContext(tasks: Task[]): string {
+  const [next, ...later] = pickNextActions(tasks, getNextActionState(), isoDate(new Date()))
+  if (!next) return ''
+  const name = (a: typeof next): string =>
+    a.task === a.root ? `"${a.task.title}"` : `"${a.task.title}" (paso de "${a.root.title}")`
+  return `Si pregunta qué hacer ahora, Nuggit sugiere: ${name(next)}${
+    next.minutes ? `, unos ${next.minutes} min` : ''
+  }.${later.length ? ` Después: ${later.map(name).join(', ')}.` : ''} Sugiere eso mismo, con ánimo.`
+}
+
 export async function chatWithActions(
   messages: AIMessage[]
 ): Promise<{ text: string; action?: DipAction; backend: AIBackend }> {
@@ -237,7 +250,7 @@ export async function chatWithActions(
   const system = dipInstructions(
     settings.ai.shareTasksWithAI ? tasks : null,
     settings.dipPersonality,
-    [actionInstructions()]
+    [settings.ai.shareTasksWithAI ? nextActionContext(tasks) : '', actionInstructions()]
   )
   const { value, backend } = await withFallback(settings, (provider) =>
     provider.chat([{ role: 'system', content: system }, ...messages], { schema: SCHEMA })

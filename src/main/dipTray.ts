@@ -1,6 +1,7 @@
 import { app, BrowserWindow, globalShortcut, nativeImage, screen, Tray } from 'electron'
 import type { DipShortcut, Settings } from '../shared/types'
 import { createAppWindow } from './appWindow'
+import dipTemplate from '../../resources/icons/dipTemplate.png?asset'
 
 // SPEC 9.15: Dip's own menu bar icon (apart from Nuggit's, 9.11). Clicking it opens a small
 // floating window under the icon with a mini chat, the same conversation as the Dip tab.
@@ -14,38 +15,12 @@ let popover: BrowserWindow | null = null
 let shortcut: DipShortcut = ''
 let shortcutOk = true
 
-// A one-colour silhouette drawn in code: a little bowl of dip with a drop above it.
-// Marked as a template image, so macOS paints it right in light and dark menu bars.
+// A one-colour template image (with an @2x file next to it for Retina): macOS paints it
+// right in light and dark menu bars.
 let icon: Electron.NativeImage | null = null
 function dipIcon(): Electron.NativeImage {
   if (icon) return icon
-  const size = 18 // points
-  const scale = 2
-  const px = size * scale
-  const inShape = (x: number, y: number): boolean => {
-    // Bowl: the lower half of a circle, under a rounded rim.
-    const bowl = y >= 17 && Math.hypot(x - 18, y - 17) <= 14
-    const rim = y >= 14.5 && y <= 18 && x >= 3 && x <= 33
-    // Drop: a circle with a point on top.
-    const dropCircle = Math.hypot(x - 18, y - 9) <= 4
-    const dropTip = y >= 2 && y <= 9 && Math.abs(x - 18) <= ((y - 2) / 7) * 3.6
-    return bowl || rim || dropCircle || dropTip
-  }
-  const bitmap = Buffer.alloc(px * px * 4)
-  const samples = 4 // per axis, for smooth edges
-  for (let y = 0; y < px; y++) {
-    for (let x = 0; x < px; x++) {
-      let hits = 0
-      for (let sy = 0; sy < samples; sy++) {
-        for (let sx = 0; sx < samples; sx++) {
-          if (inShape(x + (sx + 0.5) / samples, y + (sy + 0.5) / samples)) hits++
-        }
-      }
-      // Black with coverage as alpha (BGRA, premultiplied: black stays 0).
-      bitmap[(y * px + x) * 4 + 3] = Math.round((255 * hits) / (samples * samples))
-    }
-  }
-  icon = nativeImage.createFromBitmap(bitmap, { width: px, height: px, scaleFactor: scale })
+  icon = nativeImage.createFromPath(dipTemplate)
   icon.setTemplateImage(true)
   return icon
 }

@@ -1,9 +1,11 @@
 import { Menu, nativeImage, Tray, type MenuItemConstructorOptions } from 'electron'
 import type { StatusIndicator, Task } from '../shared/types'
-import { getTasks, onTasksChange, updateTask } from './tasks'
+import { pickNextActions, toISODate, type NextAction } from '../shared/nextAction'
+import { getNextActionState, onNextActionChange, skipAction, startAction } from './nextAction'
+import { completeTask, getTasks, onTasksChange, setStatuses, updateTask } from './tasks'
 
 // While something is "En curso", Nuggit shows a small indicator in the macOS menu bar, so
-// you always know you're on something. What it shows is a setting: a lavender dot, the dot
+// you always know you're on something (the same task and step as the Next Action widget). What it shows is a setting: a lavender dot, the dot
 // plus the task name, just the name, or nothing. Clicking it opens a short menu.
 // It disappears as soon as nothing is in progress.
 let tray: Tray | null = null
@@ -50,46 +52,50 @@ function dotIcon(): Electron.NativeImage {
   return dot
 }
 
-function nextStep(task: Task, tasks: Task[]): Task | undefined {
-  return tasks
-    .filter((t) => t.parentId === task.id && t.status !== 'done')
-    .sort((a, b) => a.order - b.order)[0]
-}
-
-function buildMenu(doing: Task[], tasks: Task[]): Menu {
-  const items: MenuItemConstructorOptions[] = []
-  for (const task of doing) {
-    const parent = task.parentId ? tasks.find((t) => t.id === task.parentId) : undefined
-    const steps = tasks.filter((t) => t.parentId === task.id)
-    const step = nextStep(task, tasks)
-    items.push({ label: `▶ ${shorten(task.title, 48)}`, enabled: false })
-    if (parent) items.push({ label: `De: ${shorten(parent.title, 44)}`, enabled: false })
-    if (step) {
-      // The current small step comes first: one click marks it done and the menu moves on.
-      const number = steps.filter((t) => t.status === 'done').length + 1
-      items.push(
-        { label: `Paso ${number} de ${steps.length}`, enabled: false },
-        {
-          label: `✅ Listo: ${shorten(step.title, 40)}`,
-          click: () => updateTask(step.id, { status: 'done' })
-        },
-        {
-          label: 'Terminar toda la tarea',
-          click: () => updateTask(task.id, { status: 'done' })
-        }
-      )
-    } else {
-      items.push({
-        label: '✅ Marcar tarea como hecha',
-        click: () => updateTask(task.id, { status: 'done' })
-      })
-    }
-    items.push(
-      { label: '⏸ Pausar', click: () => updateTask(task.id, { status: 'todo' }) },
-      { type: 'separator' }
-    )
+function buildMenu(top: NextAction, others: Task[]): Menu {
+  const { task, root } = top
+  const items: MenuItemConstructorOptions[] = [
+    { label: `${top.started ? '▶' : 'Ahora:'} ${shorten(root.title, 48)}`, enabled: false }
+  ]
+  if (task !== root) {
+    const minutes = task.estimateMin ? ` (${task.estimateMin} min)` : ''
+    items.push({
+      label: `Paso ${top.stepNumber} de ${top.stepCount}: ${shorten(task.title, 40)}${minutes}`,
+      enabled: false
+    })
+  }
+  if (top.nextStep) {
+    items.push({ label: `Siguiente paso: ${shorten(top.nextStep.title, 40)}`, enabled: false })
+  }
+  items.push({ type: 'separator' })
+  if (!top.started) items.push({ label: '▶ Empezar', click: () => startAction(task.id) })
+  // Done with this step: the menu (and the Next Action widget) move on to the next one.
+  items.push({ label: '✅ Marcar como hecha', click: () => completeTask(task.id) })
+  if (task !== root) {
+    items.push({
+      label: 'Terminar toda la tarea',
+      click: () => updateTask(root.id, { status: 'done' })
+    })
+  }
+  items.push({ label: '⏭ Saltar', click: () => skipAction(task.id) })
+  if (top.started) {
+    items.push({
+      label: '⏸ Pausar',
+      click: () =>
+        setStatuses(
+          [root, task]
+            .filter((t) => t.status === 'doing')
+            .map((t) => ({ id: t.id, status: 'todo' }))
+        )
+    })
+  }
+  if (others.length) {
+    items.push({ type: 'separator' })
+    for (const t of others)
+      items.push({ label: `También en curso: ${shorten(t.title, 36)}`, enabled: false })
   }
   items.push(
+    { type: 'separator' },
     {
       label: 'Mostrar en la barra',
       submenu: (Object.keys(MODE_LABELS) as StatusIndicator[]).map((m) => ({
@@ -104,9 +110,13 @@ function buildMenu(doing: Task[], tasks: Task[]): Menu {
   return Menu.buildFromTemplate(items)
 }
 
-function render(tasks: Task[]): void {
-  const doing = tasks.filter((t) => t.status === 'doing')
-  if (doing.length === 0 || mode === 'off') {
+// SPEC 9.11: while something is "En curso", the menu bar shows what the Next Action widget
+// shows: the same task and the same next step.
+function render(): void {
+  const tasks = getTasks()
+  const inProgress = tasks.some((t) => t.status === 'doing')
+  const top = pickNextActions(tasks, getNextActionState(), toISODate(new Date()), 1)[0]
+  if (!inProgress || !top || mode === 'off') {
     tray?.destroy()
     tray = null
     return
@@ -116,20 +126,22 @@ function render(tasks: Task[]): void {
   if (!tray) tray = new Tray(showDot ? dotIcon() : nativeImage.createEmpty())
   else tray.setImage(showDot ? dotIcon() : nativeImage.createEmpty())
 
-  const name = shorten(doing[0].title)
-  const extra = doing.length > 1 ? ` +${doing.length - 1}` : ''
+  // Other big tasks also "En curso".
+  const others = tasks.filter((t) => !t.parentId && t.status === 'doing' && t.id !== top.root.id)
+  const name = shorten(top.task.title)
+  const extra = others.length ? ` +${others.length}` : ''
   if (mode === 'dot') tray.setTitle('')
   else if (mode === 'dot-title') tray.setTitle(`${name}${extra}`)
-  else tray.setTitle(`▶ ${name}${extra}`)
+  else tray.setTitle(`${top.started ? '▶ ' : ''}${name}${extra}`)
 
-  tray.setToolTip(`En curso: ${name}${extra}`)
-  tray.setContextMenu(buildMenu(doing, tasks))
+  tray.setToolTip(`${top.started ? 'En curso' : 'Ahora'}: ${name}${extra}`)
+  tray.setContextMenu(buildMenu(top, others))
 }
 
 export function setStatusIndicator(next: StatusIndicator): void {
   if (next === mode) return
   mode = next
-  render(getTasks())
+  render()
 }
 
 export function initStatusTray(options: {
@@ -140,6 +152,7 @@ export function initStatusTray(options: {
   mode = options.mode
   openApp = options.openApp
   chooseMode = options.chooseMode
-  render(getTasks())
+  render()
   onTasksChange(render)
+  onNextActionChange(render)
 }

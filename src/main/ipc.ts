@@ -13,14 +13,17 @@ import {
   undoAction
 } from './dipChat'
 import { dipShortcutWorks, hidePopover } from './dipTray'
+import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
 import {
+  completeTask,
   createTask,
   createTaskWithSteps,
   getTasks,
   removeTask,
   restoreTasks,
+  setStatuses,
   updateTask
 } from './tasks'
 import {
@@ -64,6 +67,16 @@ export function registerIpc({ openSettings }: IpcDeps): void {
   )
   ipcMain.handle('tasks:createWithSteps', (_event, input: unknown) => createTaskWithSteps(input))
   ipcMain.handle('tasks:restore', (_event, tasks: unknown) => restoreTasks(tasks))
+  ipcMain.handle('tasks:complete', (_event, id: unknown) =>
+    typeof id === 'string' ? completeTask(id) : []
+  )
+  ipcMain.handle('tasks:restoreStatuses', (_event, changes: unknown) => setStatuses(changes))
+
+  ipcMain.handle('nextAction:load', () => getNextActionState())
+  ipcMain.handle('nextAction:setAvailable', (_event, minutes: unknown) => setAvailable(minutes))
+  ipcMain.handle('nextAction:skip', (_event, id: unknown) => skipAction(id))
+  ipcMain.handle('nextAction:start', (_event, id: unknown) => startAction(id))
+  ipcMain.handle('nextAction:tinyStep', (_event, id: unknown) => tinyStep(id))
 
   ipcMain.handle('settings:load', () => loadSettings())
   ipcMain.handle('settings:update', (_event, patch: unknown) => changeSettings(patch))

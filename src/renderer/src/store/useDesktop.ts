@@ -13,7 +13,8 @@ function createDefaultDesktop(area: Size): DesktopState {
     detached: {},
     gridVersion: GRID_VERSION
   }
-  return addWidgetTo(empty, 'clock', area)
+  // First thing seen: what to do now (SPEC 9.5), then the clock.
+  return addWidgetTo(addWidgetTo(empty, 'next-action', area), 'clock', area)
 }
 
 // Rects as currently drawn on the board, for every visible widget.

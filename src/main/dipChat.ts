@@ -7,12 +7,15 @@ import type {
   DipChatState,
   DipTaskFields,
   Priority,
-  TaskInput
+  TaskInput,
+  TaskStatusChange
 } from '../shared/types'
+import { pickNextActions, toISODate } from '../shared/nextAction'
 import { errorMessage } from './ai'
 import { chatWithActions } from './ai/actions'
 import { readJson, writeJson } from './storage/jsonStore'
-import { createTask, getTasks, removeTask, updateTask } from './tasks'
+import { getNextActionState } from './nextAction'
+import { completeTask, createTask, getTasks, removeTask, setStatuses, updateTask } from './tasks'
 
 // The conversation with Dip, shared by the Dip widget, its detached window, the Dip tab and
 // the menu bar mini chat. Saved in dip-chat.json so the history survives restarts.
@@ -23,7 +26,9 @@ const MAX_HISTORY = 30
 
 // How to undo a saved action, by message id.
 type Undo =
-  { kind: 'remove'; taskId: string } | { kind: 'restore'; taskId: string; previous: TaskInput }
+  | { kind: 'remove'; taskId: string }
+  | { kind: 'restore'; taskId: string; previous: TaskInput }
+  | { kind: 'statuses'; previous: TaskStatusChange[] }
 
 let state: DipChatState = { messages: [], pending: false }
 let undos: Record<string, Undo> = {}
@@ -189,12 +194,13 @@ export function applyAction(messageId: unknown, input: unknown): { ok: boolean; 
     if (!task) return { ok: false, error: 'Esa tarea ya no existe.' }
 
     if (action.type === 'complete') {
-      undos[msg.id] = { kind: 'restore', taskId: task.id, previous: { status: task.status } }
-      updateTask(task.id, { status: 'done' })
+      // The same "Hecho" as Next Action: the last tender also finishes its big task.
+      undos[msg.id] = { kind: 'statuses', previous: completeTask(task.id) }
       setMessage(msg.id, {
         action: { type: 'complete', taskId: task.id, taskTitle: task.title },
         actionState: 'saved'
       })
+      suggestNext()
       return { ok: true }
     }
 
@@ -219,6 +225,20 @@ export function applyAction(messageId: unknown, input: unknown): { ok: boolean; 
   }
 }
 
+// After "ya terminé X" is saved, Dip says what comes next (the Next Action rules, no AI).
+function suggestNext(): void {
+  const next = pickNextActions(getTasks(), getNextActionState(), toISODate(new Date()), 1)[0]
+  let text = '¡Bien hecho! 🎉 No te queda nada pendiente. A descansar un ratito ✨'
+  if (next) {
+    const minutes = next.minutes ? ` (unos ${next.minutes} min)` : ''
+    text =
+      next.task === next.root
+        ? `¡Bien hecho! 🎉 Lo siguiente: «${next.task.title}»${minutes}.`
+        : `¡Bien hecho! 🎉 Siguiente paso de «${next.root.title}»: «${next.task.title}»${minutes}.`
+  }
+  commit({ ...state, messages: [...state.messages, message('assistant', text)] }, true)
+}
+
 export function cancelAction(messageId: unknown): void {
   const msg = state.messages.find((m) => m.id === messageId)
   if (msg?.action && msg.actionState === 'pending') setMessage(msg.id, { actionState: 'cancelled' })
@@ -229,6 +249,7 @@ export function undoAction(messageId: unknown): void {
   const undo = msg ? undos[msg.id] : undefined
   if (!msg || msg.actionState !== 'saved' || !undo) return
   if (undo.kind === 'remove') removeTask(undo.taskId)
+  else if (undo.kind === 'statuses') setStatuses(undo.previous)
   else updateTask(undo.taskId, undo.previous)
   delete undos[msg.id]
   setMessage(msg.id, { actionState: 'undone' })

@@ -1,6 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { randomUUID } from 'crypto'
-import type { Task, TaskInput } from '../shared/types'
+import type { Task, TaskInput, TaskStatusChange } from '../shared/types'
 import { isTask, loadTasks, saveTasks } from './storage'
 
 // Like the desktop, the main process holds the one true list of tasks, because the board
@@ -153,6 +153,40 @@ export function updateTask(id: string, patch: unknown): void {
   const next = applyInput(current, patch)
   next.updatedAt = new Date().toISOString()
   commit(tasks.map((t) => (t.id === id ? next : t)))
+}
+
+// "✅ Hecho" on a task or tender. Finishing the last pending tender finishes its big task
+// too. Returns the previous statuses, for "Deshacer".
+export function completeTask(id: string): TaskStatusChange[] {
+  const task = tasks.find((t) => t.id === id)
+  if (!task || task.status === 'done') return []
+  const changes: TaskStatusChange[] = [{ id: task.id, status: task.status }]
+  const parent = task.parentId ? tasks.find((t) => t.id === task.parentId) : undefined
+  const othersLeft = tasks.some(
+    (t) => t.parentId === task.parentId && t.id !== task.id && t.status !== 'done'
+  )
+  if (parent && parent.status !== 'done' && !othersLeft) {
+    changes.push({ id: parent.id, status: parent.status })
+  }
+  setStatuses(changes.map((c) => ({ id: c.id, status: 'done' })))
+  return changes
+}
+
+// Sets several statuses in one save (used by "Hecho" and its undo).
+export function setStatuses(input: unknown): void {
+  if (!Array.isArray(input)) return
+  const now = new Date().toISOString()
+  const byId = new Map<string, unknown>()
+  for (const c of input) if (isObject(c) && typeof c.id === 'string') byId.set(c.id, c.status)
+  let changed = false
+  const next = tasks.map((t) => {
+    if (!byId.has(t.id)) return t
+    const updated = applyInput(t, { status: byId.get(t.id) })
+    if (updated === t || updated.status === t.status) return t
+    changed = true
+    return { ...updated, updatedAt: now }
+  })
+  if (changed) commit(next)
 }
 
 // Removes a task and all its subtasks, and returns them so they can be restored.

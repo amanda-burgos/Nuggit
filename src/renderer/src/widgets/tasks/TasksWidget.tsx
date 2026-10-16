@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { Task, TaskStatus } from '../../../../shared/types'
 import { useTasks } from '../../store/useTasks'
+import { useToday } from '../../store/useToday'
 import type { WidgetProps } from '../types'
-import { groupTasks, subtasksOf, toISODate, type GroupKey } from './grouping'
+import { groupTasks, subtasksOf, type GroupKey } from './grouping'
 import { TaskItem } from './TaskItem'
 import './tasks.css'
 
@@ -36,16 +37,6 @@ function emptyText(filter: TasksFilter): string {
   if (filter === 'today') return 'Nada para hoy. ¡Bien! 🌤️'
   if (filter === 'done') return 'Todavía no hay tareas hechas. Ya llegarán ✨'
   return 'Nada pendiente por aquí. Escribe arriba lo primero que se te ocurra ✨'
-}
-
-// Today's date, refreshed every minute so groups move on at midnight.
-function useToday(): string {
-  const [today, setToday] = useState(() => toISODate(new Date()))
-  useEffect(() => {
-    const timer = setInterval(() => setToday(toISODate(new Date())), 60_000)
-    return () => clearInterval(timer)
-  }, [])
-  return today
 }
 
 export function TasksWidget({

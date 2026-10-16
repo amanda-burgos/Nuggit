@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { AINotice } from '../desktop/AINotice'
 import { useAIStatus } from '../store/useAIStatus'
 import { useSettings } from '../store/useSettings'
+import { DipIcon } from '../theme/DipIcon'
 import { DipWidget } from '../widgets/dip/DipWidget'
 import './popover.css'
 
@@ -26,7 +27,7 @@ export function DipPopover(): React.JSX.Element {
     <div className="popover">
       <header className="popover-header">
         <span className="popover-title">
-          <span aria-hidden>🫙</span> Dip
+          <DipIcon /> Dip
         </span>
         <button className="icon-button" title="Cerrar (Esc)" onClick={close}>
           ×
