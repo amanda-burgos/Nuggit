@@ -50,7 +50,7 @@ export type ThemePreference = 'light' | 'dark' | 'system'
 export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'Command+Shift+Space'
 
 // Tabs of the control center (SPEC 9.0).
-export type AppTab = 'home' | 'dip' | 'tasks' | 'settings'
+export type AppTab = 'home' | 'dip' | 'tasks' | 'next' | 'tenders' | 'settings'
 
 export interface UISettings {
   tab: AppTab // last open tab

@@ -242,13 +242,15 @@ La ventana principal de Nuggit tiene una **barra lateral** con pestañas. Cada p
 - **Inicio**: el tablero de widgets (lo que ya existe).
 - **Dip**: el chat con Dip en grande, con historial.
 - **Tareas**: la lista de tareas completa, con subtareas/tenders, filtros simples (hoy, pendientes, hechas).
+- **Ahora**: Next Action ("¿Qué hago ahora?", 9.5) en grande.
+- **Tenders**: dividir una tarea grande en pasitos (9.3) en grande.
 - **Ajustes**: Settings (IA, personalidad de Dip, barra de menú, tema...).
-- Más adelante, cuando existan: **Notas**, **Focus**.
+- Toda feature útil tiene su pestaña. Más adelante, cuando existan: **Notas**, **Focus**.
 
 Reglas:
 - El panel y el widget de una misma feature usan **el mismo componente** (prop `size: "widget" | "full"`), para no duplicar código ni diseño.
 - La barra lateral es colapsable (solo íconos) y responsive.
-- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘, Ajustes.
+- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenders, ⌘, Ajustes.
 - Recordar la última pestaña abierta.
 
 ### 9.1 Escritorio de widgets

@@ -23,7 +23,7 @@ function App(): React.JSX.Element {
   // Any window (e.g. a detached Dip widget) can ask to open Settings here.
   useEffect(() => window.api.app.onOpenSettings(() => selectTab('settings')), [selectTab])
 
-  // ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘, Ajustes.
+  // ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenders, ⌘, Ajustes.
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return

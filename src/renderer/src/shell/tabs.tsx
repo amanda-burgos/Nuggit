@@ -10,10 +10,12 @@ export interface TabInfo {
   widgetType?: string // tabs that show a widget at full size
 }
 
-// SPEC 9.0. Later, when they exist: Notas, Focus.
+// SPEC 9.0. Every useful feature gets its tab. Later, when they exist: Notas, Focus.
 export const TABS: TabInfo[] = [
   { key: 'home', label: 'Inicio', icon: '🏠', shortcut: '1' },
   { key: 'dip', label: 'Dip', icon: <DipIcon />, shortcut: '2', widgetType: 'dip' },
   { key: 'tasks', label: 'Tareas', icon: '✅', shortcut: '3', widgetType: 'tasks' },
+  { key: 'next', label: 'Ahora', icon: '🎯', shortcut: '4', widgetType: 'next-action' },
+  { key: 'tenders', label: 'Tenders', icon: '🪜', shortcut: '5', widgetType: 'tenders' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]
