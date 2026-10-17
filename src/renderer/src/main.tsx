@@ -14,6 +14,9 @@ const params = new URLSearchParams(window.location.search)
 const detachedId = params.get('widget')
 const view = params.get('view')
 
+// A detached widget's window is transparent; its page draws the rounded card.
+if (detachedId) document.documentElement.classList.add('is-detached-window')
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     {view === 'popover' ? (

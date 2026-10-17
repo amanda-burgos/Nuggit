@@ -1,4 +1,4 @@
-import { BrowserWindow, nativeTheme, screen, type Rectangle, type WebContents } from 'electron'
+import { BrowserWindow, screen, type Rectangle, type WebContents } from 'electron'
 import { randomUUID } from 'crypto'
 import type {
   DetachedWidget,
@@ -71,9 +71,11 @@ function ensureVisible(b: Rectangle): Rectangle {
   }
 }
 
-// Shown behind the page while it loads or resizes; matches --color-surface.
-function surfaceColor(): string {
-  return nativeTheme.shouldUseDarkColors ? '#1b2346' : '#ffffff'
+// Widget windows are transparent and the page draws the rounded card itself. An opaque
+// frameless window gets a thin light edge from macOS that stays even without a shadow;
+// a transparent one doesn't. With "Sombra", macOS draws the shadow around the card's shape.
+function refreshShadow(win: BrowserWindow): void {
+  if (!win.isDestroyed() && win.hasShadow()) win.invalidateShadow()
 }
 
 function queueBounds(id: string, win: BrowserWindow): void {
@@ -106,7 +108,10 @@ function applyWindowState(win: BrowserWindow, entry: DetachedWidget, locked: boo
   if (win.isMovable() === locked) win.setMovable(!locked)
   if (win.isResizable() === locked) win.setResizable(!locked)
   const shadow = entry.shadow ?? false
-  if (win.hasShadow() !== shadow) win.setHasShadow(shadow)
+  if (win.hasShadow() !== shadow) {
+    win.setHasShadow(shadow)
+    refreshShadow(win)
+  }
 }
 
 function isLocked(id: string): boolean {
@@ -121,14 +126,15 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
       ...bounds,
       title: 'Nuggit',
       frame: false,
-      roundedCorners: true,
+      transparent: true,
+      roundedCorners: false,
       resizable: true,
       minimizable: false,
       maximizable: false,
       fullscreenable: false,
       skipTaskbar: true,
       hasShadow: entry.shadow ?? false,
-      backgroundColor: surfaceColor(),
+      backgroundColor: '#00000000',
       // "Pin on back": the desktop picture's level, behind its files and icons.
       ...(entry.pinBack ? { type: 'desktop' } : {})
     },
@@ -141,6 +147,8 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
     // Set again now: macOS ignores "can't move / resize" set before a window first shows.
     const current = getDesktop()?.detached?.[id]
     if (current) applyWindowState(win, current, isLocked(id))
+    // The shadow follows what is drawn, so work it out again once the card is there.
+    setTimeout(() => refreshShadow(win), 300)
     if (hiddenForLockdown) return
     // Just detached: bring it forward. Restored at launch: don't steal focus.
     if (focusOnShow.delete(id)) win.show()
@@ -150,6 +158,7 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
   const track = (): void => queueBounds(id, win)
   win.on('move', track)
   win.on('resize', track)
+  win.on('resized', () => refreshShadow(win))
   if (!sameRectangle(saved, bounds)) track()
 
   win.on('closed', () => {
@@ -204,9 +213,6 @@ export function initWidgetWindows(): void {
   const recheckSoon = (): void => void setTimeout(recheckVisibility, 500)
   screen.on('display-removed', recheckSoon)
   screen.on('display-metrics-changed', recheckSoon)
-  nativeTheme.on('updated', () => {
-    for (const win of windows.values()) win.setBackgroundColor(surfaceColor())
-  })
 }
 
 // `rect` is relative to the content area of the window that asked (the board).
