@@ -142,17 +142,29 @@ app.whenReady().then(async () => {
   })
 })
 
-// Finish any pending saves before quitting, so the last change is never lost.
-let writesFlushed = false
-app.on('before-quit', (event) => {
+// Finish any pending saves before quitting, so the last change is never lost. Then exit for
+// sure: a second, normal quit can be cut short (e.g. when the windows were already closed by
+// a signal), which left Nuggit running with no windows and its menu bar icons behind.
+let quitting = false
+function saveAndExit(): void {
+  if (quitting) return
+  quitting = true
   prepareQuit()
-  if (writesFlushed) return
+  flushWrites()
+    .catch((err) => console.error('[quit] could not finish saving', err))
+    .finally(() => app.exit(0))
+}
+
+app.on('before-quit', (event) => {
   event.preventDefault()
-  flushWrites().finally(() => {
-    writesFlushed = true
-    app.quit()
-  })
+  saveAndExit()
 })
+
+// Asked to stop from outside: `npm run dev` restarting after a code change, or the system
+// shutting down.
+for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+  process.on(signal, saveAndExit)
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
