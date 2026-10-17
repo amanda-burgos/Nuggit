@@ -35,9 +35,24 @@ export function CustomServerSettings({
   const changed = JSON.stringify(draft) !== JSON.stringify(saved ?? null)
   const canSave = Boolean(draft.model) && filled.length > 0 && !badUrl && changed
 
-  const save = (): void => {
-    update({ ai: { custom: draft } })
-    setStatus({ kind: 'info', text: 'Servidor guardado. Revisando si responde…' })
+  // Saved straight through the main process, so "guardado" is only said once settings.json
+  // really has it. Every window (this one too) then gets the new settings.
+  const save = async (): Promise<void> => {
+    setStatus({ kind: 'info', text: 'Guardando…' })
+    try {
+      const result = await window.api.settings.update({ ai: { custom: draft } })
+      if (result.ai.custom?.model === draft.model) {
+        setStatus({ kind: 'ok', text: 'Servidor guardado ✓ Revisando si responde…' })
+      } else {
+        setStatus({
+          kind: 'error',
+          text: 'No se guardó. Revisa que las direcciones empiecen con http:// y que el modelo no tenga espacios. Si acabas de actualizar Nuggit, ciérrala y ábrela otra vez.'
+        })
+      }
+    } catch (err) {
+      console.error('Could not save the server', err)
+      setStatus({ kind: 'error', text: 'No pude guardar el servidor. Intenta otra vez.' })
+    }
   }
 
   const remove = (): void => {
