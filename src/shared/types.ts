@@ -309,6 +309,27 @@ export interface AIStatus {
 
 export type AISaveKeyResult = { ok: true } | { ok: false; error: string }
 
+// SPEC 8.1: the provider and model each agent uses, and where that comes from: the
+// environment (.env), Ajustes or config/ai.defaults.json.
+export type AIConfigSource = 'env' | 'settings' | 'default'
+
+export interface AIAgentInfo {
+  name: string
+  label: string
+  purpose: string
+  provider: 'auto' | AIBackend
+  providerSource: AIConfigSource
+  backend: AIBackend | null // what it would use right now (null = nothing available)
+  model: string // of that backend; '' = the provider picks (Ollama: the first installed)
+  modelSource: AIConfigSource
+}
+
+export interface AIAgentsInfo {
+  agents: AIAgentInfo[]
+  envFile: string | null // the .env that was loaded, if any
+  logFile: string // logs/agents.log
+}
+
 // API exposed by the preload script on `window.api`.
 export interface NuggitApi {
   desktop: {
@@ -356,6 +377,8 @@ export interface NuggitApi {
     saveServerKey(key: string): Promise<AISaveKeyResult>
     removeServerKey(): Promise<void>
     status(): Promise<AIStatus>
+    // Which provider and model each agent uses, and where that comes from.
+    agents(): Promise<AIAgentsInfo>
     // Called when what Dip can use changes (key saved, Ollama opened or closed...).
     onStatusChange(listener: (status: AIStatus) => void): () => void
     // Tests what Dip is using right now.

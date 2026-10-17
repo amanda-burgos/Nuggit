@@ -1,8 +1,8 @@
 import { BrowserWindow } from 'electron'
 import type { NextActionState, TinyStepResult } from '../shared/types'
 import { activeState, toISODate } from '../shared/nextAction'
-import { getStatus, withFallback } from './ai'
-import { dipBase } from './ai/dip'
+import { askAgent, getStatus } from './ai'
+import { dip } from './ai/agents'
 import { loadSettings } from './storage'
 import { readJson, writeJson } from './storage/jsonStore'
 import { getTasks, updateTask } from './tasks'
@@ -93,25 +93,14 @@ export async function tinyStep(taskId: unknown): Promise<TinyStepResult> {
     return { ok: true, text: simpleTinyStep(task.title), byAI: false }
   }
   const parent = task.parentId ? getTasks().find((t) => t.id === task.parentId) : undefined
-  const instructions = dipBase(settings.dipPersonality, [
-    `A la persona le cuesta empezar. Convierte el paso en una versión que tome solo 2 minutos: la primera acción física y concreta (abrir, sacar, escribir una frase...).
-Responde con UNA sola frase corta (máximo 25 palabras), sin listas ni comillas, empezando con un verbo.`
-  ])
   const request = parent
     ? `Paso: "${task.title}" (de la tarea "${parent.title}")`
     : `Tarea: "${task.title}"`
   try {
-    const { value } = await withFallback(settings, (provider) =>
-      provider.chat([
-        { role: 'system', content: instructions },
-        { role: 'user', content: request }
-      ])
-    )
-    const text = value
-      .trim()
-      .replace(/^["«]|["»]$/g, '')
-      .slice(0, 300)
-    if (text) return { ok: true, text, byAI: true }
+    const { value } = await askAgent(dip, 'tinyStep', { personality: settings.dipPersonality }, [
+      { role: 'user', content: request }
+    ])
+    return { ok: true, text: value, byAI: true }
   } catch (err) {
     console.warn('[next-action] tiny step without AI', err)
   }

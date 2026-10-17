@@ -1,7 +1,8 @@
 import { app, nativeTheme, type BrowserWindow } from 'electron'
 import type { Settings, StatusIndicator } from '../shared/types'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
-import { initAI } from './ai'
+import { initAI, setEnvFile } from './ai'
+import { loadDotEnv } from './ai/config'
 import { initDipChat } from './dipChat'
 import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
@@ -17,6 +18,10 @@ import { loadSettings } from './storage'
 import { flushWrites } from './storage/jsonStore'
 import { initWidgetWindows, prepareQuit } from './widgetWindows'
 import icon from '../../resources/icon.png?asset'
+
+// SPEC 8.1: AI settings from a .env file (the project folder in development, or the data
+// folder). Real environment variables win over it.
+setEnvFile(loadDotEnv([app.getAppPath(), process.cwd(), app.getPath('userData')]))
 
 // Optional separate data folder (handy for testing without touching your real data)
 if (process.env['NUGGIT_USER_DATA']) {

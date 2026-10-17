@@ -2,9 +2,6 @@ import { ApiError, GoogleGenAI } from '@google/genai'
 import type { AIMessage, AIModelOption } from '../../shared/types'
 import { AIError, type AIProvider, type ChatOptions } from './provider'
 
-// Google keeps this alias pointed at its current Flash model, which the free tier includes.
-export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest'
-
 const TIMEOUT_MS = 30_000
 // Models that can chat but are not meant for it (images, speech, embeddings...).
 const NOT_FOR_CHAT = /image|tts|audio|live|embedding|robotics|computer-use|veo|imagen/i

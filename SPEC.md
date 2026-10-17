@@ -243,6 +243,35 @@ La IA **propone**, el usuario **confirma**. Toda acción que cambie datos (crear
 
 ---
 
+### 8.1 Agentes, configuración y autocorrección (requisitos del bootcamp)
+
+**Agentes.** Nuggit tiene varios agentes, todos sobre la misma capa `AIProvider`:
+- `dip` (chat), `tenderizer` (dividir tareas), `dailies` (planear rutinas), `actions` (decidir/ejecutar acciones sobre tareas), y después `brainDump`.
+- Cada agente se define en `src/main/ai/agents/` con: nombre, instrucciones (system prompt), schema de salida (si devuelve JSON) y qué herramientas/acciones puede usar.
+
+**Proveedor y modelo por configuración, sin tocar código.** Orden de prioridad:
+1. **Variables de entorno / `.env`** (para desarrollo y para el profe): ej.
+   - `NUGGIT_AI_PROVIDER=gemini|ollama|openaiCompatible|auto`
+   - `NUGGIT_AI_MODEL=...`
+   - `NUGGIT_AI_ORDER=openaiCompatible,ollama,gemini` (orden del modo auto)
+   - `NUGGIT_OLLAMA_URL=http://127.0.0.1:11434`
+   - `NUGGIT_OPENAI_BASE_URLS=url1,url2` · `NUGGIT_OPENAI_MODEL=...` · `NUGGIT_OPENAI_API_KEY=...`
+   - `GEMINI_API_KEY=...`
+   - Por agente (opcional): `NUGGIT_AGENT_TENDERIZER_PROVIDER`, `NUGGIT_AGENT_TENDERIZER_MODEL`, etc.
+2. **Ajustes de la app** (`settings.json`).
+3. **Valores por defecto** en un archivo de config versionado (`config/ai.defaults.json`), no hardcodeados en el código.
+- Se incluye **`.env.example`** con todas las variables documentadas (sin valores secretos). `.env` nunca se sube.
+- Ajustes muestra qué proveedor/modelo está usando cada agente y **de dónde viene** (env, ajustes o default).
+
+**Autocorrección: los errores vuelven al agente.** Un solo helper (`runAgent`) para todos los agentes:
+1. Llama al modelo.
+2. **Valida** la respuesta (JSON + schema con zod; acciones: que existan los IDs, campos válidos, fechas correctas...).
+3. Si falla, **le reenvía al agente su respuesta y el error exacto** ("Tu respuesta falló porque: ... Corrígela y responde solo con JSON válido según el schema") y vuelve a intentar.
+4. Lo mismo si una **acción falla al ejecutarse** (ej. "no existe la tarea X"): el error vuelve al agente para que corrija o pregunte.
+5. Máximo **2 reintentos** por proveedor; si sigue fallando, pasa al siguiente proveedor del modo auto; si todos fallan, mensaje amable al usuario.
+- Cada intento queda en un **log** (`logs/agents.log`, sin datos sensibles) con: agente, proveedor, modelo, error y si se corrigió. Útil para demostrar el mecanismo.
+- Tests: casos con respuestas inválidas simuladas (proveedor falso) que prueban que el agente recibe el error y se corrige.
+
 ## 9. Features
 
 ### 9.0 Centro de control (navegación)
@@ -498,6 +527,20 @@ Cómo quedó (Fase 5.5):
 - Si borras la copia de hoy a mano, no vuelve hasta el próximo día que toque.
 - Racha: solo se muestra desde 2 seguidas (🔥 3) y los días que no tocan no la rompen. Si se rompe, simplemente desaparece.
 - Pestaña **Dailies** (⌘6) y widget, con "Planear con Dip" (preguntas → propuesta editable → Guardar, con Deshacer).
+
+### Fase 5.7 — Agentes configurables + autocorrección (para el lunes)
+- Según 8.1: agentes separados, `.env` / variables de entorno con prioridad sobre Ajustes, `config/ai.defaults.json`, `.env.example`.
+- `runAgent` con validación y reenvío de errores al agente (máx. 2 reintentos), log de intentos y tests.
+- **Listo cuando:** cambio `NUGGIT_AI_PROVIDER` y `NUGGIT_AI_MODEL` en `.env`, reinicio, y Dip usa ese proveedor/modelo sin tocar código; y en el log se ve un caso donde el Tenderizer devolvió JSON inválido, recibió el error y se corrigió solo.
+
+Cómo quedó (Fase 5.7):
+- Agentes en `src/main/ai/agents/`: `dip` (chat, personalidad, "Solo empieza"), `actions`, `tenderizer`, `dailies`. Cada uno: nombre, instrucciones, schema JSON para el proveedor + schema zod que valida, y `tools` (solo `actions` puede proponer create/complete/update).
+- `config/ai.defaults.json` (validado con zod al arrancar) · `.env.example` documentado. `.env` se busca en la carpeta del proyecto, la carpeta actual o la de datos; las variables reales mandan sobre `.env`. En auto, `NUGGIT_AI_MODEL` es para el primero del orden. Extras: `NUGGIT_GEMINI_MODEL`, `NUGGIT_OLLAMA_MODEL`.
+- `runAgent` (sin Electron, con tests): un error del proveedor (caído, sin key) pasa directo al siguiente; una respuesta inválida se le devuelve al agente con el error exacto, máx. 2 reintentos. En `actions`, "no existe la tarea X" vuelve al agente, que corrige o pregunta (la ejecución real sigue siendo después de que la persona confirma).
+- Log: `logs/agents.log` en la carpeta de datos, una línea JSON por intento; el texto entre comillas se borra. Rota a `.old` pasando 1 MB.
+- Ajustes → IA de Dip → "🧠 Agentes": IA y modelo de cada agente y de dónde viene (.env / Ajustes / por defecto), qué `.env` se cargó y dónde está el log.
+- Demo para clase: `NUGGIT_DEMO_BREAK_FIRST_ANSWER=tenderizer` corta a la mitad la primera respuesta de ese agente; en el log sale `"demo": true`. Con la IA de verdad, el schema casi nunca falla, así que esto sirve para mostrarlo a voluntad.
+- Tests: `npm test` (vitest, proveedor falso).
 
 ### Fase 6 — Brain Dump + Quick Notes
 

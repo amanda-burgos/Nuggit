@@ -104,6 +104,7 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('ai:setProvider', (_event, provider: unknown) => ai.setProvider(provider))
   ipcMain.handle('ai:test', () => ai.testConnection())
   ipcMain.handle('ai:status', () => ai.getStatus())
+  ipcMain.handle('ai:agents', () => ai.agentsInfo())
   ipcMain.handle('ai:chat', (_event, messages: unknown) => ai.chat(messages))
   ipcMain.handle('ai:tenderQuestions', (_event, task: unknown) => tenderQuestions(task))
   ipcMain.handle('ai:proposeTenders', (_event, request: unknown) => proposeTenders(request))

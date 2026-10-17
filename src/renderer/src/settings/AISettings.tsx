@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { AIBackend, AIModelOption, AIStatus, Settings } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
+import { AgentsInfo } from './AgentsInfo'
 import { CustomServerSettings } from './CustomServerSettings'
 import { StatusMessage, type SectionProps, type Status } from './shared'
 
@@ -196,6 +197,8 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
           <GeminiGuide />
         </div>
       )}
+
+      <AgentsInfo settings={settings} aiStatus={aiStatus} />
 
       <label className="settings-check">
         <input

@@ -1,46 +1,16 @@
-import type {
-  TenderAnswer,
-  TenderPlanResult,
-  TenderQuestionsResult,
-  TenderStep
-} from '../../shared/types'
-import { errorMessage } from './index'
-import { AIError } from './provider'
-import { askJson as ask, parseObject, text } from './structured'
+import type { TenderAnswer, TenderPlanResult, TenderQuestionsResult } from '../../shared/types'
+import { loadSettings } from '../storage'
+import { tenderizer } from './agents'
+import { cleanSteps } from './agents/tenderizer'
+import { text } from './agents/types'
+import { askAgent, errorMessage } from './index'
 
-// SPEC 9.3: Dip asks 2 or 3 short questions about a big task, then proposes small steps
-// (5–25 min each). Nothing is saved here: the interface shows the steps to edit and saves
-// them only when the user says so. Every AI answer is JSON, checked before use.
+// SPEC 9.3: the Tenderizer agent asks 2 or 3 short questions about a big task, then
+// proposes small steps. Nothing is saved here: the interface shows the steps to edit and
+// saves them only when the user says so. The prompts and checks live in agents/tenderizer.
 
 const MAX_TASK = 300
 const MAX_ANSWER = 500
-const MAX_STEPS = 15
-const MIN_MINUTES = 5
-const MAX_MINUTES = 25
-const DATE = /^\d{4}-\d{2}-\d{2}$/
-
-const QUESTIONS_SCHEMA = {
-  type: 'object',
-  properties: { questions: { type: 'array', items: { type: 'string' } } },
-  required: ['questions']
-}
-
-const PLAN_SCHEMA = {
-  type: 'object',
-  properties: {
-    title: { type: 'string' },
-    dueDate: { type: 'string' },
-    steps: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: { title: { type: 'string' }, minutes: { type: 'integer' } },
-        required: ['title', 'minutes']
-      }
-    }
-  },
-  required: ['title', 'dueDate', 'steps']
-}
 
 // --- 1. Questions ---
 
@@ -48,19 +18,13 @@ export async function tenderQuestions(input: unknown): Promise<TenderQuestionsRe
   const task = text(input, MAX_TASK)
   if (!task) return { ok: false, error: 'Escribe primero la tarea grande.' }
   try {
-    const raw = await ask(
-      `Vas a ayudar a dividir una tarea grande en pasos chiquitos. Antes, haz 2 o 3 preguntas cortas (máximo 12 palabras cada una) para entender lo que necesitas: para cuándo es, qué tiene ya hecho, si es en grupo, qué le piden... Solo pregunta lo que sirva para dividirla bien, nada obvio.
-Responde SOLO con JSON: {"questions": ["...", "..."]}`,
-      `Tarea grande: "${task}"`,
-      QUESTIONS_SCHEMA
+    const settings = await loadSettings()
+    const { value: questions } = await askAgent(
+      tenderizer,
+      'questions',
+      { personality: settings.dipPersonality },
+      [{ role: 'user', content: `Tarea grande: "${task}"` }]
     )
-    const data = parseObject(raw)
-    const questions = (Array.isArray(data.questions) ? data.questions : [])
-      .map((q) => text(q, 200))
-      .filter(Boolean)
-      .slice(0, 3)
-    if (questions.length === 0)
-      throw new AIError('Dip no supo qué preguntar. ¿Lo intentas otra vez?')
     return { ok: true, questions }
   } catch (err) {
     return { ok: false, error: errorMessage(err) }
@@ -78,33 +42,6 @@ function cleanAnswers(value: unknown): TenderAnswer[] {
       answer: text((a as TenderAnswer)?.answer, MAX_ANSWER)
     }))
     .filter((a) => a.question)
-}
-
-function cleanSteps(value: unknown, clampMinutes: boolean): TenderStep[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .map((s) => {
-      const step = (typeof s === 'object' && s !== null ? s : {}) as Record<string, unknown>
-      const minutes = Number.isFinite(step.minutes) ? Math.round(step.minutes as number) : 10
-      return {
-        title: text(step.title, 200),
-        minutes: clampMinutes
-          ? Math.min(MAX_MINUTES, Math.max(MIN_MINUTES, minutes))
-          : Math.min(600, Math.max(1, minutes))
-      }
-    })
-    .filter((s) => s.title)
-    .slice(0, MAX_STEPS)
-}
-
-// A due date the model worked out from the answers; ignored if it is invalid or in the past.
-function cleanDueDate(value: unknown): string | undefined {
-  const date = text(value, 10)
-  if (!DATE.test(date) || Number.isNaN(Date.parse(`${date}T00:00:00`))) return undefined
-  const now = new Date()
-  const pad = (n: number): string => String(n).padStart(2, '0')
-  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-  return date >= today ? date : undefined
 }
 
 export async function proposeTenders(input: unknown): Promise<TenderPlanResult> {
@@ -132,28 +69,14 @@ export async function proposeTenders(input: unknown): Promise<TenderPlanResult> 
   }
 
   try {
-    const raw = await ask(
-      `Divide la tarea grande en pasos chiquitos ("tenders") para alguien a quien le cuesta empezar.
-- Entre 3 y 10 pasos, en el orden en que se hacen.
-- Cada paso es una acción concreta que se puede empezar ya. Empieza con un verbo ("Buscar...", "Escribir...").
-- Cada paso dura entre 5 y 25 minutos. El primero es muy fácil (5 a 10 minutos) para arrancar sin miedo.
-- "title": un nombre corto y claro para la tarea grande.
-- "dueDate": la fecha límite en formato AAAA-MM-DD si la persona la dijo (calcúlala desde hoy). Si no la dijo, "".
-Responde SOLO con JSON: {"title": "...", "dueDate": "", "steps": [{"title": "...", "minutes": 10}]}`,
-      lines.join('\n'),
-      PLAN_SCHEMA
+    const settings = await loadSettings()
+    const { value: plan } = await askAgent(
+      tenderizer,
+      'plan',
+      { personality: settings.dipPersonality },
+      [{ role: 'user', content: lines.join('\n') }]
     )
-    const data = parseObject(raw)
-    const steps = cleanSteps(data.steps, true)
-    if (steps.length === 0)
-      throw new AIError('Dip no logró armar los pasos. ¿Lo intentas otra vez?')
-    const dueDate = cleanDueDate(data.dueDate)
-    return {
-      ok: true,
-      title: text(data.title, 200) || task,
-      steps,
-      ...(dueDate ? { dueDate } : {})
-    }
+    return { ok: true, ...plan, title: plan.title || task }
   } catch (err) {
     return { ok: false, error: errorMessage(err) }
   }

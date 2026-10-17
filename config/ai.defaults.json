@@ -1,0 +1,17 @@
+{
+  "provider": "auto",
+  "order": ["gemini", "ollama", "openaiCompatible"],
+  "models": {
+    "gemini": "gemini-flash-latest",
+    "ollama": "",
+    "openaiCompatible": ""
+  },
+  "ollamaUrl": "http://127.0.0.1:11434",
+  "maxRetries": 2,
+  "agents": {
+    "dip": {},
+    "tenderizer": {},
+    "dailies": {},
+    "actions": {}
+  }
+}

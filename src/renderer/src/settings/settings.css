@@ -372,3 +372,33 @@
 .custom-server-add {
   align-self: flex-start;
 }
+
+/* --- Agents (SPEC 8.1) --- */
+
+.agents-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.agents-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: 4px 8px 6px 0;
+}
+
+.agents-table td {
+  vertical-align: top;
+  padding: 6px 8px 6px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.agents-table td small {
+  display: block;
+  color: var(--color-text-muted);
+}
+
+.agents-table code {
+  word-break: break-all;
+}

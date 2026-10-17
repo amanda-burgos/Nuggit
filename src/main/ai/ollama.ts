@@ -1,9 +1,9 @@
 import type { AIMessage, AIModelOption } from '../../shared/types'
+import { ollamaUrl } from './config'
 import { AIError, type AIProvider, type ChatOptions } from './provider'
 
 // Ollama runs models on this computer: no account, no key, nothing leaves the Mac.
-// It listens on this address once the Ollama app is open.
-const OLLAMA_URL = 'http://127.0.0.1:11434'
+// It listens on ollamaUrl() (config/ai.defaults.json or NUGGIT_OLLAMA_URL) once it is open.
 const LIST_TIMEOUT_MS = 5_000
 // The first answer can be slow while Ollama loads the model into memory.
 const CHAT_TIMEOUT_MS = 180_000
@@ -30,7 +30,7 @@ function friendlyError(err: unknown): AIError {
 }
 
 async function request<T>(path: string, timeoutMs: number, body?: unknown): Promise<T> {
-  const response = await fetch(`${OLLAMA_URL}${path}`, {
+  const response = await fetch(`${ollamaUrl()}${path}`, {
     method: body ? 'POST' : 'GET',
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,

@@ -55,6 +55,7 @@ const api: NuggitApi = {
     setProvider: (provider) => ipcRenderer.invoke('ai:setProvider', provider),
     test: () => ipcRenderer.invoke('ai:test'),
     status: () => ipcRenderer.invoke('ai:status'),
+    agents: () => ipcRenderer.invoke('ai:agents'),
     onStatusChange: (listener) => {
       const handler = (_event: IpcRendererEvent, status: AIStatus): void => listener(status)
       ipcRenderer.on('ai:status', handler)
