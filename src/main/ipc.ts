@@ -2,7 +2,9 @@ import { BrowserWindow, ipcMain } from 'electron'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, setWidgetLocked, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
+import { dailyQuestions, proposeDailies } from './ai/dailies'
 import { proposeTenders, tenderQuestions } from './ai/tenders'
+import { createDailies, createDaily, getDailies, removeDailies, updateDaily } from './dailies'
 import {
   applyAction,
   cancelAction,
@@ -103,6 +105,14 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('ai:chat', (_event, messages: unknown) => ai.chat(messages))
   ipcMain.handle('ai:tenderQuestions', (_event, task: unknown) => tenderQuestions(task))
   ipcMain.handle('ai:proposeTenders', (_event, request: unknown) => proposeTenders(request))
+  ipcMain.handle('ai:dailyQuestions', (_event, request: unknown) => dailyQuestions(request))
+  ipcMain.handle('ai:proposeDailies', (_event, request: unknown) => proposeDailies(request))
+
+  ipcMain.handle('dailies:load', () => getDailies())
+  ipcMain.handle('dailies:create', (_event, input: unknown) => createDaily(input))
+  ipcMain.handle('dailies:createMany', (_event, inputs: unknown) => createDailies(inputs))
+  ipcMain.handle('dailies:update', (_event, id: unknown, patch: unknown) => updateDaily(id, patch))
+  ipcMain.handle('dailies:remove', (_event, ids: unknown) => removeDailies(ids))
   ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
     ai.proposePersonality(messages)
   )

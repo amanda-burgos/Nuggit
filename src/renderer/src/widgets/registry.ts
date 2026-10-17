@@ -1,5 +1,6 @@
 import type { AnyWidgetDefinition } from './types'
 import { clockWidget } from './clock'
+import { dailiesWidget } from './dailies'
 import { dipWidget } from './dip'
 import { nextActionWidget } from './next-action'
 import { tasksWidget } from './tasks'
@@ -11,6 +12,7 @@ export const widgetRegistry: AnyWidgetDefinition[] = [
   clockWidget,
   tasksWidget,
   tendersWidget,
+  dailiesWidget,
   dipWidget
 ]
 

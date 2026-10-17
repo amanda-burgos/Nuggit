@@ -215,3 +215,76 @@ export function restoreTasks(input: unknown): void {
   const valid = incoming.filter((t) => !t.parentId || known.has(t.parentId))
   if (valid.length) commit([...tasks, ...valid])
 }
+
+// --- Dailies (SPEC 9.13): each due daily is a real task for today ---
+
+export interface DailyTaskPlan {
+  today: string
+  due: Map<string, { title: string; estimateMin?: number }> // dailies due today, by id
+  make: Set<string> // due dailies whose task for today should be made now
+  known: Set<string> // every daily that exists
+}
+
+// Makes today's tasks for the dailies, in one save. Copies from earlier days go away (done
+// ones are already in the daily's history; pending ones are not left behind as overdue,
+// no guilt). So does a pending copy of a daily that is no longer due today or was deleted.
+export function syncDailyTasks(plan: DailyTaskPlan): void {
+  if (!loaded) return
+  const now = new Date().toISOString()
+  const remove = new Set<string>()
+  const existing = new Set<string>()
+  let changed = false
+
+  const next = tasks.map((t) => {
+    if (!t.dailyId) return t
+    const due = plan.due.get(t.dailyId)
+    const old = !t.dueDate || t.dueDate < plan.today
+    const unwanted = !plan.known.has(t.dailyId) || (!due && t.status !== 'done')
+    if (old || unwanted) {
+      remove.add(t.id)
+      return t
+    }
+    existing.add(t.dailyId)
+    // A renamed daily, or a new estimate: today's pending copy follows.
+    if (
+      due &&
+      t.status !== 'done' &&
+      (t.title !== due.title || t.estimateMin !== due.estimateMin)
+    ) {
+      changed = true
+      return applyInput(
+        { ...t, updatedAt: now },
+        { title: due.title, estimateMin: due.estimateMin ?? null }
+      )
+    }
+    return t
+  })
+
+  // Tenders someone added to a copy go with it.
+  for (const t of next) if (t.parentId && remove.has(t.parentId)) remove.add(t.id)
+
+  const topOrder = next.filter((t) => !t.parentId).reduce((max, t) => Math.max(max, t.order), -1)
+  const made: Task[] = []
+  for (const id of plan.make) {
+    const due = plan.due.get(id)
+    if (!due || existing.has(id)) continue
+    made.push(
+      applyInput(
+        {
+          id: randomUUID(),
+          title: '',
+          priority: 'medium',
+          status: 'todo',
+          order: topOrder + 1 + made.length,
+          dailyId: id,
+          createdAt: now,
+          updatedAt: now
+        },
+        { title: due.title, dueDate: plan.today, estimateMin: due.estimateMin }
+      )
+    )
+  }
+
+  if (!changed && remove.size === 0 && made.length === 0) return
+  commit([...next.filter((t) => !remove.has(t.id)), ...made])
+}

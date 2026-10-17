@@ -1,0 +1,278 @@
+.dailies {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+}
+
+.dailies.is-full {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.dailies h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.dailies-count {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: normal;
+}
+
+.daily-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.daily-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.daily-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.daily-row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+
+.daily-row-main small {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.daily-row-main small:empty {
+  display: none;
+}
+
+.daily-row.is-done .daily-title {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.daily-check {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.daily-row.is-done .daily-check {
+  background: var(--color-accent);
+}
+
+.daily-streak {
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.dailies-actions,
+.daily-editor-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dailies-all-toggle {
+  border: none;
+  background: none;
+  padding: 0 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+/* --- Editor --- */
+
+.daily-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.daily-editor input,
+.daily-planner textarea,
+.daily-planner input {
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  min-width: 0;
+}
+
+.daily-editor input:focus,
+.daily-planner textarea:focus,
+.daily-planner input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.daily-editor-repeat,
+.daily-editor-days,
+.daily-editor-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.daily-editor-row {
+  gap: 14px;
+}
+
+.daily-chip,
+.daily-day {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.daily-day {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-weight: 600;
+}
+
+.daily-chip.is-active,
+.daily-day.is-active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.daily-editor-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.daily-editor-inline input[type='number'] {
+  width: 64px;
+}
+
+.daily-editor-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.daily-editor-check input {
+  accent-color: var(--color-accent);
+}
+
+/* --- Planear con Dip --- */
+
+.daily-planner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.daily-planner-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.daily-planner form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.daily-planner textarea,
+.daily-planner-questions label,
+.daily-planner-questions input,
+.daily-planner-feedback input {
+  width: 100%;
+  resize: none;
+}
+
+.daily-planner-questions label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.daily-planner-review {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.daily-error {
+  margin: 0;
+  color: #d1383d;
+}
+
+/* --- Undo --- */
+
+.dailies-undo {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 999px;
+  background: var(--navy-800);
+  color: #f2f0fb;
+  box-shadow: var(--shadow-popover);
+}
+
+.dailies-undo .button-ghost {
+  color: var(--lavender-300);
+  font-weight: 600;
+}

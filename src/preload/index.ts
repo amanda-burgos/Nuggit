@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import type {
   AIStatus,
+  Daily,
   DipChatState,
   NextActionState,
   NuggitApi,
@@ -62,6 +63,8 @@ const api: NuggitApi = {
     chat: (messages) => ipcRenderer.invoke('ai:chat', messages),
     tenderQuestions: (task) => ipcRenderer.invoke('ai:tenderQuestions', task),
     proposeTenders: (request) => ipcRenderer.invoke('ai:proposeTenders', request),
+    dailyQuestions: (request) => ipcRenderer.invoke('ai:dailyQuestions', request),
+    proposeDailies: (request) => ipcRenderer.invoke('ai:proposeDailies', request),
     proposePersonality: (messages) => ipcRenderer.invoke('ai:proposePersonality', messages)
   },
   dipChat: {
@@ -76,6 +79,18 @@ const api: NuggitApi = {
       const handler = (_event: IpcRendererEvent, state: DipChatState): void => listener(state)
       ipcRenderer.on('dipChat:changed', handler)
       return () => ipcRenderer.removeListener('dipChat:changed', handler)
+    }
+  },
+  dailies: {
+    load: () => ipcRenderer.invoke('dailies:load'),
+    create: (input) => ipcRenderer.invoke('dailies:create', input),
+    createMany: (inputs) => ipcRenderer.invoke('dailies:createMany', inputs),
+    update: (id, patch) => ipcRenderer.invoke('dailies:update', id, patch),
+    remove: (ids) => ipcRenderer.invoke('dailies:remove', ids),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, dailies: Daily[]): void => listener(dailies)
+      ipcRenderer.on('dailies:changed', handler)
+      return () => ipcRenderer.removeListener('dailies:changed', handler)
     }
   },
   nextAction: {

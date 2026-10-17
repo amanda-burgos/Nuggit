@@ -4,10 +4,9 @@ import type {
   TenderQuestionsResult,
   TenderStep
 } from '../../shared/types'
-import { loadSettings } from '../storage'
-import { dipBase } from './dip'
-import { errorMessage, withFallback } from './index'
+import { errorMessage } from './index'
 import { AIError } from './provider'
+import { askJson as ask, parseObject, text } from './structured'
 
 // SPEC 9.3: Dip asks 2 or 3 short questions about a big task, then proposes small steps
 // (5–25 min each). Nothing is saved here: the interface shows the steps to edit and saves
@@ -41,35 +40,6 @@ const PLAN_SCHEMA = {
     }
   },
   required: ['title', 'dueDate', 'steps']
-}
-
-const text = (value: unknown, max: number): string =>
-  typeof value === 'string' ? value.trim().slice(0, max) : ''
-
-// Reads the JSON object in a model's answer, even if it came wrapped in extra text.
-function parseObject(raw: string): Record<string, unknown> {
-  try {
-    const data = JSON.parse(raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1))
-    if (typeof data === 'object' && data !== null) return data as Record<string, unknown>
-  } catch {
-    // falls through
-  }
-  throw new AIError('Dip se enredó con la respuesta. ¿Lo intentas otra vez?')
-}
-
-async function ask(instructions: string, request: string, schema: object): Promise<string> {
-  const settings = await loadSettings()
-  const system = dipBase(settings.dipPersonality, [instructions])
-  const { value } = await withFallback(settings, (provider) =>
-    provider.chat(
-      [
-        { role: 'system', content: system },
-        { role: 'user', content: request }
-      ],
-      { schema: schema as Record<string, unknown> }
-    )
-  )
-  return value
 }
 
 // --- 1. Questions ---

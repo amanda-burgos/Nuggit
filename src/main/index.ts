@@ -5,6 +5,7 @@ import { initAI } from './ai'
 import { initDipChat } from './dipChat'
 import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
+import { initDailies } from './dailies'
 import { initDesktop } from './desktop'
 import { initNextAction } from './nextAction'
 import { initPickupTray } from './pickupTray'
@@ -86,6 +87,12 @@ app.whenReady().then(async () => {
     await initTasks()
   } catch (err) {
     console.error('[startup] could not load tasks', err)
+  }
+  try {
+    // After the tasks: it makes today's task for each due daily.
+    await initDailies()
+  } catch (err) {
+    console.error('[startup] could not load dailies', err)
   }
   try {
     await initNextAction()

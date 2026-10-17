@@ -134,6 +134,11 @@ export function TaskItem({
           <span className="task-title">{task.title}</span>
           <span className="task-meta">
             {task.status === 'doing' && <span className="task-chip is-doing">En curso</span>}
+            {task.dailyId && (
+              <span className="task-meta-item" title="Daily: se repite">
+                🔁
+              </span>
+            )}
             {task.priority === 'high' && !done && (
               <span className="task-chip is-high">
                 Prioridad {PRIORITY_LABELS.high.toLowerCase()}

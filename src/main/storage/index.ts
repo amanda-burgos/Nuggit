@@ -93,6 +93,7 @@ export function isTask(value: unknown): value is Task {
     typeof value.createdAt === 'string' &&
     typeof value.updatedAt === 'string' &&
     isOptional(value.parentId, 'string') &&
+    isOptional(value.dailyId, 'string') &&
     isOptional(value.dueDate, 'string') &&
     isOptional(value.estimateMin, 'number') &&
     isOptional(value.category, 'string') &&
@@ -118,7 +119,7 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
 // Gemini ids look like "gemini-flash-latest"; Ollama ones like "llama3.2:3b" or "user/model".
 export const MAX_PERSONALITY = 1500
-const TABS = ['home', 'dip', 'tasks', 'next', 'tenders', 'settings']
+const TABS = ['home', 'dip', 'tasks', 'next', 'tenders', 'dailies', 'settings']
 const PICKUP_MODES = ['icon', 'menu', 'off']
 const SHORTCUTS = ['', 'Alt+Space', 'Control+Alt+Space', 'Command+Shift+Space']
 const MODEL_ID = /^[a-z0-9][a-z0-9._:/-]{0,99}$/i

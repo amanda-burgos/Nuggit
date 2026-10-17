@@ -16,6 +16,7 @@ export const TABS: TabInfo[] = [
   { key: 'dip', label: 'Dip', icon: <DipIcon />, shortcut: '2', widgetType: 'dip' },
   { key: 'tasks', label: 'Tareas', icon: '✅', shortcut: '3', widgetType: 'tasks' },
   { key: 'next', label: 'Ahora', icon: '🎯', shortcut: '4', widgetType: 'next-action' },
-  { key: 'tenders', label: 'Tenders', icon: '🪜', shortcut: '5', widgetType: 'tenders' },
+  { key: 'tenders', label: 'Tenderizer', icon: '🪜', shortcut: '5', widgetType: 'tenders' },
+  { key: 'dailies', label: 'Dailies', icon: '🔁', shortcut: '6', widgetType: 'dailies' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]

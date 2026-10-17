@@ -25,6 +25,7 @@ No es una app de productividad corporativa con listas gigantes. Es un espacio pe
 - **Nuggit**: la app.
 - **Dip**: el ayudante de IA que vive dentro de Nuggit. Es la salsita que acompaña. Tiene su propio nombre y personalidad, sin importar qué IA haya detrás (Gemini hoy, otra mañana).
 - **Tenders**: los pasos chiquitos en los que Dip convierte una tarea grande.
+- **Tenderizer**: la herramienta que convierte una tarea grande en tenders (9.3).
 
 Personalidad de Dip: casual, cálido, con humor y emojis cuando encajan, bilingüe (español/inglés). Nunca regaña ni hace sentir culpable. Calmado si el usuario está agobiado. Respuestas cortas.
 
@@ -250,14 +251,15 @@ La ventana principal de Nuggit tiene una **barra lateral** con pestañas. Cada p
 - **Dip**: el chat con Dip en grande, con historial.
 - **Tareas**: la lista de tareas completa, con subtareas/tenders, filtros simples (hoy, pendientes, hechas).
 - **Ahora**: Next Action ("¿Qué hago ahora?", 9.5) en grande.
-- **Tenders**: dividir una tarea grande en pasitos (9.3) en grande.
+- **Tenderizer**: dividir una tarea grande en tenders (9.3) en grande.
+- **Dailies**: las rutinas que se repiten (9.13).
 - **Ajustes**: Settings (IA, personalidad de Dip, barra de menú, tema...).
 - Toda feature útil tiene su pestaña. Más adelante, cuando existan: **Notas**, **Focus**.
 
 Reglas:
 - El panel y el widget de una misma feature usan **el mismo componente** (prop `size: "widget" | "full"`), para no duplicar código ni diseño.
 - La barra lateral es colapsable (solo íconos) y responsive.
-- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenders, ⌘, Ajustes.
+- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘, Ajustes.
 - Recordar la última pestaña abierta.
 
 ### 9.1 Escritorio de widgets
@@ -489,6 +491,13 @@ Cómo quedó (Fase 5.3):
 ### Fase 5.5 — Dailies
 - Dailies según 9.13: crear, repetir por días, marcarlos hechos, y planearlos con Dip (con aprobación).
 - **Listo cuando:** creo "gimnasio" solo los miércoles y "bañarme" todos los días, y el miércoles aparecen los dos en hoy y el jueves solo "bañarme".
+
+Cómo quedó (Fase 5.5):
+- Los dailies viven en `dailies.json`. Cada día, cada daily que toca se vuelve una **tarea real de hoy** (con 🔁), así sale en Tareas, en Ahora, en la barra de menú y en el contexto de Dip sin código aparte. Marcarla como hecha es marcar el daily.
+- Al cambiar de día, las copias de ayer se quitan solas: lo hecho queda en el historial del daily (para la racha) y lo pendiente no se acumula como atrasado (sin culpa).
+- Si borras la copia de hoy a mano, no vuelve hasta el próximo día que toque.
+- Racha: solo se muestra desde 2 seguidas (🔥 3) y los días que no tocan no la rompen. Si se rompe, simplemente desaparece.
+- Pestaña **Dailies** (⌘6) y widget, con "Planear con Dip" (preguntas → propuesta editable → Guardar, con Deshacer).
 
 ### Fase 6 — Brain Dump + Quick Notes
 

@@ -60,7 +60,7 @@ export type ThemePreference = 'light' | 'dark' | 'system'
 export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'Command+Shift+Space'
 
 // Tabs of the control center (SPEC 9.0).
-export type AppTab = 'home' | 'dip' | 'tasks' | 'next' | 'tenders' | 'settings'
+export type AppTab = 'home' | 'dip' | 'tasks' | 'next' | 'tenders' | 'dailies' | 'settings'
 
 export interface UISettings {
   tab: AppTab // last open tab
@@ -118,12 +118,54 @@ export interface Task {
   category?: string
   status: TaskStatus
   parentId?: string // set when this task is a "tender" (subtask) of another task
+  dailyId?: string // set on today's copy of a daily (SPEC 9.13); made by Nuggit, not by hand
   order: number // order inside its parent (or among top-level tasks)
   notes?: string
   createdAt: string
   updatedAt: string
   completedAt?: string
 }
+
+// --- Dailies (SPEC 9.13): things that repeat on a schedule ---
+
+export type DailyRepeat =
+  | { kind: 'every-day' }
+  | { kind: 'weekdays'; days: number[] } // 0 = Sunday … 6 = Saturday
+  | { kind: 'every-n'; n: number; start: string } // every n days counting from start (YYYY-MM-DD)
+
+export interface Daily {
+  id: string
+  title: string
+  repeat: DailyRepeat
+  time?: string // HH:MM, optional
+  estimateMin?: number
+  streak: boolean // show how many times in a row (never a guilt trip when it breaks)
+  done: string[] // dates (YYYY-MM-DD) it was done, most recent last
+  lastMade?: string // the last day its task for "hoy" was made (so a deleted one stays gone)
+  order: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DailyInput {
+  title?: string
+  repeat?: DailyRepeat
+  time?: string | null
+  estimateMin?: number | null
+  streak?: boolean
+}
+
+// "Planear con Dip": the routine Dip proposes, to edit and approve before saving.
+export interface DailyPlanRequest {
+  request: string // e.g. "ayúdame a armar mi rutina de la semana"
+  answers: TenderAnswer[]
+  feedback?: string // "Cambiar": what to change about the previous proposal
+  previous?: DailyInput[]
+}
+
+export type DailyPlanResult =
+  | { ok: true; dailies: Array<Required<Pick<DailyInput, 'title' | 'repeat'>> & DailyInput> }
+  | { ok: false; error: string }
 
 // A task's status before a change, so it can be undone.
 export interface TaskStatusChange {
@@ -323,6 +365,9 @@ export interface NuggitApi {
     // Tenders: 2 or 3 short questions about a big task, then a proposal of small steps.
     tenderQuestions(task: string): Promise<TenderQuestionsResult>
     proposeTenders(request: TenderRequest): Promise<TenderPlanResult>
+    // "Planear con Dip": 2 or 3 short questions about the routine, then a proposal.
+    dailyQuestions(request: string): Promise<TenderQuestionsResult>
+    proposeDailies(request: DailyPlanRequest): Promise<DailyPlanResult>
     // A conversation about how Dip should be; returns a proposed personality text.
     proposePersonality(messages: AIMessage[]): Promise<AIPersonalityResult>
   }
@@ -348,6 +393,15 @@ export interface NuggitApi {
     // "Solo empieza": a 2-minute version of the step (Dip's, or a simple one without AI).
     tinyStep(taskId: string): Promise<TinyStepResult>
     onChange(listener: (state: NextActionState) => void): () => void
+  }
+  dailies: {
+    load(): Promise<Daily[]>
+    create(input: DailyInput & { title: string; repeat: DailyRepeat }): Promise<Daily>
+    // Several at once ("Planear con Dip"); returns them, so they can be undone.
+    createMany(inputs: Array<DailyInput & { title: string; repeat: DailyRepeat }>): Promise<Daily[]>
+    update(id: string, patch: DailyInput): Promise<void>
+    remove(ids: string[]): Promise<void>
+    onChange(listener: (dailies: Daily[]) => void): () => void
   }
   popover: {
     // Closes the calling menu bar window (Dip's mini chat or the quick pickup).
