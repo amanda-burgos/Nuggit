@@ -283,15 +283,37 @@ html.is-detached-window body {
 
 .detached {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--color-surface);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
 
 .detached .widget {
+  flex: 1;
+  min-height: 0;
+  height: auto;
   border: none;
   border-radius: 0;
   box-shadow: none;
+}
+
+/* Editing a "Pin on back" widget for a moment (quick pickup → Editar). */
+.detached-editing {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px 6px 14px;
+  font-size: 0.82rem;
+  background: var(--color-accent-soft);
+  -webkit-app-region: drag;
+}
+
+.detached-editing button {
+  -webkit-app-region: no-drag;
+  padding: 4px 12px;
 }
 
 /* Drag the header to move the window; buttons stay clickable. */

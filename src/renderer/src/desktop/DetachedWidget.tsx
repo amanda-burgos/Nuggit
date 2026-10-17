@@ -41,8 +41,22 @@ export function DetachedWidget({ id }: Props): React.JSX.Element {
     window.api.widgetWindows.setOptions(id, options).catch(report)
   }
 
+  // Opened with "Editar" from the quick pickup while it is "Pin on back".
+  const editingBack = entry?.pinBack && new URLSearchParams(location.search).has('editBack')
+
   return (
     <div className="detached">
+      {editingBack && (
+        <div className="detached-editing" role="status">
+          <span>✏️ Editando · al terminar vuelve al fondo</span>
+          <button
+            className="button-primary"
+            onClick={() => window.api.widgetWindows.finishEditBack(id).catch(report)}
+          >
+            Listo
+          </button>
+        </div>
+      )}
       <WidgetFrame
         instance={instance}
         def={def}

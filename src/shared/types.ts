@@ -20,7 +20,7 @@ export interface WidgetInstance {
 export interface DetachedWidget {
   bounds: WidgetRect // screen pixels
   alwaysOnTop: boolean // "Pin on top", only set from the quick pickup (SPEC 9.16)
-  allSpaces?: boolean // with alwaysOnTop: on every desktop (Space) and over full screen apps
+  allSpaces?: boolean // with alwaysOnTop: on every desktop (Space) and over full screen apps; unset = yes
   // "Pin on back": behind every window, at the level of the desktop picture (behind its
   // files and icons). macOS sends such a window no clicks. Never together with alwaysOnTop.
   pinBack?: boolean
@@ -427,6 +427,10 @@ export interface NuggitApi {
     // (a detached one goes back to the board; one on the board is hidden).
     focus(id: string): Promise<void>
     close(id: string): Promise<void>
+    // "Pin on back" widgets take no clicks: "Editar" brings one up for a moment, and
+    // finishEditBack (or a click elsewhere) sends it back to the bottom.
+    editBack(id: string): Promise<void>
+    finishEditBack(id: string): Promise<void>
     // Hides or shows every detached widget (for Lockdown).
     setAllVisible(visible: boolean): Promise<void>
     // Size limits for the calling detached window.

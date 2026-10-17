@@ -32,11 +32,13 @@ import {
   attachWidget,
   closeWidget,
   detachWidget,
+  finishEditingBack,
   focusWidget,
   openWidget,
   setAllVisible,
   setWindowOptions,
-  setSizeLimits
+  setSizeLimits,
+  startEditingBack
 } from './widgetWindows'
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -151,6 +153,12 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('widgetWindows:open', (_event, widget: unknown) => openWidget(widget))
   ipcMain.handle('widgetWindows:focus', (_event, id: unknown) => {
     if (typeof id === 'string') focusWidget(id, openBoard)
+  })
+  ipcMain.handle('widgetWindows:editBack', (_event, id: unknown) => {
+    if (typeof id === 'string') startEditingBack(id)
+  })
+  ipcMain.handle('widgetWindows:finishEditBack', (_event, id: unknown) => {
+    if (typeof id === 'string') finishEditingBack(id)
   })
   ipcMain.handle('widgetWindows:close', (_event, id: unknown) => {
     if (typeof id === 'string') closeWidget(id)

@@ -124,6 +124,8 @@ const api: NuggitApi = {
     open: (widget) => ipcRenderer.invoke('widgetWindows:open', widget),
     focus: (id) => ipcRenderer.invoke('widgetWindows:focus', id),
     close: (id) => ipcRenderer.invoke('widgetWindows:close', id),
+    editBack: (id) => ipcRenderer.invoke('widgetWindows:editBack', id),
+    finishEditBack: (id) => ipcRenderer.invoke('widgetWindows:finishEditBack', id),
     setAllVisible: (visible) => ipcRenderer.invoke('widgetWindows:setAllVisible', visible),
     setSizeLimits: (min, max) => ipcRenderer.send('widgetWindows:setSizeLimits', min, max)
   }

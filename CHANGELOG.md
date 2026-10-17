@@ -5,6 +5,9 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Pin on top te sigue:** un widget "siempre al frente" ahora está en todos los escritorios (Spaces) y encima de apps en pantalla completa, sin activar nada más. Se puede apagar en ⚙︎ → "En todos los escritorios".
+- **Botón "📌 Pin on top"** a la vista en cada widget del quick pickup (🧩), para ponerlo o quitarlo con un clic.
+- **Widgets al fondo a tu alcance:** los que tienen **Pin on back** no reciben clics, así que en el quick pickup ahora tienen **✏️ Editar** (lo sube al frente un momento para moverlo o cambiarlo, y vuelve al fondo al darle "Listo" o al hacer clic en otra parte) y **Quitar del fondo**. Ya nunca hace falta borrarlos.
 - **Pin de verdad:** un widget fijado ya no se mueve ni se edita. Nuevo **Pin on top**, **Pin on back** y el ícono de **quick pickup** en la barra de menú (Fase 5.3).
 - **"¿Qué hago ahora?"** te dice una sola cosa que hacer, conectado a la barra de menú y a "ya terminé" (Fase 5).
 - Pestañas **Ahora** y **Tenders** en el centro de control.
@@ -18,6 +21,7 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 - **Escritorio de widgets** con reloj y temas claro y oscuro (Fase 1).
 
 ### Arreglado
+- "Pin on top" no seguía al cambiar de escritorio: ahora se vuelve a aplicar cuando la ventana aparece.
 - Las tareas completadas salen de la lista.
 - Los widgets ya no tienen "gravedad" y se mueven libres.
 - El tablero ya no crece ni tiene scroll.

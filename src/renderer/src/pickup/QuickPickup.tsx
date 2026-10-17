@@ -161,7 +161,7 @@ function OpenItem({
   const entry = desktop.detached?.[instance.id]
   const where = entry ? 'En el escritorio' : instance.hidden ? 'Oculto' : 'En el tablero'
   const onTop = entry?.alwaysOnTop ?? false
-  const allSpaces = entry?.allSpaces ?? false
+  const allSpaces = entry?.allSpaces ?? true // on every desktop unless turned off
   const pinBack = entry?.pinBack ?? false
   const setOptions = (options: {
     alwaysOnTop?: boolean
@@ -176,7 +176,7 @@ function OpenItem({
       <div className="pickup-row is-open-widget">
         <button
           className="pickup-main"
-          title="Traer al frente"
+          title={pinBack ? 'Editar (lo sube un momento)' : 'Traer al frente'}
           onClick={() => window.api.widgetWindows.focus(instance.id).catch(report)}
         >
           <span className="pickup-icon" aria-hidden>
@@ -186,7 +186,7 @@ function OpenItem({
             {def.name}
             <small>
               {where}
-              {onTop && ' · Siempre al frente'}
+              {onTop && (allSpaces ? ' · Al frente, en todos los escritorios' : ' · Al frente')}
               {pinBack && ' · Al fondo'}
               {instance.locked && ' · 🔒'}
             </small>
@@ -194,7 +194,7 @@ function OpenItem({
         </button>
         <button
           className={`icon-button${showSettings ? ' is-active' : ''}`}
-          title="Ajustes"
+          title="Más opciones"
           aria-pressed={showSettings}
           onClick={onToggleSettings}
         >
@@ -210,23 +210,42 @@ function OpenItem({
           </button>
         )}
       </div>
+
+      <div className="pickup-actions">
+        {pinBack ? (
+          <>
+            {/* At the back it takes no clicks: these are the way to reach it. */}
+            <button
+              className="pickup-action"
+              title="Lo sube un momento para moverlo o cambiarlo; al terminar vuelve al fondo"
+              onClick={() => window.api.widgetWindows.editBack(instance.id).catch(report)}
+            >
+              ✏️ Editar
+            </button>
+            <button className="pickup-action" onClick={() => setOptions({ pinBack: false })}>
+              Quitar del fondo
+            </button>
+          </>
+        ) : (
+          <button
+            className={`pickup-action${onTop ? ' is-on' : ''}`}
+            aria-pressed={onTop}
+            title={
+              onTop
+                ? 'Quitar: deja de estar siempre al frente'
+                : entry
+                  ? 'Siempre encima de las demás ventanas, en todos los escritorios'
+                  : 'Lo saca al escritorio y lo deja siempre encima, en todos los escritorios'
+            }
+            onClick={() => setOptions({ alwaysOnTop: !onTop })}
+          >
+            📌 Pin on top{onTop ? ' ✓' : ''}
+          </button>
+        )}
+      </div>
+
       {showSettings && (
         <div className="pickup-settings">
-          <label>
-            <input
-              type="checkbox"
-              checked={onTop}
-              onChange={(e) => setOptions({ alwaysOnTop: e.target.checked })}
-            />
-            <span>
-              Pin on top: siempre al frente
-              <small>
-                {entry
-                  ? 'Se queda encima de las demás ventanas, aunque uses otra app.'
-                  : 'Lo saca al escritorio y lo deja encima de las demás ventanas.'}
-              </small>
-            </span>
-          </label>
           <label className={onTop ? '' : 'is-disabled'}>
             <input
               type="checkbox"
@@ -237,7 +256,8 @@ function OpenItem({
             <span>
               En todos los escritorios
               <small>
-                Sigue ahí al cambiar de escritorio y encima de apps en pantalla completa.
+                Con Pin on top: sigue ahí al cambiar de escritorio y encima de apps en pantalla
+                completa.
               </small>
             </span>
           </label>
@@ -250,7 +270,8 @@ function OpenItem({
             <span>
               Pin on back: siempre al fondo
               <small>
-                Detrás de todas las ventanas y de los archivos del Escritorio, sin clics.
+                Detrás de todas las ventanas y de los archivos del Escritorio. Ahí no recibe clics:
+                usa ✏️ Editar para moverlo o cambiarlo.
               </small>
             </span>
           </label>

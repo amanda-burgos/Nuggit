@@ -1,4 +1,4 @@
-import { BrowserWindow, screen, type Rectangle, type WebContents } from 'electron'
+import { app, BrowserWindow, screen, type Rectangle, type WebContents } from 'electron'
 import { randomUUID } from 'crypto'
 import type {
   DetachedWidget,
@@ -27,6 +27,13 @@ const windows = new Map<string, BrowserWindow>()
 // Windows created at the desktop level ("Pin on back"). macOS fixes a window's type when it
 // is created, so turning it on or off means opening the window again.
 const backWindows = new WeakSet<BrowserWindow>()
+// "Pin on back" widgets get no clicks. "Editar" (quick pickup) brings one up as a normal
+// window for a moment; it goes back to the bottom when done. Not saved: only while editing.
+const editingBack = new Set<string>()
+
+function isBack(id: string, entry: DetachedWidget): boolean {
+  return Boolean(entry.pinBack) && !editingBack.has(id)
+}
 const closingByApp = new WeakSet<BrowserWindow>()
 const focusOnShow = new Set<string>()
 const pendingBounds = new Map<string, WidgetRect>()
@@ -97,12 +104,20 @@ function flushBounds(): void {
   if (Object.keys(changes).length > 0) setDetached(changes)
 }
 
-// "Pin on top" (and on every desktop), and "Fijar": the window can't be moved or resized.
-function applyWindowState(win: BrowserWindow, entry: DetachedWidget, locked: boolean): void {
-  const onTop = entry.alwaysOnTop && !entry.pinBack
-  if (win.isAlwaysOnTop() !== onTop) win.setAlwaysOnTop(onTop, 'floating')
-  const allSpaces = onTop && (entry.allSpaces ?? false)
-  if (win.isVisibleOnAllWorkspaces() !== allSpaces) {
+// "Pin on top" (on every desktop and over full screen apps unless turned off), and "Fijar":
+// the window can't be moved or resized. force: set everything again even if it looks set
+// (macOS may not keep what was set before the window first showed).
+function applyWindowState(
+  win: BrowserWindow,
+  entry: DetachedWidget,
+  locked: boolean,
+  force = false,
+  editing = false // "Editar" on a "Pin on back" widget: in front of everything meanwhile
+): void {
+  const onTop = editing || (entry.alwaysOnTop && !entry.pinBack)
+  if (force || win.isAlwaysOnTop() !== onTop) win.setAlwaysOnTop(onTop, 'floating')
+  const allSpaces = onTop && !editing && (entry.allSpaces ?? true)
+  if (force || win.isVisibleOnAllWorkspaces() !== allSpaces) {
     win.setVisibleOnAllWorkspaces(allSpaces, { visibleOnFullScreen: allSpaces })
   }
   if (win.isMovable() === locked) win.setMovable(!locked)
@@ -136,23 +151,46 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
       hasShadow: entry.shadow ?? false,
       backgroundColor: '#00000000',
       // "Pin on back": the desktop picture's level, behind its files and icons.
-      ...(entry.pinBack ? { type: 'desktop' } : {})
+      ...(isBack(id, entry) ? { type: 'desktop' } : {})
     },
-    { widget: id }
+    { widget: id, ...(editingBack.has(id) ? { editBack: '1' } : {}) }
   )
-  if (entry.pinBack) backWindows.add(win)
-  applyWindowState(win, entry, isLocked(id))
+  if (isBack(id, entry)) backWindows.add(win)
+  // Editing a "Pin on back" widget: once it has held focus for a moment, clicking anywhere
+  // else sends it back to the bottom. In that first moment, macOS (making Nuggit the active
+  // app) may hand focus to another Nuggit window: the widget takes it back.
+  if (editingBack.has(id)) {
+    let settled = false
+    win.on('focus', () => {
+      if (settled) return
+      setTimeout(() => {
+        if (!win.isDestroyed() && win.isFocused()) settled = true
+      }, 800)
+    })
+    win.on('blur', () =>
+      setTimeout(() => {
+        if (win.isDestroyed() || win.isFocused()) return
+        if (settled) finishEditingBack(id)
+        else win.focus()
+      }, 400)
+    )
+  }
+  applyWindowState(win, entry, isLocked(id), false, editingBack.has(id))
 
   win.once('ready-to-show', () => {
     // Set again now: macOS ignores "can't move / resize" set before a window first shows.
     const current = getDesktop()?.detached?.[id]
-    if (current) applyWindowState(win, current, isLocked(id))
+    if (current) applyWindowState(win, current, isLocked(id), true, editingBack.has(id))
     // The shadow follows what is drawn, so work it out again once the card is there.
     setTimeout(() => refreshShadow(win), 300)
     if (hiddenForLockdown) return
-    // Just detached: bring it forward. Restored at launch: don't steal focus.
-    if (focusOnShow.delete(id)) win.show()
-    else win.showInactive()
+    // Just detached (or "Editar"): bring it forward. Restored at launch: don't steal focus.
+    if (focusOnShow.delete(id)) {
+      // Asked for from the quick pickup, a panel that doesn't make Nuggit the active app.
+      if (editingBack.has(id)) app.focus({ steal: true })
+      win.show()
+      win.focus()
+    } else win.showInactive()
   })
 
   const track = (): void => queueBounds(id, win)
@@ -180,9 +218,10 @@ function syncWindows(state: SavedDesktop): void {
     win.close()
   }
   for (const [id, entry] of Object.entries(detached)) {
+    if (!entry.pinBack) editingBack.delete(id)
     const win = windows.get(id)
-    if (win && backWindows.has(win) !== Boolean(entry.pinBack)) {
-      // "Pin on back" changed: open the window again with the other type.
+    if (win && backWindows.has(win) !== isBack(id, entry)) {
+      // "Pin on back" (or editing one) changed: open the window again with the other type.
       closingByApp.add(win)
       win.close()
       windows.set(id, createWidgetWindow(id, entry))
@@ -192,7 +231,13 @@ function syncWindows(state: SavedDesktop): void {
       windows.set(id, createWidgetWindow(id, entry))
       continue
     }
-    applyWindowState(win, entry, state.widgets.find((w) => w.id === id)?.locked ?? false)
+    applyWindowState(
+      win,
+      entry,
+      state.widgets.find((w) => w.id === id)?.locked ?? false,
+      false,
+      editingBack.has(id)
+    )
   }
 }
 
@@ -247,11 +292,31 @@ function spotOnScreen(size: { w: number; h: number }): WidgetRect {
   }
 }
 
+// Quick pickup, "Editar" on a "Pin on back" widget: up to the front to move or change it.
+export function startEditingBack(id: string): void {
+  const state = getDesktop()
+  if (!state?.detached?.[id]?.pinBack || editingBack.has(id)) return
+  editingBack.add(id)
+  focusOnShow.add(id)
+  syncWindows(state)
+}
+
+// "Listo", or a click somewhere else: back to the bottom.
+export function finishEditingBack(id: string): void {
+  const state = getDesktop()
+  if (!editingBack.delete(id) || !state) return
+  syncWindows(state)
+}
+
 // "Pin on top" and "Pin on back" are never on together: turning one on turns the other off.
+// "Pin on top" is on every desktop unless the user turned that off.
 // Turning either on for a widget still on the board takes it out to the desktop first.
 export function setWindowOptions(id: string, input: DetachedWindowOptions): void {
   const options = { ...input }
-  if (options.alwaysOnTop) options.pinBack = false
+  if (options.alwaysOnTop) {
+    options.pinBack = false
+    if (options.allSpaces === undefined) options.allSpaces = true
+  }
   if (options.pinBack) options.alwaysOnTop = false
   const state = getDesktop()
   const entry = state?.detached?.[id]
@@ -292,6 +357,8 @@ export function openWidget(input: unknown): void {
 // Quick pickup: a detached widget's window comes to the front; one on the board is shown
 // on top of the others, and the board is opened (showBoard).
 export function focusWidget(id: string, showBoard: () => void): void {
+  // A "Pin on back" widget can't take clicks where it is: bring it up to edit it.
+  if (getDesktop()?.detached?.[id]?.pinBack) return startEditingBack(id)
   const win = windows.get(id)
   if (win) {
     win.show()
