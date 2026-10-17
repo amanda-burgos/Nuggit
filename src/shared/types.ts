@@ -72,16 +72,28 @@ export interface UISettings {
 // What the macOS menu bar shows while a task is "En curso".
 export type StatusIndicator = 'dot' | 'dot-title' | 'title' | 'off'
 
-// Gemini runs online with a key; Ollama runs on this computer. "auto" (the default) uses
-// whichever is available. "none" is only found in older settings files (read as "auto").
-export type AIProviderId = 'none' | 'gemini' | 'ollama' | 'auto'
-export type AIBackend = 'gemini' | 'ollama'
+// Gemini runs online with a key; Ollama runs on this computer; "custom" is the user's own
+// server that speaks the OpenAI API. "auto" (the default) uses the first available one, in
+// the user's order. "none" is only found in older settings files (read as "auto").
+export type AIProviderId = 'none' | 'gemini' | 'ollama' | 'custom' | 'auto'
+export type AIBackend = 'gemini' | 'ollama' | 'custom'
+
+// The user's own OpenAI-compatible server (SPEC 8). These addresses are the user's data:
+// they live in settings.json only, never in the code. The optional key is kept encrypted
+// apart, like Gemini's.
+export interface CustomServerSettings {
+  name: string // what Nuggit calls it, e.g. "Mi servidor"
+  model: string
+  servers: string[] // base URLs ending in /v1: the main one first, then the backups in order
+}
 
 export interface Settings {
   ai: {
     provider: AIProviderId
     model?: string // Gemini model
     ollamaModel?: string // local Ollama model; the first installed one if not set
+    custom?: CustomServerSettings
+    order?: AIBackend[] // the order "auto" tries them in; default: Gemini, Ollama, custom
     shareTasksWithAI: boolean
   }
   theme: ThemePreference
@@ -157,6 +169,8 @@ export interface SettingsPatch {
   ai?: {
     model?: string | null // null or '' goes back to the default model
     ollamaModel?: string | null
+    custom?: CustomServerSettings | null // null removes the server
+    order?: AIBackend[]
     shareTasksWithAI?: boolean
   }
 }
@@ -247,6 +261,8 @@ export interface AIStatus {
   active: AIBackend | null // what the next chat will use (null = no AI available)
   gemini: boolean // a key is saved
   ollama: boolean
+  custom: boolean // one of the user's servers answers
+  customKey: boolean // a key for the user's server is saved
 }
 
 export type AISaveKeyResult = { ok: true } | { ok: false; error: string }
@@ -293,7 +309,10 @@ export interface NuggitApi {
     // The key goes to the main process and is never sent back to the interface.
     saveKey(key: string): Promise<AISaveKeyResult>
     removeKey(): Promise<void>
-    setProvider(provider: 'auto' | 'gemini' | 'ollama'): Promise<void>
+    setProvider(provider: 'auto' | AIBackend): Promise<void>
+    // The optional key of the user's own server (kept encrypted, never sent back).
+    saveServerKey(key: string): Promise<AISaveKeyResult>
+    removeServerKey(): Promise<void>
     status(): Promise<AIStatus>
     // Called when what Dip can use changes (key saved, Ollama opened or closed...).
     onStatusChange(listener: (status: AIStatus) => void): () => void

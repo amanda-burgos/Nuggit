@@ -86,10 +86,17 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('nextAction:tinyStep', (_event, id: unknown) => tinyStep(id))
 
   ipcMain.handle('settings:load', () => loadSettings())
-  ipcMain.handle('settings:update', (_event, patch: unknown) => changeSettings(patch))
+  ipcMain.handle('settings:update', async (_event, patch: unknown) => {
+    const settings = await changeSettings(patch)
+    // A new server, model or order changes what Dip can use right now.
+    if (isObject(patch) && isObject(patch.ai)) ai.refreshStatus().catch(() => undefined)
+    return settings
+  })
 
   ipcMain.handle('ai:saveKey', (_event, key: unknown) => ai.saveKey(key))
   ipcMain.handle('ai:removeKey', () => ai.removeKey())
+  ipcMain.handle('ai:saveServerKey', (_event, key: unknown) => ai.saveServerKey(key))
+  ipcMain.handle('ai:removeServerKey', () => ai.removeServerKey())
   ipcMain.handle('ai:setProvider', (_event, provider: unknown) => ai.setProvider(provider))
   ipcMain.handle('ai:test', () => ai.testConnection())
   ipcMain.handle('ai:status', () => ai.getStatus())

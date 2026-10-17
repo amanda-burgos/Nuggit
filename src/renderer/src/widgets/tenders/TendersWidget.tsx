@@ -153,8 +153,8 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
         {errorBox}
         {!hasAI && aiStatus && (
           <p className="tenders-hint">
-            Sin IA puedes escribir los pasos tú. Para que Dip te ayude, abre Ollama o conecta Gemini
-            en Ajustes.
+            Sin IA puedes escribir los pasos tú. Para que Dip te ayude, abre Ollama, conecta Gemini
+            o tu servidor en Ajustes.
           </p>
         )}
         <p className="tenders-hint">

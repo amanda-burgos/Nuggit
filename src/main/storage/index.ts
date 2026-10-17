@@ -122,6 +122,43 @@ const TABS = ['home', 'dip', 'tasks', 'next', 'tenders', 'settings']
 const PICKUP_MODES = ['icon', 'menu', 'off']
 const SHORTCUTS = ['', 'Alt+Space', 'Control+Alt+Space', 'Command+Shift+Space']
 const MODEL_ID = /^[a-z0-9][a-z0-9._:/-]{0,99}$/i
+const BACKENDS = ['gemini', 'ollama', 'custom'] as const
+const MAX_SERVERS = 5
+
+// A server's base URL: http or https only, without the trailing slash.
+function cleanServerUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  try {
+    const url = new URL(value.trim())
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
+    if (url.username || url.password) return null // keys go in the key field, not the URL
+    return url.toString().replace(/\/+$/, '').slice(0, 300)
+  } catch {
+    return null
+  }
+}
+
+function cleanCustomServer(value: unknown): Settings['ai']['custom'] | null {
+  if (!isObject(value)) return null
+  const name = typeof value.name === 'string' ? value.name.trim().slice(0, 60) : ''
+  const model = typeof value.model === 'string' ? value.model.trim() : ''
+  const servers = (Array.isArray(value.servers) ? value.servers : [])
+    .map(cleanServerUrl)
+    .filter((url): url is string => Boolean(url))
+  const unique = [...new Set(servers)].slice(0, MAX_SERVERS)
+  if (!MODEL_ID.test(model) || unique.length === 0) return null
+  return { name: name || 'Mi servidor', model, servers: unique }
+}
+
+// Every backend once, in the given order; missing ones go at the end.
+function cleanOrder(value: unknown): Settings['ai']['order'] | null {
+  if (!Array.isArray(value)) return null
+  const given = value.filter((b): b is (typeof BACKENDS)[number] =>
+    (BACKENDS as readonly string[]).includes(b)
+  )
+  const order = [...new Set(given)]
+  return [...order, ...BACKENDS.filter((b) => !order.includes(b))]
+}
 
 export async function loadSettings(): Promise<Settings> {
   const data = await readJson<Partial<Settings>>('settings', {})
@@ -177,6 +214,13 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       else if (value === null || value === '') delete current.ai[key]
     }
     if (typeof shareTasksWithAI === 'boolean') current.ai.shareTasksWithAI = shareTasksWithAI
+    if (patch.ai.custom === null) delete current.ai.custom
+    else if (patch.ai.custom !== undefined) {
+      const custom = cleanCustomServer(patch.ai.custom)
+      if (custom) current.ai.custom = custom
+    }
+    const order = cleanOrder(patch.ai.order)
+    if (order) current.ai.order = order
   }
   await writeJson('settings', current)
   return current

@@ -14,16 +14,32 @@ import { loadSettings, MAX_PERSONALITY, setAIProvider } from '../storage'
 import { getTasks } from '../tasks'
 import { dipInstructions, PERSONALITY_SCHEMA, personalityInstructions } from './dip'
 import { createGeminiProvider, DEFAULT_GEMINI_MODEL } from './gemini'
+import { anyServerUp, createCustomServerProvider, type CustomServerConfig } from './customServer'
 import * as keyStore from './keyStore'
 import { createOllamaProvider, currentOllamaModel, listOllamaModels } from './ollama'
 import { AIError, type AIProvider } from './provider'
 
+async function customConfig(settings?: Settings): Promise<CustomServerConfig | null> {
+  const custom = (settings ?? (await loadSettings())).ai.custom
+  return custom ? { ...custom, key: await keyStore.serverKey.load() } : null
+}
+
 const providers: Record<AIBackend, AIProvider> = {
-  gemini: createGeminiProvider(keyStore.loadKey, async () => {
+  gemini: createGeminiProvider(keyStore.geminiKey.load, async () => {
     const settings = await loadSettings()
     return settings.ai.model || DEFAULT_GEMINI_MODEL
   }),
-  ollama: createOllamaProvider(async () => (await loadSettings()).ai.ollamaModel)
+  ollama: createOllamaProvider(async () => (await loadSettings()).ai.ollamaModel),
+  custom: createCustomServerProvider(() => customConfig())
+}
+
+// The order "auto" tries them in, unless the user chose another in Ajustes.
+const DEFAULT_ORDER: AIBackend[] = ['gemini', 'ollama', 'custom']
+const isBackend = (value: unknown): value is AIBackend =>
+  value === 'gemini' || value === 'ollama' || value === 'custom'
+
+function autoOrder(settings: Settings): AIBackend[] {
+  return settings.ai.order?.length ? settings.ai.order : DEFAULT_ORDER
 }
 
 const MAX_MESSAGES = 30
@@ -37,32 +53,34 @@ export function errorMessage(err: unknown): string {
 
 // --- What Dip can use right now ---
 
-let status: AIStatus = { active: null, gemini: false, ollama: false }
+let status: AIStatus = {
+  active: null,
+  gemini: false,
+  ollama: false,
+  custom: false,
+  customKey: false
+}
 
-function pickActive(
-  choice: Settings['ai']['provider'],
-  gemini: boolean,
-  ollama: boolean
-): AIBackend | null {
-  if (choice === 'gemini') return gemini ? 'gemini' : null
-  if (choice === 'ollama') return ollama ? 'ollama' : null
-  // auto: Gemini first when there is a key (faster and smarter), then Ollama.
-  if (gemini) return 'gemini'
-  return ollama ? 'ollama' : null
+function pickActive(settings: Settings, available: Record<AIBackend, boolean>): AIBackend | null {
+  const choice = settings.ai.provider
+  if (isBackend(choice)) return available[choice] ? choice : null
+  // auto: the first available one, in the user's order.
+  return autoOrder(settings).find((b) => available[b]) ?? null
 }
 
 export async function refreshStatus(): Promise<AIStatus> {
-  const [settings, key, models] = await Promise.all([
-    loadSettings(),
-    keyStore.loadKey(),
-    listOllamaModels().catch(() => [])
+  const settings = await loadSettings()
+  const [key, models, custom, customKey] = await Promise.all([
+    keyStore.geminiKey.load(),
+    listOllamaModels().catch(() => []),
+    customConfig(settings).then(anyServerUp),
+    keyStore.serverKey.load()
   ])
-  const gemini = Boolean(key)
-  const ollama = models.length > 0
+  const available = { gemini: Boolean(key), ollama: models.length > 0, custom }
   const next: AIStatus = {
-    active: pickActive(settings.ai.provider, gemini, ollama),
-    gemini,
-    ollama
+    active: pickActive(settings, available),
+    ...available,
+    customKey: Boolean(customKey)
   }
   if (JSON.stringify(next) !== JSON.stringify(status)) {
     status = next
@@ -75,11 +93,19 @@ export function getStatus(): AIStatus {
   return status
 }
 
-// Which providers to try, in order. In auto mode, if one fails the next one is tried.
+// Which providers to try, in order. In auto mode, if one fails the next one is tried: the
+// user's order, skipping what isn't set up, and leaving for last what was down at the
+// last check (so a sleeping server doesn't make every answer wait).
 async function candidates(settings: Settings): Promise<AIBackend[]> {
   const choice = settings.ai.provider
-  if (choice === 'gemini' || choice === 'ollama') return [choice]
-  return (await keyStore.loadKey()) ? ['gemini', 'ollama'] : ['ollama']
+  if (isBackend(choice)) return [choice]
+  const setUp: Record<AIBackend, boolean> = {
+    gemini: Boolean(await keyStore.geminiKey.load()),
+    ollama: true,
+    custom: Boolean(settings.ai.custom)
+  }
+  const order = autoOrder(settings).filter((b) => setUp[b])
+  return [...order.filter((b) => status[b]), ...order.filter((b) => !status[b])]
 }
 
 export async function withFallback<T>(
@@ -103,13 +129,15 @@ export async function withFallback<T>(
 // exist, so it only touches the saved file. Then keeps the status up to date.
 export async function initAI(): Promise<void> {
   const settings = await loadSettings()
-  if (!['gemini', 'ollama', 'auto'].includes(settings.ai.provider)) await setAIProvider('auto')
+  if (!['gemini', 'ollama', 'custom', 'auto'].includes(settings.ai.provider)) {
+    await setAIProvider('auto')
+  }
   await refreshStatus()
   setInterval(() => refreshStatus().catch(() => undefined), STATUS_INTERVAL_MS)
 }
 
 export async function setProvider(input: unknown): Promise<void> {
-  if (input === 'auto' || input === 'gemini' || input === 'ollama') {
+  if (input === 'auto' || isBackend(input)) {
     await changeAIProvider(input)
     await refreshStatus()
   }
@@ -129,7 +157,7 @@ export async function saveKey(input: unknown): Promise<AISaveKeyResult> {
     }
   }
   try {
-    await keyStore.saveKey(key)
+    await keyStore.geminiKey.save(key)
     await refreshStatus()
     return { ok: true }
   } catch (err) {
@@ -139,7 +167,33 @@ export async function saveKey(input: unknown): Promise<AISaveKeyResult> {
 }
 
 export async function removeKey(): Promise<void> {
-  await keyStore.removeKey()
+  await keyStore.geminiKey.remove()
+  await refreshStatus()
+}
+
+// --- The user's own server: its optional key ---
+
+export async function saveServerKey(input: unknown): Promise<AISaveKeyResult> {
+  const key = typeof input === 'string' ? input.trim() : ''
+  if (!/^\S{1,500}$/.test(key)) return { ok: false, error: 'Pega la key completa, sin espacios.' }
+  if (!keyStore.canEncrypt()) {
+    return {
+      ok: false,
+      error: 'Este equipo no permite guardar la key cifrada, así que no la guardé.'
+    }
+  }
+  try {
+    await keyStore.serverKey.save(key)
+    await refreshStatus()
+    return { ok: true }
+  } catch (err) {
+    console.error('[ai] could not save the server key', err)
+    return { ok: false, error: 'No pude guardar la key. Intenta otra vez.' }
+  }
+}
+
+export async function removeServerKey(): Promise<void> {
+  await keyStore.serverKey.remove()
   await refreshStatus()
 }
 
@@ -155,7 +209,9 @@ export async function testConnection(): Promise<AITestResult> {
       const model =
         backend === 'ollama'
           ? await currentOllamaModel(settings.ai.ollamaModel)
-          : settings.ai.model || DEFAULT_GEMINI_MODEL
+          : backend === 'custom'
+            ? (settings.ai.custom?.model ?? '')
+            : settings.ai.model || DEFAULT_GEMINI_MODEL
       return { models, model }
     })
     await refreshStatus()

@@ -1,0 +1,26 @@
+# Novedades de Nuggit
+
+Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
+
+## [Sin publicar]
+
+### Nuevo
+- **Pin de verdad:** un widget fijado ya no se mueve ni se edita. Nuevo **Pin on top**, **Pin on back** y el ícono de **quick pickup** en la barra de menú (Fase 5.3).
+- **"¿Qué hago ahora?"** te dice una sola cosa que hacer, conectado a la barra de menú y a "ya terminé" (Fase 5).
+- Pestañas **Ahora** y **Tenders** en el centro de control.
+- **Dip en la barra de menú:** mini chat flotante y tarjetas para confirmar acciones (Fase 4.5).
+- **Tenders:** Dip parte una tarea grande en pasitos chiquitos (Fase 4).
+- **Centro de control** con pestañas Inicio, Dip, Tareas y Ajustes (Fase 3.7).
+- **Dip** se conecta a Gemini y Ollama, y puedes cambiar su personalidad (Fases 3 y 3.5).
+- Nuggit en la **barra de menú** de la Mac, con ícono o texto.
+- **Tareas** con subtareas (Fase 2).
+- Widgets que se **despegan** al escritorio de la Mac (Fase 1.5).
+- **Escritorio de widgets** con reloj y temas claro y oscuro (Fase 1).
+
+### Arreglado
+- Las tareas completadas salen de la lista.
+- Los widgets ya no tienen "gravedad" y se mueven libres.
+- El tablero ya no crece ni tiene scroll.
+
+### Cambió
+- Sin emoji de pollo en el título 😌

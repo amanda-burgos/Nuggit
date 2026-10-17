@@ -23,7 +23,8 @@
 }
 
 .settings-section input[type='password'],
-.settings-section input[list] {
+.settings-section input[list],
+.settings-section .custom-server input {
   font: inherit;
   color: inherit;
   min-width: 0;
@@ -295,4 +296,79 @@
 .settings-select:focus {
   outline: none;
   border-color: var(--color-accent);
+}
+
+/* --- "Automático" order --- */
+
+.provider-order {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.provider-order li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.provider-order-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.provider-order-name small {
+  color: var(--color-text-muted);
+}
+
+.ai-dot.is-on {
+  background: #30a46c;
+}
+
+/* --- Own server (OpenAI-compatible) --- */
+
+.custom-server {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.custom-server-list {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.custom-server-list legend {
+  padding: 0;
+  margin-bottom: 4px;
+}
+
+.custom-server-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.custom-server-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.custom-server-row input[aria-invalid='true'] {
+  border-color: #d1383d;
+}
+
+.custom-server-label {
+  width: 72px;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.custom-server-add {
+  align-self: flex-start;
 }

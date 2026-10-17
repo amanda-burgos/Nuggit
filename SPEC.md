@@ -55,6 +55,7 @@ Estas reglas existen para que el proyecto **se termine** y no se abandone a la m
 7. Código en inglés (nombres de variables, archivos, commits). La interfaz puede estar en español/inglés.
 8. Antes de cambios grandes o de instalar librerías nuevas, explicar en una frase qué y por qué.
 9. Cuando una fase esté lista, decir cómo probarla en pasos simples.
+10. **Update log:** en cada commit de una fase o arreglo importante, agregar una entrada en `CHANGELOG.md` (fecha, versión, y en lenguaje simple qué hay de nuevo, qué se arregló y qué cambió). Subir la versión en `package.json` (0.x.0 por fase, 0.x.y por arreglos).
 
 ---
 
@@ -84,6 +85,7 @@ src/
       provider.ts       # interfaz AIProvider
       gemini.ts         # adaptador de Gemini
       ollama.ts         # adaptador de Ollama (local)
+      openaiCompatible.ts  # adaptador para servidores con API de OpenAI
       (futuro) openai.ts, claude.ts
     ipc.ts              # canales entre main y la interfaz
   preload/
@@ -176,7 +178,7 @@ interface Note {
 
 interface Settings {
   ai: {
-    provider: "none" | "gemini" | "ollama" | "auto";   // "auto" = usa el que esté disponible
+    provider: "none" | "gemini" | "ollama" | "openaiCompatible" | "auto";   // "auto" = usa el que esté disponible
     model?: string;                // configurable, no hardcodear
     shareTasksWithAI: boolean;     // permiso para que la IA lea las tareas
   };
@@ -224,10 +226,15 @@ La IA **propone**, el usuario **confirma**. Toda acción que cambie datos (crear
 
 ### Proveedores
 
-- **Actuales: Gemini y Ollama, los dos.**
+- **Actuales: Gemini, Ollama y un servidor propio compatible con OpenAI.**
+  - **Servidor propio (OpenAI-compatible)**: cualquier servidor que hable la API de OpenAI (`/v1/chat/completions`). Se configura en Ajustes con: nombre, **base URL**, **modelo**, API key opcional, y una **lista de servidores de respaldo** (si el primero no responde o tarda mucho, prueba el siguiente). Acepta texto e imágenes si el modelo lo soporta.
+    - Las URLs y nombres de estos servidores son **datos del usuario**: se guardan en `settings.json`, **nunca en el código ni en el repo**.
+    - Si el servidor necesita una VPN (ej. Tailscale) y no responde, mostrar un mensaje claro: "No llego al servidor. ¿Está Tailscale prendido?".
+    - Timeout razonable y un solo intento por servidor antes de pasar al siguiente (estos servidores atienden una petición a la vez).
+    - De la respuesta se muestra **solo `content`**, nunca `reasoning_content` (ni bloques `<think>`).
   - **Gemini**: con API key de Google AI Studio, pegada en Settings.
   - **Ollama**: modelo local en la Mac, sin cuenta ni clave. Nuggit detecta si Ollama está corriendo.
-  - **Modo "auto"** (por defecto): si uno no está disponible (sin key, sin internet, Ollama apagado), usa el otro. Si ninguno está, la app funciona sin IA y Dip lo dice amablemente.
+  - **Modo "auto"** (por defecto): usa los proveedores en el **orden que el usuario elija** en Ajustes; si uno no está disponible (sin key, sin internet, Ollama apagado, servidor caído), pasa al siguiente. Si ninguno está, la app funciona sin IA y Dip lo dice amablemente.
   - En Settings se ve cuál se está usando ahora.
 - **La personalidad de Dip** (sección "Nombres") se manda como **system prompt** en cada conversación, igual con cualquier proveedor. No se entrena ningún modelo.
 - **Respuestas estructuradas** (Tenders, Brain Dump): con Ollama usar la opción `format` con JSON schema; con Gemini, su modo de respuesta JSON. Siempre validar el JSON.
@@ -511,6 +518,8 @@ Cómo quedó (Fase 5.3):
   - **Dónde personalizar** cada cosa (colores, fondo, tema, personalidad de Dip, barra de menú), con botón que lleva directo a ese ajuste.
   - **FAQ**: preguntas frecuentes (¿Funciona sin internet? ¿Dónde se guardan mis datos? ¿Cómo conecto Gemini u Ollama? ¿Cómo salgo de Lockdown? ¿Cómo regreso un widget al tablero?...).
   - **Atajos de teclado**.
+  - **Novedades (update log)**: muestra `CHANGELOG.md` de forma bonita, versión por versión.
+- Al abrir Nuggit después de una actualización, aparece una ventanita "Qué hay de nuevo en la versión X" (con botón "Ver todo" y "Cerrar"). Se puede apagar en Ajustes.
 - Los textos de ayuda viven en un archivo (ej: `help.json` o Markdown) para editarlos fácil.
 - Dip puede responder "¿cómo hago X en Nuggit?" usando esos mismos textos de ayuda.
 - **Listo cuando:** alguien que nunca vio Nuggit puede abrirla, seguir el tour y saber usarla sin preguntarme nada.

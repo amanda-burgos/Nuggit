@@ -49,6 +49,8 @@ const api: NuggitApi = {
   ai: {
     saveKey: (key) => ipcRenderer.invoke('ai:saveKey', key),
     removeKey: () => ipcRenderer.invoke('ai:removeKey'),
+    saveServerKey: (key) => ipcRenderer.invoke('ai:saveServerKey', key),
+    removeServerKey: () => ipcRenderer.invoke('ai:removeServerKey'),
     setProvider: (provider) => ipcRenderer.invoke('ai:setProvider', provider),
     test: () => ipcRenderer.invoke('ai:test'),
     status: () => ipcRenderer.invoke('ai:status'),

@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import type { AIBackend, AIModelOption, AIStatus } from '../../../shared/types'
+import type { AIBackend, AIModelOption, AIStatus, Settings } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
+import { CustomServerSettings } from './CustomServerSettings'
 import { StatusMessage, type SectionProps, type Status } from './shared'
 
 const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest'
@@ -8,16 +9,23 @@ const SUGGESTED_OLLAMA_MODEL = 'llama3.2'
 const KEY_URL = 'https://aistudio.google.com/apikey'
 const OLLAMA_URL = 'https://ollama.com/download'
 
-type Choice = 'auto' | 'ollama' | 'gemini'
+type Choice = 'auto' | AIBackend
 type Busy = 'save' | 'test' | 'remove' | 'switch' | null
 
-const BACKEND_NAMES: Record<AIBackend, string> = { gemini: 'Gemini', ollama: 'Ollama' }
+const DEFAULT_ORDER: AIBackend[] = ['gemini', 'ollama', 'custom']
+
+function backendName(backend: AIBackend, settings: Settings): string {
+  if (backend === 'custom') return settings.ai.custom?.name || 'tu servidor'
+  return backend === 'gemini' ? 'Gemini' : 'Ollama'
+}
+
+const BACKEND_ICONS: Record<AIBackend, string> = { gemini: '☁️', ollama: '🏠', custom: '🖥️' }
 
 const CHOICES: Array<{ value: Choice; title: string; text: string }> = [
   {
     value: 'auto',
     title: '✨ Automático',
-    text: 'Usa la que esté disponible. Si una falla, prueba con la otra.'
+    text: 'Usa la primera disponible, en el orden que elijas. Si una falla, prueba la siguiente.'
   },
   {
     value: 'ollama',
@@ -28,15 +36,25 @@ const CHOICES: Array<{ value: Choice; title: string; text: string }> = [
     value: 'gemini',
     title: '☁️ Gemini',
     text: 'En internet, de Google. Necesita una key (la cuenta debe ser de alguien de 18 o más).'
+  },
+  {
+    value: 'custom',
+    title: '🖥️ Servidor propio',
+    text: 'Un servidor tuyo compatible con OpenAI, con servidores de respaldo.'
   }
 ]
 
-function describeStatus(status: AIStatus | null, choice: Choice): string {
+function describeStatus(status: AIStatus | null, choice: Choice, settings: Settings): string {
   if (!status) return 'Revisando…'
-  if (status.active) return `Ahora Dip usa ${BACKEND_NAMES[status.active]}`
+  if (status.active) return `Ahora Dip usa ${backendName(status.active, settings)}`
   if (choice === 'gemini') return 'Falta guardar una key de Gemini'
   if (choice === 'ollama') return 'Ollama no está abierto (o no tiene modelos)'
-  return 'Ninguna IA disponible: abre Ollama o guarda una key de Gemini'
+  if (choice === 'custom') {
+    return settings.ai.custom
+      ? 'Tu servidor no responde. ¿Está Tailscale prendido?'
+      : 'Falta agregar tu servidor (abajo)'
+  }
+  return 'Ninguna IA disponible: abre Ollama, guarda una key de Gemini o agrega tu servidor'
 }
 
 // Connecting Dip to an AI: automatic, Ollama (local) or Gemini (online).
@@ -44,7 +62,7 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
   const aiStatus = useAIStatus()
   const saved = settings.ai.provider
   const [choice, setChoice] = useState<Choice>(
-    saved === 'gemini' || saved === 'ollama' ? saved : 'auto'
+    saved === 'gemini' || saved === 'ollama' || saved === 'custom' ? saved : 'auto'
   )
   const [busy, setBusy] = useState<Busy>(null)
   const [status, setStatus] = useState<Status>(null)
@@ -59,7 +77,7 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
       setModels((m) => ({ ...m, [result.backend]: result.models }))
       setStatus({
         kind: 'ok',
-        text: `¡Conectado! Dip está usando ${BACKEND_NAMES[result.backend]} (${result.model}) ✨`
+        text: `¡Conectado! Dip está usando ${backendName(result.backend, settings)} (${result.model}) ✨`
       })
     } else {
       setStatus({ kind: 'error', text: result.error })
@@ -75,8 +93,9 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
     setBusy(null)
   }
 
-  const showGemini = choice !== 'ollama'
-  const showOllama = choice !== 'gemini'
+  const showGemini = choice === 'auto' || choice === 'gemini'
+  const showOllama = choice === 'auto' || choice === 'ollama'
+  const showCustom = choice === 'auto' || choice === 'custom'
 
   return (
     <section className="settings-section">
@@ -107,7 +126,7 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
       <div className="settings-row is-centered">
         <div className={`ai-state${aiStatus?.active ? ' is-on' : ''}`}>
           <span className="ai-dot" aria-hidden />
-          {describeStatus(aiStatus, choice)}
+          {describeStatus(aiStatus, choice, settings)}
         </div>
         {aiStatus?.active && (
           <button className="button-ghost" disabled={busy !== null} onClick={test}>
@@ -117,6 +136,26 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
       </div>
 
       <StatusMessage status={status} />
+
+      {choice === 'auto' && (
+        <ProviderOrder
+          order={settings.ai.order?.length ? settings.ai.order : DEFAULT_ORDER}
+          settings={settings}
+          aiStatus={aiStatus}
+          onChange={(order) => update({ ai: { order } })}
+        />
+      )}
+
+      {showCustom && (
+        <CustomServerSettings
+          // Starts over from what is saved whenever that changes (e.g. from another window).
+          key={JSON.stringify(settings.ai.custom ?? null)}
+          settings={settings}
+          update={update}
+          aiStatus={aiStatus}
+          setStatus={setStatus}
+        />
+      )}
 
       {showOllama && (
         <div className="settings-subsection">
@@ -173,6 +212,59 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
         </span>
       </label>
     </section>
+  )
+}
+
+// "Automático" tries them in this order.
+function ProviderOrder({
+  order,
+  settings,
+  aiStatus,
+  onChange
+}: {
+  order: AIBackend[]
+  settings: Settings
+  aiStatus: AIStatus | null
+  onChange(order: AIBackend[]): void
+}): React.JSX.Element {
+  const move = (i: number, by: -1 | 1): void => {
+    const next = [...order]
+    ;[next[i], next[i + by]] = [next[i + by], next[i]]
+    onChange(next)
+  }
+
+  return (
+    <div className="settings-subsection">
+      <h4>Orden en automático</h4>
+      <ol className="provider-order">
+        {order.map((backend, i) => (
+          <li key={backend}>
+            <span className={`ai-dot${aiStatus?.[backend] ? ' is-on' : ''}`} aria-hidden />
+            <span className="provider-order-name">
+              {BACKEND_ICONS[backend]} {backendName(backend, settings)}
+              {!aiStatus?.[backend] && <small> (no disponible ahora)</small>}
+            </span>
+            <button
+              className="icon-button"
+              title="Subir"
+              disabled={i === 0}
+              onClick={() => move(i, -1)}
+            >
+              ↑
+            </button>
+            <button
+              className="icon-button"
+              title="Bajar"
+              disabled={i === order.length - 1}
+              onClick={() => move(i, 1)}
+            >
+              ↓
+            </button>
+          </li>
+        ))}
+      </ol>
+      <small>Dip usa la primera que esté disponible. Si falla, prueba la siguiente.</small>
+    </div>
   )
 }
 
