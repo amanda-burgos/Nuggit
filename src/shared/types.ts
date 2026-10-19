@@ -1,3 +1,5 @@
+import type { SystemVoice } from './voices'
+
 // Types shared between the main process, preload and renderer.
 
 // A widget's rectangle in pixels, relative to the top-left of the desktop board.
@@ -120,8 +122,9 @@ export interface Settings {
 // system's dictation, which has no settings here.
 export interface VoiceSettings {
   speak: boolean // Dip reads its answers aloud
-  voiceURI?: string // a speechSynthesis voice; unset = picked by the answer's language
+  voiceURI?: string // the chosen system voice (SystemVoice.id); unset = the best one
   rate: number // 0.5–2
+  pitch: number // 0.8 (deeper) – 1.25 (higher)
 }
 
 export type Priority = 'low' | 'medium' | 'high'
@@ -221,7 +224,7 @@ export interface SettingsPatch {
   dipTray?: { visible?: boolean; shortcut?: DipShortcut }
   pickupTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
-  voice?: { speak?: boolean; voiceURI?: string | null; rate?: number } // null: automatic voice
+  voice?: { speak?: boolean; voiceURI?: string | null; rate?: number; pitch?: number } // null: best voice
   ui?: {
     tab?: AppTab
     sidebarCollapsed?: boolean
@@ -505,6 +508,13 @@ export interface NuggitApi {
     dictate(): Promise<void>
     // Opens the system settings where dictation is turned on.
     openDictationSettings(): Promise<void>
+    // The installed system voices, with their quality (Mac; [] elsewhere).
+    voices(fresh?: boolean): Promise<SystemVoice[]>
+    // Dip's answer as audio (WAV) in that voice; null if it can't (or a newer one came).
+    synthesize(request: { text: string; voice?: string; wpm: number }): Promise<Uint8Array | null>
+    stop(): Promise<void>
+    // Where better voices are downloaded (Accessibility → Spoken Content).
+    openVoiceSettings(): Promise<void>
   }
   focus: {
     load(): Promise<FocusState>

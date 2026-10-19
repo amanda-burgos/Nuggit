@@ -112,7 +112,11 @@ const api: NuggitApi = {
   },
   voice: {
     dictate: () => ipcRenderer.invoke('voice:dictate'),
-    openDictationSettings: () => ipcRenderer.invoke('voice:openDictationSettings')
+    openDictationSettings: () => ipcRenderer.invoke('voice:openDictationSettings'),
+    voices: (fresh) => ipcRenderer.invoke('voice:voices', fresh ?? false),
+    synthesize: (request) => ipcRenderer.invoke('voice:synthesize', request),
+    stop: () => ipcRenderer.invoke('voice:stop'),
+    openVoiceSettings: () => ipcRenderer.invoke('voice:openVoiceSettings')
   },
   focus: {
     load: () => ipcRenderer.invoke('focus:load'),

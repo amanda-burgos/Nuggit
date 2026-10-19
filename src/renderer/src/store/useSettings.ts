@@ -41,6 +41,7 @@ export function useSettings(): SettingsStore {
       const voice = { ...prev.voice }
       if (voicePatch?.speak !== undefined) voice.speak = voicePatch.speak
       if (voicePatch?.rate !== undefined) voice.rate = voicePatch.rate
+      if (voicePatch?.pitch !== undefined) voice.pitch = voicePatch.pitch
       if (voicePatch && 'voiceURI' in voicePatch) voice.voiceURI = voicePatch.voiceURI || undefined
       const next = { ...prev, ...rest, ai, ui, voice, dipTray: { ...prev.dipTray, ...dipTray } }
       if (dipPersonality !== undefined) next.dipPersonality = dipPersonality?.trim() || undefined

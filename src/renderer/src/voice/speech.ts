@@ -1,8 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { VoiceSettings } from '../../../shared/types'
+import { voiceFor, type SystemVoice } from '../../../shared/voices'
 
-// SPEC 9.10: Dip answers out loud with the system voice (speechSynthesis). Everything here
-// stays on this computer.
+// SPEC 9.10: Dip answers out loud with a system voice. On a Mac it is the voice chosen in
+// Ajustes (or the best one installed) through `say`, played here so the pitch can be set
+// apart from the speed. Elsewhere, the browser's speechSynthesis. Nothing leaves the
+// computer.
+
+const IS_MAC = navigator.userAgent.includes('Mac')
+// `say`'s normal speed, in words per minute.
+const BASE_WPM = 175
 
 // Emojis, markdown marks and links sound bad read aloud: they go.
 export function speakableText(text: string): string {
@@ -27,61 +34,91 @@ export function guessLang(text: string): 'es' | 'en' {
   return en > es ? 'en' : 'es'
 }
 
-// The chosen voice if it fits the language. Otherwise one that does, preferring the
-// system's own region (es-MX for someone in Mexico), then voices that work offline.
-export function pickVoice(
-  voices: SpeechSynthesisVoice[],
-  voiceURI: string | undefined,
-  lang: 'es' | 'en',
-  locale = navigator.language
-): SpeechSynthesisVoice | undefined {
-  const fits = (v: SpeechSynthesisVoice): boolean => v.lang.toLowerCase().startsWith(lang)
-  const chosen = voices.find((v) => v.voiceURI === voiceURI)
-  if (chosen && fits(chosen)) return chosen
-  const matching = voices.filter(fits)
-  const sameRegion = (v: SpeechSynthesisVoice): boolean =>
-    v.lang.toLowerCase().replace('_', '-') === locale.toLowerCase()
-  return (
-    matching.find((v) => sameRegion(v) && v.localService) ??
-    matching.find((v) => v.default) ??
-    matching.find((v) => v.localService) ??
-    matching[0]
-  )
+// --- The Mac's voices, loaded once (again with "Actualizar") ---
+
+let voicesPromise: Promise<SystemVoice[]> | null = null
+
+export function loadSystemVoices(fresh = false): Promise<SystemVoice[]> {
+  if (!IS_MAC) return Promise.resolve([])
+  if (!voicesPromise || fresh) {
+    voicesPromise = window.api.voice.voices(fresh).catch((err) => {
+      console.error('Could not load the voices', err)
+      return []
+    })
+  }
+  return voicesPromise
 }
 
-export function speak(text: string, settings: VoiceSettings): void {
-  if (!('speechSynthesis' in window)) return
-  const clean = speakableText(text)
-  if (!clean) return
-  const lang = guessLang(clean)
-  const utterance = new SpeechSynthesisUtterance(clean)
-  const voice = pickVoice(window.speechSynthesis.getVoices(), settings.voiceURI, lang)
-  if (voice) utterance.voice = voice
-  utterance.lang = voice?.lang ?? (lang === 'es' ? 'es-MX' : 'en-US')
-  utterance.rate = settings.rate
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(utterance)
+export function useSystemVoices(): {
+  voices: SystemVoice[] | null
+  refresh(): Promise<void>
+} {
+  const [voices, setVoices] = useState<SystemVoice[] | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    loadSystemVoices().then((list) => {
+      if (!cancelled) setVoices(list)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+  const refresh = useCallback(async () => setVoices(await loadSystemVoices(true)), [])
+  return { voices, refresh }
 }
+
+// --- Speaking ---
+
+let playing: HTMLAudioElement | null = null
+let turn = 0 // a newer speak() or stopSpeaking() makes older ones drop their audio
 
 export function stopSpeaking(): void {
+  turn++
+  playing?.pause()
+  playing = null
+  if (IS_MAC) window.api.voice.stop().catch(() => undefined)
   if ('speechSynthesis' in window) window.speechSynthesis.cancel()
 }
 
-// The system voices in Spanish and English (the list fills in a moment after start-up).
-export function useVoices(): SpeechSynthesisVoice[] {
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
-  useEffect(() => {
-    if (!('speechSynthesis' in window)) return
-    const load = (): void =>
-      setVoices(
-        window.speechSynthesis
-          .getVoices()
-          .filter((v) => /^(es|en)/i.test(v.lang))
-          .sort((a, b) => a.lang.localeCompare(b.lang) || a.name.localeCompare(b.name))
-      )
-    load()
-    window.speechSynthesis.addEventListener('voiceschanged', load)
-    return () => window.speechSynthesis.removeEventListener('voiceschanged', load)
-  }, [])
-  return voices
+export async function speak(text: string, settings: VoiceSettings): Promise<void> {
+  stopSpeaking()
+  const mine = turn
+  const clean = speakableText(text)
+  if (!clean) return
+  const lang = guessLang(clean)
+  const voices = await loadSystemVoices()
+  if (voices.length) {
+    const voice = voiceFor(voices, settings.voiceURI, lang, navigator.language)
+    // Playing faster raises the pitch and the speed together: `say` talks slower to
+    // make up for it, so only the pitch changes.
+    const data = await window.api.voice.synthesize({
+      text: clean,
+      voice: voice?.id,
+      wpm: (BASE_WPM * settings.rate) / settings.pitch
+    })
+    if (!data || mine !== turn) return
+    const url = URL.createObjectURL(new Blob([new Uint8Array(data)], { type: 'audio/wav' }))
+    const audio = new Audio(url)
+    audio.preservesPitch = false
+    audio.playbackRate = settings.pitch
+    audio.onended = () => URL.revokeObjectURL(url)
+    playing = audio
+    await audio.play().catch((err) => console.error('Could not play the voice', err))
+    return
+  }
+  speakWithBrowser(clean, lang, settings)
+}
+
+// Not a Mac (or `say` failed): the browser's voices.
+function speakWithBrowser(text: string, lang: 'es' | 'en', settings: VoiceSettings): void {
+  if (!('speechSynthesis' in window)) return
+  const utterance = new SpeechSynthesisUtterance(text)
+  const fits = window.speechSynthesis.getVoices().filter((v) => v.lang.startsWith(lang))
+  const voice =
+    fits.find((v) => v.voiceURI === settings.voiceURI) ?? fits.find((v) => v.localService)
+  if (voice) utterance.voice = voice
+  utterance.lang = voice?.lang ?? (lang === 'es' ? 'es-MX' : 'en-US')
+  utterance.rate = settings.rate
+  utterance.pitch = settings.pitch
+  window.speechSynthesis.speak(utterance)
 }

@@ -292,6 +292,17 @@ Reglas:
 - El panel y el widget de una misma feature usan **el mismo componente** (prop `size: "widget" | "full"`), para no duplicar código ni diseño.
 - La barra lateral es colapsable (solo íconos) y responsive.
 - Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas, ⌘8 Brain Dump, ⌘9 Focus, ⌘, Ajustes. ⌘N: nota rápida.
+- **Ajustes dividido en pestañas** (dentro de Ajustes), para no tener todo en una sola página:
+  - **General** (idioma, abrir al iniciar la Mac, atajos)
+  - **Apariencia** (tema, colores, fondos — Fase 9)
+  - **Dip** (personalidad)
+  - **IA y proveedores** (Gemini, Ollama, servidor propio, orden del modo auto, modelo por agente)
+  - **Voz** (elegir voz, velocidad, tono, probar; modo llamada)
+  - **Widgets** (opciones generales, pin, quick pickup)
+  - **Barra de menú** (íconos de Nuggit, Dip y quick pickup)
+  - **Calendario** (cuando exista — Fase 8.5)
+  - **Acerca de** (versión, novedades)
+  - Buscador arriba para encontrar cualquier ajuste rápido. Recordar la última pestaña abierta.
 - Recordar la última pestaña abierta.
 
 ### 9.1 Escritorio de widgets
@@ -345,7 +356,17 @@ Pantalla de concentración: solo la tarea actual, el temporizador y el siguiente
 
 ### 9.10 Voz
 - Básica: dictado del sistema (Mac) para hablar, y voz del sistema (`speechSynthesis`) para que la IA conteste hablando. Botón para activar/desactivar.
-- Después: conversación de voz en tiempo real.
+- **Pestaña "Voz" en Ajustes** con **varias voces para elegir**: lista las voces del sistema (agrupadas por idioma, marcando "Mejorada"/"Premium"), cada una con botón ▶️ para escucharla, más velocidad y tono. Por defecto, la mejor voz en español disponible. Si hay pocas voces buenas, mostrar cómo descargar más (Ajustes del Sistema → Accesibilidad → Contenido leído → Gestionar voces).
+- **Modo llamada 📞** (como el modo voz de ChatGPT/Gemini/Claude): conversación manos libres con Dip.
+  - Botón **"Llamar a Dip"** (en la pestaña Dip y en el mini chat de la barra de menú). Se abre una pantallita de llamada: animación que reacciona a la voz, estado (escuchando / pensando / hablando) y botones **Silenciar** y **Colgar**.
+  - Ciclo: escucha → detecta cuando el usuario terminó de hablar (VAD, detección de silencio) → transcribe → Dip responde (respuestas cortas, estilo hablado) → lo dice en voz alta → vuelve a escuchar.
+  - **Interrumpir**: si el usuario habla mientras Dip habla, Dip se calla y escucha.
+  - Transcripción (voz → texto): local con **whisper.cpp** (modelo pequeño, gratis y privado) o un endpoint de transcripción del proveedor si existe. Configurable como los demás proveedores (8.1).
+  - Voz (texto → voz): voces del sistema por defecto; opción futura de voces neuronales más naturales.
+  - Durante la llamada Dip puede usar sus acciones (crear tareas, etc.) y las confirma **por voz** ("¿La guardo?" → "sí").
+  - Todo queda en el mismo historial de Dip, como texto.
+  - Permiso de micrófono de macOS pedido solo la primera vez, con explicación.
+
 
 ---
 
@@ -565,9 +586,16 @@ Cómo quedó (Fase 7):
 
 Cómo quedó (Fase 8):
 - **Hablarle a Dip:** botón 🎤 en el chat de Dip (widget, pestaña y mini chat) y en Brain Dump. Pone el cursor en el campo y abre el **dictado de macOS** (`Menu.sendActionToFirstResponder('startDictation:')`, lo mismo que Edición → Iniciar dictado). El texto lo hace macOS; Nuggit no graba ni manda audio. También sirve Fn (🌐) dos veces en cualquier campo. El reconocimiento de voz de Chromium no se usa: en Electron no funciona sin claves de Google.
-- **Dip contesta hablando:** con `speechSynthesis`. Se prende y apaga con 🔊/🔇 en el chat o en Ajustes (`settings.voice`). Solo habla la ventana desde donde se preguntó (el chat se comparte entre varias). Antes de leer quita emojis, markdown y links. Si cambias de mensaje o lo apagas, se calla.
-- **Ajustes → 🎙️ Voz:** voz (automática según el idioma de la respuesta, prefiriendo la región del sistema, o una elegida), velocidad, "▶ Probar" y cómo activar el dictado, con botón a los ajustes de Dictado de macOS.
+- **Dip contesta hablando:** se prende y apaga con 🔊/🔇 en el chat o en Ajustes (`settings.voice`). Solo habla la ventana desde donde se preguntó (el chat se comparte entre varias). Antes de leer quita emojis, markdown y links. Si cambias de mensaje o lo apagas, se calla.
+- **En Mac la voz sale de `say`, no de `speechSynthesis`:** Chromium no dice qué voces son "Mejorada"/"Premium" (ni garantiza usarlas), y `say -v '?'` sí. `say` hace un WAV corto en el proceso main y la ventana lo reproduce (`media-src blob:` en la CSP). El tono se cambia al reproducir (`playbackRate` sin conservar el tono) y `say` habla más lento en la misma medida, así velocidad y tono son independientes. Fuera de Mac se usa `speechSynthesis`.
+- **Ajustes → 🎙️ Voz:** lista de voces del sistema en español e inglés, ordenadas por calidad y marcadas ⭐ Premium / ✨ Mejorada / robótica (las de efectos, como Bubbles, no salen). Por defecto, "La mejor disponible": Premium > Mejorada > normal > robótica; entre iguales, la región del sistema y luego Latinoamérica. Si la respuesta está en el otro idioma se usa la mejor voz de ese idioma. Velocidad (0.5–2×), tono (0.8–1.25), "▶ Probar", "⏹ Parar" y "Actualizar voces". Si no hay voces Mejoradas/Premium en español, explica cómo bajarlas gratis (Accesibilidad → Contenido leído → Administrar voces) con botón a Accesibilidad. También cómo activar el dictado.
+- Reglas de calidad y lectura de `say` en `src/shared/voices.ts` (con tests).
 - La voz es parte de Dip y Brain Dump, así que no tiene pestaña propia: su lugar es Ajustes.
+
+### Fase 8.3 — Mejor voz + modo llamada
+- **Ajustes en pestañas** (ver 9.0) y pestaña **Voz** con varias voces para elegir, según 9.10.
+- **Modo llamada** con Dip: manos libres, detección de silencio, interrupción, pantallita de llamada.
+- **Listo cuando:** le doy a "Llamar a Dip", hablo sin tocar nada, me contesta con una voz natural, lo interrumpo y se calla, y le digo "anota tarea de inglés para mañana", me pregunta si la guardo, digo "sí" y aparece en Tareas.
 
 ### Fase 8.5 — Calendario
 - Vista de calendario (pestaña + widget) según 9.14.

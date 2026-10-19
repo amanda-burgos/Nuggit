@@ -14,7 +14,7 @@ const DEFAULT_SETTINGS: Settings = {
   statusIndicator: 'dot',
   dipTray: { visible: true, shortcut: '' },
   pickupTray: 'icon',
-  voice: { speak: false, rate: 1 },
+  voice: { speak: false, rate: 1, pitch: 1 },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -210,13 +210,16 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     }
   }
   if (isObject(patch) && isObject(patch.voice)) {
-    const { speak, voiceURI, rate } = patch.voice
+    const { speak, voiceURI, rate, pitch } = patch.voice
     if (typeof speak === 'boolean') current.voice.speak = speak
     if (typeof voiceURI === 'string' && voiceURI.trim()) {
       current.voice.voiceURI = voiceURI.trim().slice(0, 300)
     } else if (voiceURI === null || voiceURI === '') delete current.voice.voiceURI
     if (typeof rate === 'number' && Number.isFinite(rate)) {
       current.voice.rate = Math.min(2, Math.max(0.5, Math.round(rate * 10) / 10))
+    }
+    if (typeof pitch === 'number' && Number.isFinite(pitch)) {
+      current.voice.pitch = Math.min(1.25, Math.max(0.8, Math.round(pitch * 100) / 100))
     }
   }
   if (isObject(patch) && PICKUP_MODES.includes(patch.pickupTray as string)) {

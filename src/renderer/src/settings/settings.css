@@ -407,3 +407,11 @@
   accent-color: var(--color-accent);
   max-width: 320px;
 }
+
+.voice-select {
+  max-width: 100%;
+}
+
+.voice-tip ol {
+  margin: 8px 0;
+}

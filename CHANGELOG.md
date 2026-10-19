@@ -28,6 +28,7 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 - **Escritorio de widgets** con reloj y temas claro y oscuro (Fase 1).
 
 ### Arreglado
+- **Dip ya no suena tan robótico:** antes elegía una voz sintética antigua (Eddy). Ahora usa la mejor voz en español instalada, y en Ajustes → Voz eliges entre las del sistema, marcadas ⭐ Premium y ✨ Mejorada, con velocidad, tono y botón para probar. Si tu Mac no tiene voces buenas, te explica cómo bajarlas gratis.
 - "Pin on top" no seguía al cambiar de escritorio: ahora se vuelve a aplicar cuando la ventana aparece.
 - Las tareas completadas salen de la lista.
 - Los widgets ya no tienen "gravedad" y se mueven libres.
