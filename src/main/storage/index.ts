@@ -128,6 +128,7 @@ const TABS = [
   'dailies',
   'notes',
   'brainDump',
+  'focus',
   'settings'
 ]
 const PICKUP_MODES = ['icon', 'menu', 'off']

@@ -61,7 +61,16 @@ export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'Command+Shif
 
 // Tabs of the control center (SPEC 9.0).
 export type AppTab =
-  'home' | 'dip' | 'tasks' | 'next' | 'tenders' | 'dailies' | 'notes' | 'brainDump' | 'settings'
+  | 'home'
+  | 'dip'
+  | 'tasks'
+  | 'next'
+  | 'tenders'
+  | 'dailies'
+  | 'notes'
+  | 'brainDump'
+  | 'focus'
+  | 'settings'
 
 export interface UISettings {
   tab: AppTab // last open tab
@@ -295,6 +304,28 @@ export type TenderQuestionsResult = { ok: true; questions: string[] } | { ok: fa
 export type TenderPlanResult =
   { ok: true; title: string; dueDate?: string; steps: TenderStep[] } | { ok: false; error: string }
 
+// --- Focus (SPEC 9.8) and Lockdown (9.9) ---
+
+export interface FocusPreset {
+  focusMin: number
+  breakMin: number
+}
+
+export type FocusPhase = 'idle' | 'focus' | 'break'
+
+// The timer lives in the main process, so every window shows the same one.
+export interface FocusState {
+  preset: FocusPreset
+  phase: FocusPhase
+  endsAt: string | null // ISO, while running
+  pausedLeftMs: number | null // while paused: time left
+  durationMs: number // of the current phase
+  taskId: string | null // the task chosen; null = Next Action's
+  rounds: number // focus rounds finished on roundsDay
+  roundsDay: string // YYYY-MM-DD
+  lockdown: boolean
+}
+
 // --- Quick Notes (SPEC 9.7) and Brain Dump (9.6) ---
 
 export interface Note {
@@ -458,6 +489,21 @@ export interface NuggitApi {
     remove(ids: string[]): Promise<Note[]>
     restore(notes: Note[]): Promise<void>
     onChange(listener: (notes: Note[]) => void): () => void
+  }
+  focus: {
+    load(): Promise<FocusState>
+    // Starts a focus round (on that task, or Next Action's).
+    start(taskId?: string | null): Promise<void>
+    pause(): Promise<void>
+    resume(): Promise<void>
+    // Back to idle (also skips a break).
+    cancel(): Promise<void>
+    // Works while running too: the current phase gets the new length.
+    setPreset(preset: FocusPreset): Promise<void>
+    setTask(taskId: string | null): Promise<void>
+    // Lockdown: only the task, the timer and the next step; detached widgets hide.
+    setLockdown(on: boolean): Promise<void>
+    onChange(listener: (state: FocusState) => void): () => void
   }
   popover: {
     // Closes the calling menu bar window (Dip's mini chat or the quick pickup).

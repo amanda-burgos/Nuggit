@@ -82,3 +82,30 @@ export function pickNextActions(
   )
   return actions.slice(0, limit)
 }
+
+// What Focus and Lockdown show (SPEC 9.8, 9.9): the chosen task while it is pending,
+// otherwise the first Next Action.
+export function focusAction(
+  taskId: string | null,
+  tasks: Task[],
+  state: NextActionState,
+  today: string
+): NextAction | undefined {
+  const task = tasks.find((t) => t.id === taskId && t.status !== 'done')
+  if (!task) return pickNextActions(tasks, state, today, 1)[0]
+  const root = (task.parentId && tasks.find((t) => t.id === task.parentId)) || task
+  const action = actionFor(root, tasks)
+  if (action.task.id === task.id || root === task) return action
+  // A tender chosen out of order: its own place, and the pending step after it.
+  const steps = tasks.filter((t) => t.parentId === root.id).sort((a, b) => a.order - b.order)
+  const i = steps.indexOf(task)
+  return {
+    task,
+    root,
+    stepNumber: i + 1,
+    stepCount: steps.length,
+    nextStep: steps.slice(i + 1).find((t) => t.status !== 'done'),
+    minutes: task.estimateMin,
+    started: root.status === 'doing' || task.status === 'doing'
+  }
+}

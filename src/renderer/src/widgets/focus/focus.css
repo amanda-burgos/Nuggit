@@ -1,0 +1,233 @@
+.focus {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+}
+
+.focus.is-full {
+  max-width: 520px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.focus-muted {
+  color: var(--color-text-muted);
+}
+
+.focus-task {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-wrap: anywhere;
+}
+
+.focus-task > small {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.focus-task strong {
+  font-size: 1.05rem;
+}
+
+.focus-task select,
+.focus-custom input {
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  min-width: 0;
+}
+
+.focus-task select {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.focus-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 0 4px;
+}
+
+.focus-phase {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.focus-time {
+  font-size: clamp(2.4rem, 12vw, 3.4rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.focus.is-full .focus-time {
+  font-size: 4.5rem;
+}
+
+.focus-bar {
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.focus-bar > div {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.3s linear;
+}
+
+.focus.is-break .focus-bar > div {
+  background: var(--lavender-300);
+}
+
+.focus-controls,
+.focus-presets,
+.focus-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.focus-footer {
+  margin-top: auto;
+}
+
+.focus-chip {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.focus-chip.is-active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.focus-custom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.focus-custom label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.focus-custom input {
+  width: 60px;
+}
+
+/* --- Lockdown (SPEC 9.9) --- */
+
+.lockdown {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: var(--color-bg);
+  overflow-y: auto;
+}
+
+.lockdown-exit {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lockdown-exit kbd {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 1px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+}
+
+.lockdown-body {
+  max-width: 640px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.lockdown-root {
+  color: var(--color-text-muted);
+}
+
+.lockdown-task {
+  margin: 0;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+
+.lockdown-time {
+  margin-top: 12px;
+  font-size: clamp(4rem, 16vw, 8rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.lockdown-phase {
+  margin: 0;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.lockdown-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.lockdown-next {
+  margin: 18px 0 0;
+  color: var(--color-text-muted);
+}
+
+.lockdown-next strong {
+  color: var(--color-text);
+}
+
+.focus.is-full .focus-footer {
+  margin-top: 12px;
+}

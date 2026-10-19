@@ -3,6 +3,7 @@ import type {
   AIStatus,
   Daily,
   DipChatState,
+  FocusState,
   NextActionState,
   Note,
   NuggitApi,
@@ -107,6 +108,21 @@ const api: NuggitApi = {
       const handler = (_event: IpcRendererEvent, notes: Note[]): void => listener(notes)
       ipcRenderer.on('notes:changed', handler)
       return () => ipcRenderer.removeListener('notes:changed', handler)
+    }
+  },
+  focus: {
+    load: () => ipcRenderer.invoke('focus:load'),
+    start: (taskId) => ipcRenderer.invoke('focus:start', taskId ?? null),
+    pause: () => ipcRenderer.invoke('focus:pause'),
+    resume: () => ipcRenderer.invoke('focus:resume'),
+    cancel: () => ipcRenderer.invoke('focus:cancel'),
+    setPreset: (preset) => ipcRenderer.invoke('focus:setPreset', preset),
+    setTask: (taskId) => ipcRenderer.invoke('focus:setTask', taskId),
+    setLockdown: (on) => ipcRenderer.invoke('focus:setLockdown', on),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, state: FocusState): void => listener(state)
+      ipcRenderer.on('focus:changed', handler)
+      return () => ipcRenderer.removeListener('focus:changed', handler)
     }
   },
   nextAction: {

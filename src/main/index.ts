@@ -9,6 +9,7 @@ import { createAppWindow } from './appWindow'
 import { initDailies } from './dailies'
 import { initNotes } from './notes'
 import { initDesktop } from './desktop'
+import { initFocus, setLockdown } from './focus'
 import { initNextAction } from './nextAction'
 import { initPickupTray } from './pickupTray'
 import { registerIpc } from './ipc'
@@ -48,6 +49,8 @@ function createWindow(): BrowserWindow {
   })
   win.on('closed', () => {
     if (mainWindow === win) mainWindow = null
+    // Lockdown lives in this window: closing it ends Lockdown (and shows the widgets again).
+    setLockdown(false)
   })
   return win
 }
@@ -109,6 +112,11 @@ app.whenReady().then(async () => {
     await initNextAction()
   } catch (err) {
     console.error('[startup] could not load Next Action', err)
+  }
+  try {
+    await initFocus({ showMainWindow })
+  } catch (err) {
+    console.error('[startup] could not load Focus', err)
   }
   try {
     await initDipChat()

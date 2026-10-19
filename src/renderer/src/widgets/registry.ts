@@ -3,6 +3,7 @@ import { brainDumpWidget } from './brain-dump'
 import { clockWidget } from './clock'
 import { dailiesWidget } from './dailies'
 import { dipWidget } from './dip'
+import { focusWidget } from './focus'
 import { nextActionWidget } from './next-action'
 import { notesWidget } from './notes'
 import { tasksWidget } from './tasks'
@@ -11,6 +12,7 @@ import { tendersWidget } from './tenders'
 // Every available widget. Adding a widget = create its folder + add it here.
 export const widgetRegistry: AnyWidgetDefinition[] = [
   nextActionWidget,
+  focusWidget,
   clockWidget,
   tasksWidget,
   tendersWidget,

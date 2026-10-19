@@ -16,6 +16,16 @@ import {
   undoAction
 } from './dipChat'
 import { dipShortcutWorks } from './dipTray'
+import {
+  cancelFocus,
+  getFocus,
+  pauseFocus,
+  resumeFocus,
+  setFocusPreset,
+  setFocusTask,
+  setLockdown,
+  startFocus
+} from './focus'
 import { createNote, createNotes, getNotes, removeNotes, restoreNotes, updateNote } from './notes'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
@@ -125,6 +135,14 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('notes:update', (_event, id: unknown, patch: unknown) => updateNote(id, patch))
   ipcMain.handle('notes:remove', (_event, ids: unknown) => removeNotes(ids))
   ipcMain.handle('notes:restore', (_event, notes: unknown) => restoreNotes(notes))
+  ipcMain.handle('focus:load', () => getFocus())
+  ipcMain.handle('focus:start', (_event, taskId: unknown) => startFocus(taskId))
+  ipcMain.handle('focus:pause', () => pauseFocus())
+  ipcMain.handle('focus:resume', () => resumeFocus())
+  ipcMain.handle('focus:cancel', () => cancelFocus())
+  ipcMain.handle('focus:setPreset', (_event, preset: unknown) => setFocusPreset(preset))
+  ipcMain.handle('focus:setTask', (_event, taskId: unknown) => setFocusTask(taskId))
+  ipcMain.handle('focus:setLockdown', (_event, on: unknown) => setLockdown(on))
   ipcMain.handle('ai:brainDump', (_event, text: unknown) => splitBrainDump(text))
   ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
     ai.proposePersonality(messages)

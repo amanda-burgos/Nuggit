@@ -284,13 +284,14 @@ La ventana principal de Nuggit tiene una **barra lateral** con pestañas. Cada p
 - **Dailies**: las rutinas que se repiten (9.13).
 - **Notas**: Quick Notes (9.7).
 - **Brain Dump**: soltar todo y ordenarlo (9.6).
+- **Focus**: el temporizador (9.8), con la entrada a Lockdown (9.9).
 - **Ajustes**: Settings (IA, personalidad de Dip, barra de menú, tema...).
-- Toda feature útil tiene su pestaña. Más adelante, cuando exista: **Focus**.
+- Toda feature útil tiene su pestaña.
 
 Reglas:
 - El panel y el widget de una misma feature usan **el mismo componente** (prop `size: "widget" | "full"`), para no duplicar código ni diseño.
 - La barra lateral es colapsable (solo íconos) y responsive.
-- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas, ⌘8 Brain Dump, ⌘, Ajustes. ⌘N: nota rápida.
+- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas, ⌘8 Brain Dump, ⌘9 Focus, ⌘, Ajustes. ⌘N: nota rápida.
 - Recordar la última pestaña abierta.
 
 ### 9.1 Escritorio de widgets
@@ -553,6 +554,12 @@ Cómo quedó (Fase 6):
 - ⌘N es dentro de la app; un atajo global (desde cualquier app) queda para después si hace falta.
 
 ### Fase 7 — Focus + Lockdown
+
+Cómo quedó (Fase 7):
+- **Focus** (widget + pestaña ⌘9): 25/5, 15/5 o Personalizado (1–180 min). Empezar, Pausa/Seguir y Cancelar; en el descanso, "Saltar descanso". Cambiar los tiempos con el reloj andando conserva lo ya hecho (si el nuevo tiempo ya pasó, la fase termina).
+- El temporizador vive en el proceso main (`focus.json`): widget, pestaña, ventana despegada y Lockdown muestran lo mismo, sigue corriendo sin ventanas y sobrevive a reiniciar Nuggit. Al terminar la concentración empieza el descanso solo; al terminar el descanso, espera. Un solo aviso del sistema por fase, sin más.
+- **Tarea actual:** la que elijas en la lista, o si no la de "¿Qué hago ahora?" (mismas reglas, `focusAction` en `src/shared/nextAction.ts`). Empezar la marca "En curso". "✅ Hecho" la completa y pasa sola al siguiente paso. Cuenta las rondas del día.
+- **Lockdown** (botón 🔒 en Focus): cubre la ventana principal con solo la tarea, el reloj, sus botones y el siguiente paso. Esconde los widgets despegados y los devuelve al salir. Salida siempre visible (botón "Salir" + Esc). Cerrar la ventana también sale, y Lockdown nunca vuelve solo al abrir Nuggit. No bloquea nada fuera de la app.
 
 ### Fase 8 — Voz básica
 

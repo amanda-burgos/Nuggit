@@ -8,13 +8,16 @@ import { Sidebar } from './shell/Sidebar'
 import { TABS } from './shell/tabs'
 import './shell/shell.css'
 import { useDesktop } from './store/useDesktop'
+import { useFocus } from './store/useFocus'
 import { newQuickNote } from './store/useNotes'
 import { useSettings } from './store/useSettings'
+import { Lockdown } from './widgets/focus/Lockdown'
 
 // The control center (SPEC 9.0): a sidebar with tabs, each one a full-size panel.
 function App(): React.JSX.Element {
   const desktopStore = useDesktop()
   const { settings, update } = useSettings()
+  const focus = useFocus()
   const { desktop } = desktopStore
   const tab = settings?.ui.tab ?? 'home'
   const collapsed = settings?.ui.sidebarCollapsed ?? false
@@ -25,7 +28,7 @@ function App(): React.JSX.Element {
   useEffect(() => window.api.app.onOpenSettings(() => selectTab('settings')), [selectTab])
 
   // ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas,
-  // ⌘8 Brain Dump, ⌘, Ajustes. ⌘N: a new quick note (SPEC 9.7).
+  // ⌘8 Brain Dump, ⌘9 Focus, ⌘, Ajustes. ⌘N: a new quick note (SPEC 9.7).
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return
@@ -76,6 +79,7 @@ function App(): React.JSX.Element {
         )}
         {tab === 'settings' && <SettingsPanel settings={settings} update={update} />}
       </main>
+      {focus?.lockdown && <Lockdown />}
     </div>
   )
 }

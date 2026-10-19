@@ -5,6 +5,8 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Focus:** temporizador de 25/5, 15/5 o el tiempo que quieras, con la tarea en la que estás. Se puede pausar, cancelar y cambiar en cualquier momento, y sigue andando aunque cierres la ventana (Fase 7).
+- **Lockdown:** pantalla de concentración con solo tu tarea, el reloj y el siguiente paso; esconde los widgets y sales cuando quieras con Esc (Fase 7).
 - **Notas rápidas:** pestaña y widget **Notas**. Una nota nueva es un clic ("+ Nota") o **⌘N**. Se guardan solas mientras escribes (Fase 6).
 - **Brain Dump:** suelta todo lo que tienes en la cabeza en una caja. Dip lo separa en tareas y notas para que lo revises antes de guardar; sin IA, se guarda como nota (Fase 6).
 - **Agentes de Dip:** cada parte de Dip (chat, acciones, Tenderizer, Dailies, Brain Dump) es un agente con su propia IA, que se puede elegir con un archivo `.env`. Si una respuesta sale mal, Dip recibe el error y la corrige solo. En Ajustes se ve qué usa cada uno (Fase 5.7).
