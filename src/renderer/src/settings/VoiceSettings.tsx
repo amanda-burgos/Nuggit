@@ -52,6 +52,15 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
     speak(SAMPLES[sampleLang], voice).catch((err) => console.error('Could not test voice', err))
   }
 
+  // ▶ next to a voice: a sample in that voice, with the current speed and pitch.
+  const play = (v: SystemVoice | undefined): void => {
+    if (!v) return test()
+    const lang = v.lang.startsWith('en') ? 'en' : 'es'
+    speak(SAMPLES[lang], { ...voice, voiceURI: v.id }).catch((err) =>
+      console.error('Could not play voice', err)
+    )
+  }
+
   const reload = async (): Promise<void> => {
     setRefreshing(true)
     await refresh()
@@ -78,46 +87,48 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
       </label>
 
       {IS_MAC && (
-        <label className="settings-field">
+        <div className="settings-field">
           <span>Voz</span>
-          <select
-            className="settings-select voice-select"
-            value={chosen ? chosen.id : ''}
-            disabled={!voices}
-            onChange={(e) => {
-              stopSpeaking()
-              update({ voice: { voiceURI: e.target.value || null } })
-            }}
-          >
-            <option value="">
-              {voices
-                ? `La mejor disponible${best ? ` (ahora: ${describe(best)})` : ''}`
-                : 'Buscando voces…'}
-            </option>
-            {spanish.length > 0 && (
-              <optgroup label="Español">
-                {spanish.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {describe(v)}
-                  </option>
-                ))}
-              </optgroup>
+          <div className="voice-list" role="radiogroup" aria-label="Voz de Dip">
+            <VoiceRow
+              label={voices ? 'La mejor disponible' : 'Buscando voces…'}
+              detail={best ? `ahora: ${describe(best)}` : undefined}
+              checked={!chosen}
+              onChoose={() => update({ voice: { voiceURI: null } })}
+              onPlay={() => play(best)}
+            />
+            {[
+              { title: 'Español', list: spanish, open: true },
+              { title: 'English', list: english, open: false }
+            ].map(
+              (group) =>
+                group.list.length > 0 && (
+                  <details
+                    key={group.title}
+                    className="voice-group"
+                    open={group.open || group.list.includes(chosen!)}
+                  >
+                    <summary>
+                      {group.title} ({group.list.length})
+                    </summary>
+                    {group.list.map((v) => (
+                      <VoiceRow
+                        key={v.id}
+                        label={describe(v)}
+                        checked={chosen?.id === v.id}
+                        onChoose={() => update({ voice: { voiceURI: v.id } })}
+                        onPlay={() => play(v)}
+                      />
+                    ))}
+                  </details>
+                )
             )}
-            {english.length > 0 && (
-              <optgroup label="English">
-                {english.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {describe(v)}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </select>
+          </div>
           <small>
             Las respuestas en inglés usan la mejor voz en inglés si la elegida es en español (y al
             revés).
           </small>
-        </label>
+        </div>
       )}
 
       {IS_MAC && voices && !hasGoodVoice(voices, 'es') && (
@@ -221,5 +232,39 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
         </div>
       )}
     </section>
+  )
+}
+
+function VoiceRow({
+  label,
+  detail,
+  checked,
+  onChoose,
+  onPlay
+}: {
+  label: string
+  detail?: string
+  checked: boolean
+  onChoose(): void
+  onPlay(): void
+}): React.JSX.Element {
+  return (
+    <div className={`voice-row${checked ? ' is-checked' : ''}`}>
+      <label>
+        <input type="radio" name="dip-voice" checked={checked} onChange={onChoose} />
+        <span>
+          {label}
+          {detail && <small> · {detail}</small>}
+        </span>
+      </label>
+      <button
+        className="icon-button"
+        title="Escuchar"
+        aria-label={`Escuchar ${label}`}
+        onClick={onPlay}
+      >
+        ▶
+      </button>
+    </div>
   )
 }

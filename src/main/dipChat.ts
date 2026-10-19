@@ -103,10 +103,10 @@ function history(): Array<{ role: 'user' | 'assistant'; content: string }> {
 }
 
 // Asks Dip about the current history (which must end with the user's message).
-async function answer(): Promise<AIChatResult> {
+async function answer(voice = false): Promise<AIChatResult> {
   commit({ ...state, pending: true }, false)
   try {
-    const result = await chatWithActions(history())
+    const result = await chatWithActions(history(), { voice })
     const reply: DipChatMessage = {
       ...message('assistant', result.text),
       ...(result.action ? { action: result.action, actionState: 'pending' as const } : {})
@@ -119,12 +119,13 @@ async function answer(): Promise<AIChatResult> {
   }
 }
 
-export async function sendToDip(input: unknown): Promise<AIChatResult> {
+export async function sendToDip(input: unknown, options?: unknown): Promise<AIChatResult> {
   const text = typeof input === 'string' ? input.trim().slice(0, MAX_TEXT) : ''
   if (!text) return { ok: false, error: 'Escribe algo para Dip.' }
   if (state.pending) return { ok: false, error: 'Dip todavía está contestando.' }
   commit({ ...state, messages: [...state.messages, message('user', text)] }, true)
-  return answer()
+  const voice = isObject(options) && options.voice === true
+  return answer(voice)
 }
 
 // Tries again after an error (the last message is the user's, still unanswered).

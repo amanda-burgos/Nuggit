@@ -4,6 +4,7 @@ import type {
   Daily,
   DipChatState,
   FocusState,
+  ModelDownload,
   NextActionState,
   Note,
   NuggitApi,
@@ -73,7 +74,7 @@ const api: NuggitApi = {
   },
   dipChat: {
     load: () => ipcRenderer.invoke('dipChat:load'),
-    send: (text) => ipcRenderer.invoke('dipChat:send', text),
+    send: (text, options) => ipcRenderer.invoke('dipChat:send', text, options),
     retry: () => ipcRenderer.invoke('dipChat:retry'),
     clear: () => ipcRenderer.invoke('dipChat:clear'),
     applyAction: (id, edits) => ipcRenderer.invoke('dipChat:applyAction', id, edits),
@@ -116,7 +117,20 @@ const api: NuggitApi = {
     voices: (fresh) => ipcRenderer.invoke('voice:voices', fresh ?? false),
     synthesize: (request) => ipcRenderer.invoke('voice:synthesize', request),
     stop: () => ipcRenderer.invoke('voice:stop'),
-    openVoiceSettings: () => ipcRenderer.invoke('voice:openVoiceSettings')
+    openVoiceSettings: () => ipcRenderer.invoke('voice:openVoiceSettings'),
+    micAccess: () => ipcRenderer.invoke('voice:micAccess'),
+    askMic: () => ipcRenderer.invoke('voice:askMic'),
+    openMicSettings: () => ipcRenderer.invoke('voice:openMicSettings'),
+    transcribe: (wav, lang) => ipcRenderer.invoke('stt:transcribe', wav, lang),
+    sttStatus: () => ipcRenderer.invoke('stt:status'),
+    warmUpStt: () => ipcRenderer.invoke('stt:warmUp'),
+    downloadModel: () => ipcRenderer.invoke('stt:downloadModel'),
+    onModelDownload: (listener) => {
+      const handler = (_event: IpcRendererEvent, progress: ModelDownload): void =>
+        listener(progress)
+      ipcRenderer.on('stt:download', handler)
+      return () => ipcRenderer.removeListener('stt:download', handler)
+    }
   },
   focus: {
     load: () => ipcRenderer.invoke('focus:load'),
@@ -151,6 +165,8 @@ const api: NuggitApi = {
   },
   app: {
     openSettings: () => ipcRenderer.send('app:openSettings'),
+    info: () => ipcRenderer.invoke('app:info'),
+    setOpenAtLogin: (open) => ipcRenderer.invoke('app:setOpenAtLogin', open),
     onOpenSettings: (listener) => {
       const handler = (): void => listener()
       ipcRenderer.on('app:openSettings', handler)

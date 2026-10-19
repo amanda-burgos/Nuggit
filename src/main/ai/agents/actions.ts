@@ -17,6 +17,7 @@ export interface ActionsContext {
   personality?: string
   nextAction: string // what the Next Action widget suggests ('' if nothing / not shared)
   userText: string // the user's last message
+  voice?: boolean // said in a call: answer short and spoken
 }
 
 export interface ActionsReply {
@@ -54,6 +55,11 @@ const Reply = z.object({
   })
 })
 type RawAction = z.infer<typeof Reply>['action']
+
+// SPEC 9.10, call mode: the answer is read aloud and the person answers by voice.
+const CALL_STYLE = `MUY IMPORTANTE: estás en una LLAMADA de voz con la persona. Tu "reply" se lee en voz alta:
+- Contesta como hablando, en 1 o 2 frases cortas. Sin listas, sin emojis, sin markdown.
+- Si propones una acción, termina "reply" preguntando "¿La guardo?" (o "¿La marco como hecha?"), porque la persona contesta "sí" o "no" con la voz.`
 
 function actionInstructions(): string {
   return `Acciones: además de contestar, puedes proponer UNA acción sobre las tareas en "action", solo si la persona la pide o es claramente lo que quiere:
@@ -123,7 +129,8 @@ export const actions = defineAgent({
       system: (ctx: ActionsContext) =>
         dipInstructions(ctx.shareTasks ? ctx.tasks : null, ctx.personality, [
           ctx.nextAction,
-          actionInstructions()
+          actionInstructions(),
+          ctx.voice ? CALL_STYLE : ''
         ]),
       jsonSchema: SCHEMA,
       check: checkReply

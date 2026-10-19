@@ -8,6 +8,13 @@
   },
   "ollamaUrl": "http://127.0.0.1:11434",
   "maxRetries": 2,
+  "stt": {
+    "provider": "auto",
+    "order": ["whisper", "openaiCompatible", "gemini"],
+    "whisperModel": "base",
+    "openaiModel": "whisper-1",
+    "geminiModel": "gemini-flash-latest"
+  },
   "agents": {
     "dip": {},
     "tenderizer": {},

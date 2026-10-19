@@ -1,4 +1,6 @@
+/* position: the call screen covers the chat (SPEC 9.10). */
 .dip {
+  position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;

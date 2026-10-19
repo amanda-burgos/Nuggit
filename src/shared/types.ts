@@ -74,8 +74,20 @@ export type AppTab =
   | 'focus'
   | 'settings'
 
+// For Ajustes → General and Acerca de.
+export interface AppInfo {
+  version: string
+  dataPath: string // where Nuggit keeps your data
+  openAtLogin: boolean
+  packaged: boolean // false while developing (then the login item opens Electron)
+}
+
+// The tabs inside Ajustes (SPEC 9.0).
+export type SettingsTab = 'general' | 'appearance' | 'dip' | 'ai' | 'voice' | 'menubar' | 'about'
+
 export interface UISettings {
   tab: AppTab // last open tab
+  settingsTab?: SettingsTab // last open tab inside Ajustes
   sidebarCollapsed: boolean
   // Options of the full-size panels (e.g. folded task groups), by widget type.
   panels: Record<string, Record<string, unknown>>
@@ -125,7 +137,36 @@ export interface VoiceSettings {
   voiceURI?: string // the chosen system voice (SystemVoice.id); unset = the best one
   rate: number // 0.5–2
   pitch: number // 0.8 (deeper) – 1.25 (higher)
+  // Call mode (SPEC 9.10): who turns speech into text, and in which language.
+  stt?: 'auto' | SttBackend
+  whisperModel?: 'base' | 'small'
+  callLang?: 'auto' | 'es' | 'en'
 }
+
+// Speech to text: whisper.cpp on this Mac, the user's own server, or Gemini.
+export type SttBackend = 'whisper' | 'custom' | 'gemini'
+
+// What the call mode can use to understand speech (Ajustes → Voz).
+export interface SttStatus {
+  active: SttBackend | null
+  provider: 'auto' | SttBackend
+  fromEnv: boolean
+  whisper: {
+    bin: string | null // the whisper-cli found (brew install whisper-cpp)
+    model: 'base' | 'small'
+    modelReady: boolean
+    modelSizeMB: number
+  }
+  custom: boolean // a server of your own is set up (it may not do audio)
+  gemini: boolean // a Gemini key is saved
+}
+
+export type TranscribeResult =
+  { ok: true; text: string; backend: SttBackend } | { ok: false; error: string }
+
+// Downloading a whisper model: progress 0–1, then done (or an error).
+export type ModelDownload =
+  { state: 'downloading'; progress: number } | { state: 'done' } | { state: 'error'; error: string }
 
 export type Priority = 'low' | 'medium' | 'high'
 export type TaskStatus = 'todo' | 'doing' | 'done'
@@ -224,9 +265,18 @@ export interface SettingsPatch {
   dipTray?: { visible?: boolean; shortcut?: DipShortcut }
   pickupTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
-  voice?: { speak?: boolean; voiceURI?: string | null; rate?: number; pitch?: number } // null: best voice
+  voice?: {
+    speak?: boolean
+    voiceURI?: string | null // null: the best voice
+    rate?: number
+    pitch?: number
+    stt?: 'auto' | SttBackend
+    whisperModel?: 'base' | 'small'
+    callLang?: 'auto' | 'es' | 'en'
+  }
   ui?: {
     tab?: AppTab
+    settingsTab?: SettingsTab
     sidebarCollapsed?: boolean
     panel?: { type: string; config: Record<string, unknown> } // replaces that panel's options
   }
@@ -463,7 +513,8 @@ export interface NuggitApi {
   dipChat: {
     load(): Promise<DipChatState>
     // Adds the user's message to the shared conversation and gets Dip's answer.
-    send(text: string): Promise<AIChatResult>
+    // voice: it was said in a call, so Dip answers short and spoken (SPEC 9.10).
+    send(text: string, options?: { voice?: boolean }): Promise<AIChatResult>
     retry(): Promise<AIChatResult>
     clear(): Promise<void>
     // The action card of a message: save it (with optional edits), cancel it, or undo it.
@@ -515,6 +566,19 @@ export interface NuggitApi {
     stop(): Promise<void>
     // Where better voices are downloaded (Accessibility → Spoken Content).
     openVoiceSettings(): Promise<void>
+    // --- Call mode ---
+    // macOS microphone permission (asked only once, after explaining why).
+    micAccess(): Promise<'granted' | 'denied' | 'not-determined'>
+    askMic(): Promise<boolean>
+    // Privacy & Security → Microphone, when it was turned down.
+    openMicSettings(): Promise<void>
+    // One thing the user said (WAV) → text.
+    transcribe(wav: Uint8Array, lang?: 'es' | 'en' | 'auto'): Promise<TranscribeResult>
+    sttStatus(): Promise<SttStatus>
+    // Gets whisper ready while the call starts (its first run is slow).
+    warmUpStt(): Promise<void>
+    downloadModel(): Promise<void>
+    onModelDownload(listener: (progress: ModelDownload) => void): () => void
   }
   focus: {
     load(): Promise<FocusState>
@@ -541,6 +605,9 @@ export interface NuggitApi {
     // Brings up the main window with Settings open (works from detached widgets too).
     openSettings(): void
     onOpenSettings(listener: () => void): () => void
+    info(): Promise<AppInfo>
+    // "Abrir Nuggit al iniciar la Mac".
+    setOpenAtLogin(open: boolean): Promise<AppInfo>
   }
   widgetWindows: {
     // rect is relative to the calling window's content area.

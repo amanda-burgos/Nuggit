@@ -597,6 +597,20 @@ Cómo quedó (Fase 8):
 - **Modo llamada** con Dip: manos libres, detección de silencio, interrupción, pantallita de llamada.
 - **Listo cuando:** le doy a "Llamar a Dip", hablo sin tocar nada, me contesta con una voz natural, lo interrumpo y se calla, y le digo "anota tarea de inglés para mañana", me pregunta si la guardo, digo "sí" y aparece en Tareas.
 
+Cómo quedó (Fase 8.3):
+- **Ajustes en pestañas:** General (abrir al iniciar la Mac, idioma, atajos), Apariencia, Dip, IA y proveedores, Voz (voz + modo llamada), Barra de menú y Acerca de (versión, carpeta de datos y lo último del CHANGELOG). Buscador arriba: busca por palabras en todas las pestañas y muestra "En Voz →" para ir a la pestaña. Recuerda la última pestaña (`ui.settingsTab`). **Widgets** y **Calendario** no tienen pestaña todavía: no hay ajustes de widgets generales aún (el quick pickup está en Barra de menú) y Calendario llega en la Fase 8.5.
+- **Voz:** lista de voces agrupada por idioma (Español abierto, English plegado), marcando ⭐ Premium / ✨ Mejorada / robótica, con ▶ en cada una (usa la velocidad y el tono actuales).
+- **Modo llamada 📞** (botón en el chat de Dip: widget, pestaña y mini chat de la barra de menú):
+  - Pantallita encima del chat: círculo que crece con tu voz, estado (Te escucho / Escuchando / Pensando / Dip está hablando), lo último que dijiste y lo último que dijo Dip, **Silenciar** y **Colgar** (o Esc).
+  - Ciclo: micrófono → detección de voz (`voice/call/vad.ts`: aprende el ruido del cuarto, 900 ms de silencio = terminaste) → WAV 16 kHz → transcripción → `dipChat.send(texto, { voice: true })` → Dip contesta corto y hablado (instrucción extra en el agente `actions`) → se dice en voz alta → vuelve a escuchar.
+  - **Interrumpir:** mientras Dip habla, el umbral sube (para que su propia voz por los parlantes no cuente) y si hablas más fuerte, Dip se calla y te escucha. Con audífonos funciona mejor.
+  - **Confirmar por voz:** si hay una tarjeta de acción pendiente, un "sí"/"dale"/"no"/"mejor no" corto la guarda o la cancela (`confirm.ts`). Una respuesta larga va a Dip como mensaje normal.
+  - Todo queda en el historial del chat como texto.
+  - **Transcripción (`src/main/stt.ts`), configurable como 8.1:** whisper.cpp en esta Mac (`brew install whisper-cpp` + modelo base 148 MB o small 488 MB que se baja desde Ajustes a `userData/models`), el `/audio/transcriptions` de tu servidor, o Gemini. Automático usa el orden de `config/ai.defaults.json`. Variables: `NUGGIT_STT_PROVIDER`, `NUGGIT_WHISPER_BIN`, `NUGGIT_WHISPER_MODEL`, `NUGGIT_STT_MODEL`. Se filtran las "alucinaciones" típicas de whisper en silencio ("Subtítulos por la comunidad de Amara.org"…). El primer uso de whisper en la sesión es lento (prepara la GPU): se calienta al abrir la llamada.
+  - Idioma: automático usa el idioma de la conversación como pista (un "sí" suelto se confundía con inglés); se puede fijar en Ajustes.
+  - **Micrófono:** antes de que macOS pregunte, la pantallita explica para qué es; si se negó, lleva a Privacidad → Micrófono. El texto del permiso en `electron-builder.yml` también lo explica.
+  - Se probó de punta a punta con el micrófono falso de Chromium (`--use-file-for-fake-audio-capture`) y Ollama: interrupción, "anota tarea de inglés para mañana" → tarjeta → "sí" → tarea guardada para mañana.
+
 ### Fase 8.5 — Calendario
 - Vista de calendario (pestaña + widget) según 9.14.
 - Paso 1: exportar a `.ics` (Apple y Google). Paso 2: Apple Calendar en dos vías. Paso 3 (si da tiempo): Google Calendar en dos vías.

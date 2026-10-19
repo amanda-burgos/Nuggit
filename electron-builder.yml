@@ -22,7 +22,7 @@ mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+    - NSMicrophoneUsageDescription: Nuggit usa el micrófono solo cuando llamas a Dip (modo llamada). Lo que dices se convierte en texto y el audio no se guarda.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
   notarize: false

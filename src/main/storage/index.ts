@@ -120,6 +120,7 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
 // Gemini ids look like "gemini-flash-latest"; Ollama ones like "llama3.2:3b" or "user/model".
 export const MAX_PERSONALITY = 1500
+const SETTINGS_TABS = ['general', 'appearance', 'dip', 'ai', 'voice', 'menubar', 'about']
 const TABS = [
   'home',
   'dip',
@@ -210,7 +211,7 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     }
   }
   if (isObject(patch) && isObject(patch.voice)) {
-    const { speak, voiceURI, rate, pitch } = patch.voice
+    const { speak, voiceURI, rate, pitch, stt, whisperModel, callLang } = patch.voice
     if (typeof speak === 'boolean') current.voice.speak = speak
     if (typeof voiceURI === 'string' && voiceURI.trim()) {
       current.voice.voiceURI = voiceURI.trim().slice(0, 300)
@@ -221,6 +222,13 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     if (typeof pitch === 'number' && Number.isFinite(pitch)) {
       current.voice.pitch = Math.min(1.25, Math.max(0.8, Math.round(pitch * 100) / 100))
     }
+    if (['auto', 'whisper', 'custom', 'gemini'].includes(stt as string)) {
+      current.voice.stt = stt as Settings['voice']['stt']
+    }
+    if (whisperModel === 'base' || whisperModel === 'small')
+      current.voice.whisperModel = whisperModel
+    if (callLang === 'auto' || callLang === 'es' || callLang === 'en')
+      current.voice.callLang = callLang
   }
   if (isObject(patch) && PICKUP_MODES.includes(patch.pickupTray as string)) {
     current.pickupTray = patch.pickupTray as Settings['pickupTray']
@@ -228,6 +236,9 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
   if (isObject(patch) && isObject(patch.ui)) {
     const { tab, sidebarCollapsed, panel } = patch.ui
     if (TABS.includes(tab as string)) current.ui.tab = tab as Settings['ui']['tab']
+    if (SETTINGS_TABS.includes(patch.ui.settingsTab as string)) {
+      current.ui.settingsTab = patch.ui.settingsTab as Settings['ui']['settingsTab']
+    }
     if (typeof sidebarCollapsed === 'boolean') current.ui.sidebarCollapsed = sidebarCollapsed
     if (isObject(panel) && typeof panel.type === 'string' && isObject(panel.config)) {
       current.ui.panels = { ...current.ui.panels, [panel.type]: panel.config }

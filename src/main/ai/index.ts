@@ -32,12 +32,12 @@ import { AIError, type AIProvider } from './provider'
 import { type Candidate, runAgent } from './runAgent'
 
 // Keys and the user's own server can also come from the environment (.env), which wins.
-const geminiKey = async (): Promise<string | null> =>
+export const geminiKey = async (): Promise<string | null> =>
   envGeminiKey() ?? (await keyStore.geminiKey.load())
 const serverKey = async (): Promise<string | null> =>
   envServerKey() ?? (await keyStore.serverKey.load())
 
-async function customConfig(settings?: Settings): Promise<CustomServerConfig | null> {
+export async function customConfig(settings?: Settings): Promise<CustomServerConfig | null> {
   const custom = customServer((settings ?? (await loadSettings())).ai.custom)
   return custom ? { ...custom, key: await serverKey() } : null
 }

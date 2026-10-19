@@ -5,6 +5,9 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Llama a Dip 📞:** habla con Dip manos libres. Te escucha, nota cuando terminas, te contesta en voz alta, y si le hablas mientras habla, se calla. Puedes pedirle cosas como "anota tarea de inglés para mañana" y confirmar con un "sí". Tu voz se entiende en tu Mac con whisper (Fase 8.3).
+- **Ajustes en pestañas** con buscador: General, Apariencia, Dip, IA, Voz, Barra de menú y Acerca de. Nuevo: abrir Nuggit al iniciar la Mac (Fase 8.3).
+- **Elige la voz de Dip** de una lista con ▶ para escuchar cada una (Fase 8.3).
 - **Voz:** toca 🎤 para hablarle a Dip (o dictar tu Brain Dump) con el dictado de la Mac, y prende 🔊 para que Dip te conteste hablando. Elige su voz y velocidad en Ajustes → Voz (Fase 8).
 - **Focus:** temporizador de 25/5, 15/5 o el tiempo que quieras, con la tarea en la que estás. Se puede pausar, cancelar y cambiar en cualquier momento, y sigue andando aunque cierres la ventana (Fase 7).
 - **Lockdown:** pantalla de concentración con solo tu tarea, el reloj y el siguiente paso; esconde los widgets y sales cuando quieras con Esc (Fase 7).

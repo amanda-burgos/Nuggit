@@ -22,7 +22,8 @@ function nextActionContext(tasks: Task[]): string {
 }
 
 export async function chatWithActions(
-  messages: AIMessage[]
+  messages: AIMessage[],
+  { voice = false }: { voice?: boolean } = {}
 ): Promise<{ text: string; action?: DipAction; backend: AIBackend }> {
   const settings = await loadSettings()
   const tasks = getTasks()
@@ -35,7 +36,8 @@ export async function chatWithActions(
       shareTasks,
       personality: settings.dipPersonality,
       nextAction: shareTasks ? nextActionContext(tasks) : '',
-      userText: messages[messages.length - 1]?.content ?? ''
+      userText: messages[messages.length - 1]?.content ?? '',
+      voice
     },
     messages
   )

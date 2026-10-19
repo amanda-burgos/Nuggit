@@ -1,0 +1,135 @@
+.call {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--color-bg);
+  border-radius: inherit;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.call-orb-wrap {
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.call-orb {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--lavender-300), var(--color-accent));
+  box-shadow: 0 0 40px var(--color-accent-soft);
+  transition: transform 0.08s linear;
+}
+
+.call.is-speaking .call-orb {
+  animation: call-talk 0.9s ease-in-out infinite;
+}
+
+.call.is-thinking .call-orb {
+  animation: call-think 1.4s ease-in-out infinite;
+}
+
+.call.is-muted .call-orb {
+  filter: grayscale(0.8);
+  opacity: 0.6;
+}
+
+@keyframes call-talk {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+@keyframes call-think {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .call-orb {
+    animation: none !important;
+    transition: none;
+  }
+}
+
+.call-state {
+  margin: 0;
+  font-weight: 600;
+}
+
+.call-transcript {
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.call-transcript p {
+  margin: 0;
+}
+
+.call-transcript small {
+  display: inline-block;
+  min-width: 28px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.call-error {
+  color: #d1383d;
+}
+
+.call-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.call-hangup {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: #d1383d;
+  cursor: pointer;
+}
+
+.call-notice {
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.call-notice p {
+  margin: 0;
+  color: var(--color-text-muted);
+}

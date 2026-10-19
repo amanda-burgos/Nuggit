@@ -1,13 +1,17 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import { downloadModel, getSttStatus, transcribe, warmUpStt } from './stt'
 import {
+  askMic,
   dictate,
   listVoices,
+  micAccess,
+  openMicSettings,
   openDictationSettings,
   openVoiceSettings,
   stopVoice,
   synthesize
 } from './voice'
-import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
+import type { AppInfo, DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, setWidgetLocked, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
 import { splitBrainDump } from './ai/brainDump'
@@ -76,6 +80,15 @@ function isSize(value: unknown): value is { w: number; h: number } {
 interface IpcDeps {
   openSettings(): void
   openBoard(): void // the main window, on the Inicio tab
+}
+
+function appInfo(): AppInfo {
+  return {
+    version: app.getVersion(),
+    dataPath: app.getPath('userData'),
+    openAtLogin: app.getLoginItemSettings().openAtLogin,
+    packaged: app.isPackaged
+  }
 }
 
 export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
@@ -149,6 +162,13 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('voice:synthesize', (_event, request: unknown) => synthesize(request))
   ipcMain.handle('voice:stop', () => stopVoice())
   ipcMain.handle('voice:openVoiceSettings', () => openVoiceSettings())
+  ipcMain.handle('voice:micAccess', () => micAccess())
+  ipcMain.handle('voice:askMic', () => askMic())
+  ipcMain.handle('voice:openMicSettings', () => openMicSettings())
+  ipcMain.handle('stt:transcribe', (_event, wav: unknown, lang: unknown) => transcribe(wav, lang))
+  ipcMain.handle('stt:status', () => getSttStatus())
+  ipcMain.handle('stt:warmUp', () => warmUpStt())
+  ipcMain.handle('stt:downloadModel', () => downloadModel())
   ipcMain.handle('focus:load', () => getFocus())
   ipcMain.handle('focus:start', (_event, taskId: unknown) => startFocus(taskId))
   ipcMain.handle('focus:pause', () => pauseFocus())
@@ -163,7 +183,9 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   )
 
   ipcMain.handle('dipChat:load', () => getDipChat())
-  ipcMain.handle('dipChat:send', (_event, text: unknown) => sendToDip(text))
+  ipcMain.handle('dipChat:send', (_event, text: unknown, options: unknown) =>
+    sendToDip(text, options)
+  )
   ipcMain.handle('dipChat:retry', () => retryDip())
   ipcMain.handle('dipChat:clear', () => clearDipChat())
   ipcMain.handle('dipChat:applyAction', (_event, id: unknown, edits: unknown) =>
@@ -177,6 +199,11 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('popover:shortcutWorks', () => dipShortcutWorks())
 
   ipcMain.on('app:openSettings', () => openSettings())
+  ipcMain.handle('app:info', () => appInfo())
+  ipcMain.handle('app:setOpenAtLogin', (_event, open: unknown) => {
+    if (typeof open === 'boolean') app.setLoginItemSettings({ openAtLogin: open })
+    return appInfo()
+  })
 
   ipcMain.handle('widgetWindows:detach', (event, id: unknown, rect: unknown) => {
     if (typeof id === 'string' && isRect(rect)) detachWidget(id, rect, event.sender)

@@ -1,7 +1,7 @@
 import { existsSync } from 'fs'
 import { join } from 'path'
 import { z } from 'zod'
-import type { AIBackend, CustomServerSettings, Settings } from '../../shared/types'
+import type { AIBackend, CustomServerSettings, Settings, SttBackend } from '../../shared/types'
 import rawDefaults from '../../../config/ai.defaults.json'
 
 // SPEC 8.1: which provider and model each agent uses, without touching code. Priority:
@@ -31,6 +31,10 @@ export type Env = Record<string, string | undefined>
 const providerName = z
   .enum(['gemini', 'ollama', 'openaiCompatible', 'custom'])
   .transform((p): AIBackend => (p === 'openaiCompatible' ? 'custom' : p))
+// Speech to text for the call mode (SPEC 9.10): whisper.cpp here, or a provider.
+const sttName = z
+  .enum(['whisper', 'openaiCompatible', 'custom', 'gemini'])
+  .transform((p): SttBackend => (p === 'openaiCompatible' ? 'custom' : p))
 const agentDefaults = z.object({ provider: providerName.optional(), model: z.string().optional() })
 
 const DefaultsSchema = z.object({
@@ -39,7 +43,14 @@ const DefaultsSchema = z.object({
   models: z.object({ gemini: z.string(), ollama: z.string(), openaiCompatible: z.string() }),
   ollamaUrl: z.url(),
   maxRetries: z.number().int().min(0).max(5),
-  agents: z.record(z.string(), agentDefaults)
+  agents: z.record(z.string(), agentDefaults),
+  stt: z.object({
+    provider: z.union([z.literal('auto'), sttName]),
+    order: z.array(sttName).min(1),
+    whisperModel: z.enum(['base', 'small']),
+    openaiModel: z.string(),
+    geminiModel: z.string()
+  })
 })
 export type AIDefaults = z.infer<typeof DefaultsSchema>
 
@@ -176,4 +187,50 @@ export function loadDotEnv(folders: string[]): string | null {
     }
   }
   return null
+}
+
+// --- Speech to text (call mode) ---
+
+export interface SttConfig {
+  provider: Sourced<'auto' | SttBackend>
+  order: SttBackend[]
+  whisperBin: string | undefined // from NUGGIT_WHISPER_BIN; else looked for on disk
+  whisperModel: Sourced<'base' | 'small'>
+  whisperModelPath: string | undefined // NUGGIT_WHISPER_MODEL: a model file of your own
+  openaiModel: string
+  geminiModel: string
+}
+
+function parseStt(value: string | undefined): 'auto' | SttBackend | undefined {
+  if (!value) return undefined
+  if (value.toLowerCase() === 'auto') return 'auto'
+  const parsed = sttName.safeParse(value)
+  if (parsed.success) return parsed.data
+  console.warn(`[stt] unknown provider "${value}" in the environment, ignored`)
+  return undefined
+}
+
+export function resolveSttConfig(
+  settings: Settings,
+  env: Env = process.env,
+  defaults: AIDefaults = DEFAULTS
+): SttConfig {
+  const saved = settings.voice.stt
+  const model = settings.voice.whisperModel
+  return {
+    provider: first<'auto' | SttBackend>(
+      [parseStt(get(env, 'NUGGIT_STT_PROVIDER')), 'env'],
+      [saved, 'settings'],
+      [defaults.stt.provider, 'default']
+    ),
+    order: defaults.stt.order,
+    whisperBin: get(env, 'NUGGIT_WHISPER_BIN'),
+    whisperModel: first<'base' | 'small'>(
+      [model, 'settings'],
+      [defaults.stt.whisperModel, 'default']
+    ),
+    whisperModelPath: get(env, 'NUGGIT_WHISPER_MODEL'),
+    openaiModel: get(env, 'NUGGIT_STT_MODEL') ?? defaults.stt.openaiModel,
+    geminiModel: get(env, 'NUGGIT_STT_GEMINI_MODEL') ?? defaults.stt.geminiModel
+  }
 }

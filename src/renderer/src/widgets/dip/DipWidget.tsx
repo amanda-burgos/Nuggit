@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { AIChatResult } from '../../../../shared/types'
 import { useDipChat } from '../../store/useDipChat'
 import { useSettings } from '../../store/useSettings'
+import { CallScreen } from '../../voice/call/CallScreen'
 import { MicButton } from '../../voice/MicButton'
 import { speak, stopSpeaking } from '../../voice/speech'
 import type { WidgetProps } from '../types'
@@ -31,6 +32,7 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
   // Only the window that asked reads the answer aloud (the chat is shared by several).
   const [waitingFrom, setWaitingFrom] = useState<string | null>(null)
   const [spokenId, setSpokenId] = useState<string | null>(null)
+  const [calling, setCalling] = useState(false)
 
   useEffect(() => {
     const list = listRef.current
@@ -93,6 +95,9 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
 
   return (
     <div className={`dip is-${size}`}>
+      {calling && settings && (
+        <CallScreen voice={settings.voice} onHangUp={() => setCalling(false)} />
+      )}
       <div className="dip-messages" ref={listRef} aria-live="polite">
         <div className="dip-thread">
           <p className="dip-bubble is-assistant">{GREETING}</p>
@@ -161,6 +166,19 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
           }}
         />
         <MicButton target={inputRef} />
+        <button
+          type="button"
+          className="icon-button"
+          title="Llamar a Dip (manos libres)"
+          aria-label="Llamar a Dip"
+          disabled={!settings || thinking}
+          onClick={() => {
+            stopSpeaking()
+            setCalling(true)
+          }}
+        >
+          📞
+        </button>
         <button type="submit" className="button-primary" disabled={!draft.trim() || thinking}>
           Enviar
         </button>

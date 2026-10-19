@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Menu, shell, type WebContents } from 'electron'
+import { app, BrowserWindow, Menu, shell, systemPreferences, type WebContents } from 'electron'
 import { execFile, type ChildProcess } from 'child_process'
 import { randomUUID } from 'crypto'
 import { promises as fs } from 'fs'
@@ -20,6 +20,7 @@ const SAY_TIMEOUT_MS = 30_000
 // Where Dictation is turned on, and where better voices are downloaded (macOS 13+).
 const DICTATION_SETTINGS = 'x-apple.systempreferences:com.apple.Keyboard-Settings.extension'
 const VOICE_SETTINGS = 'x-apple.systempreferences:com.apple.Accessibility-Settings.extension'
+const MIC_SETTINGS = 'x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone'
 
 export function dictate(from: WebContents): void {
   if (!IS_MAC) return
@@ -35,6 +36,10 @@ export async function openDictationSettings(): Promise<void> {
 
 export async function openVoiceSettings(): Promise<void> {
   if (IS_MAC) await shell.openExternal(VOICE_SETTINGS)
+}
+
+export async function openMicSettings(): Promise<void> {
+  if (IS_MAC) await shell.openExternal(MIC_SETTINGS)
 }
 
 // speaking: the run that "stop" (or a newer answer) may cut short.
@@ -104,4 +109,25 @@ export async function synthesize(input: unknown): Promise<Uint8Array | null> {
 
 export function stopVoice(): void {
   current?.kill()
+}
+
+// --- Microphone (call mode) ---
+
+// With Chromium's fake microphone (used to test the call mode) there is nothing to ask.
+const fakeMic = (): boolean => app.commandLine.hasSwitch('use-fake-device-for-media-stream')
+
+export function micAccess(): 'granted' | 'denied' | 'not-determined' {
+  if (!IS_MAC || fakeMic()) return 'granted'
+  const status = systemPreferences.getMediaAccessStatus('microphone')
+  return status === 'granted'
+    ? 'granted'
+    : status === 'not-determined'
+      ? 'not-determined'
+      : 'denied'
+}
+
+// Shows macOS's own question (only the first time; after that macOS remembers).
+export async function askMic(): Promise<boolean> {
+  if (!IS_MAC || fakeMic()) return true
+  return systemPreferences.askForMediaAccess('microphone')
 }

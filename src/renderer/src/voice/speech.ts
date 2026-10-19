@@ -80,6 +80,7 @@ export function stopSpeaking(): void {
   if ('speechSynthesis' in window) window.speechSynthesis.cancel()
 }
 
+// Resolves when Dip has finished talking (or was stopped).
 export async function speak(text: string, settings: VoiceSettings): Promise<void> {
   stopSpeaking()
   const mine = turn
@@ -101,17 +102,28 @@ export async function speak(text: string, settings: VoiceSettings): Promise<void
     const audio = new Audio(url)
     audio.preservesPitch = false
     audio.playbackRate = settings.pitch
-    audio.onended = () => URL.revokeObjectURL(url)
     playing = audio
-    await audio.play().catch((err) => console.error('Could not play the voice', err))
+    await new Promise<void>((resolve) => {
+      const done = (): void => {
+        URL.revokeObjectURL(url)
+        resolve()
+      }
+      audio.onended = done
+      audio.onpause = done // stopSpeaking()
+      audio.onerror = done
+      audio.play().catch((err) => {
+        console.error('Could not play the voice', err)
+        done()
+      })
+    })
     return
   }
-  speakWithBrowser(clean, lang, settings)
+  await speakWithBrowser(clean, lang, settings)
 }
 
 // Not a Mac (or `say` failed): the browser's voices.
-function speakWithBrowser(text: string, lang: 'es' | 'en', settings: VoiceSettings): void {
-  if (!('speechSynthesis' in window)) return
+function speakWithBrowser(text: string, lang: 'es' | 'en', settings: VoiceSettings): Promise<void> {
+  if (!('speechSynthesis' in window)) return Promise.resolve()
   const utterance = new SpeechSynthesisUtterance(text)
   const fits = window.speechSynthesis.getVoices().filter((v) => v.lang.startsWith(lang))
   const voice =
@@ -120,5 +132,9 @@ function speakWithBrowser(text: string, lang: 'es' | 'en', settings: VoiceSettin
   utterance.lang = voice?.lang ?? (lang === 'es' ? 'es-MX' : 'en-US')
   utterance.rate = settings.rate
   utterance.pitch = settings.pitch
-  window.speechSynthesis.speak(utterance)
+  return new Promise((resolve) => {
+    utterance.onend = () => resolve()
+    utterance.onerror = () => resolve()
+    window.speechSynthesis.speak(utterance)
+  })
 }
