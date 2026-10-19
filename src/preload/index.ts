@@ -110,6 +110,10 @@ const api: NuggitApi = {
       return () => ipcRenderer.removeListener('notes:changed', handler)
     }
   },
+  voice: {
+    dictate: () => ipcRenderer.invoke('voice:dictate'),
+    openDictationSettings: () => ipcRenderer.invoke('voice:openDictationSettings')
+  },
   focus: {
     load: () => ipcRenderer.invoke('focus:load'),
     start: (taskId) => ipcRenderer.invoke('focus:start', taskId ?? null),

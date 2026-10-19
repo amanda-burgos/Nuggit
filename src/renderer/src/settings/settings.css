@@ -402,3 +402,8 @@
 .agents-table code {
   word-break: break-all;
 }
+
+.settings-range {
+  accent-color: var(--color-accent);
+  max-width: 320px;
+}

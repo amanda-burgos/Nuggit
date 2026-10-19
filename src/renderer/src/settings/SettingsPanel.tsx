@@ -4,6 +4,7 @@ import { AISettings } from './AISettings'
 import { DipPersonality } from './DipPersonality'
 import { DipTraySettings } from './DipTraySettings'
 import { PickupTraySettings } from './PickupTraySettings'
+import { VoiceSettings } from './VoiceSettings'
 import './settings.css'
 
 interface Props {
@@ -30,6 +31,7 @@ export function SettingsPanel({ settings, update }: Props): React.JSX.Element {
         <div className="settings-page">
           <AISettings settings={settings} update={update} />
           <DipPersonality settings={settings} update={update} />
+          <VoiceSettings settings={settings} update={update} />
 
           <section className="settings-section">
             <h3>📍 Barra de menú</h3>

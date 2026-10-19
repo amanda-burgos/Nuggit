@@ -14,6 +14,7 @@ const DEFAULT_SETTINGS: Settings = {
   statusIndicator: 'dot',
   dipTray: { visible: true, shortcut: '' },
   pickupTray: 'icon',
+  voice: { speak: false, rate: 1 },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -179,6 +180,7 @@ export async function loadSettings(): Promise<Settings> {
     ...data,
     ai: { ...DEFAULT_SETTINGS.ai, ...(isObject(data.ai) ? data.ai : {}) },
     dipTray: { ...DEFAULT_SETTINGS.dipTray, ...(isObject(data.dipTray) ? data.dipTray : {}) },
+    voice: { ...DEFAULT_SETTINGS.voice, ...(isObject(data.voice) ? data.voice : {}) },
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -205,6 +207,16 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     if (typeof visible === 'boolean') current.dipTray.visible = visible
     if (SHORTCUTS.includes(shortcut as string)) {
       current.dipTray.shortcut = shortcut as Settings['dipTray']['shortcut']
+    }
+  }
+  if (isObject(patch) && isObject(patch.voice)) {
+    const { speak, voiceURI, rate } = patch.voice
+    if (typeof speak === 'boolean') current.voice.speak = speak
+    if (typeof voiceURI === 'string' && voiceURI.trim()) {
+      current.voice.voiceURI = voiceURI.trim().slice(0, 300)
+    } else if (voiceURI === null || voiceURI === '') delete current.voice.voiceURI
+    if (typeof rate === 'number' && Number.isFinite(rate)) {
+      current.voice.rate = Math.min(2, Math.max(0.5, Math.round(rate * 10) / 10))
     }
   }
   if (isObject(patch) && PICKUP_MODES.includes(patch.pickupTray as string)) {

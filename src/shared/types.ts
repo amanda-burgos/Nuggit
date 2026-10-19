@@ -111,8 +111,17 @@ export interface Settings {
   dipTray: { visible: boolean; shortcut: DipShortcut } // Dip's own menu bar icon (9.15)
   pickupTray: PickupTrayMode // the quick pickup's menu bar icon (9.16)
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
+  voice: VoiceSettings // SPEC 9.10
   ui: UISettings
   background?: string
+}
+
+// Dip answering out loud with the system voice (SPEC 9.10). Talking to Dip uses the
+// system's dictation, which has no settings here.
+export interface VoiceSettings {
+  speak: boolean // Dip reads its answers aloud
+  voiceURI?: string // a speechSynthesis voice; unset = picked by the answer's language
+  rate: number // 0.5–2
 }
 
 export type Priority = 'low' | 'medium' | 'high'
@@ -212,6 +221,7 @@ export interface SettingsPatch {
   dipTray?: { visible?: boolean; shortcut?: DipShortcut }
   pickupTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
+  voice?: { speak?: boolean; voiceURI?: string | null; rate?: number } // null: automatic voice
   ui?: {
     tab?: AppTab
     sidebarCollapsed?: boolean
@@ -489,6 +499,12 @@ export interface NuggitApi {
     remove(ids: string[]): Promise<Note[]>
     restore(notes: Note[]): Promise<void>
     onChange(listener: (notes: Note[]) => void): () => void
+  }
+  voice: {
+    // Starts the system's dictation in the focused text field (macOS).
+    dictate(): Promise<void>
+    // Opens the system settings where dictation is turned on.
+    openDictationSettings(): Promise<void>
   }
   focus: {
     load(): Promise<FocusState>

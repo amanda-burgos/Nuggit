@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import type { AIChatResult } from '../../../../shared/types'
 import { useDipChat } from '../../store/useDipChat'
+import { useSettings } from '../../store/useSettings'
+import { MicButton } from '../../voice/MicButton'
+import { speak, stopSpeaking } from '../../voice/speech'
 import type { WidgetProps } from '../types'
 import { ActionCard } from './ActionCard'
 import './dip.css'
@@ -21,7 +24,13 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const messages = chat?.messages ?? []
   const thinking = chat?.pending ?? false
-  const lastIsUser = messages[messages.length - 1]?.role === 'user'
+  const last = messages[messages.length - 1]
+  const lastIsUser = last?.role === 'user'
+  const { settings, update } = useSettings()
+  const speaking = settings?.voice.speak ?? false
+  // Only the window that asked reads the answer aloud (the chat is shared by several).
+  const [waitingFrom, setWaitingFrom] = useState<string | null>(null)
+  const [spokenId, setSpokenId] = useState<string | null>(null)
 
   useEffect(() => {
     const list = listRef.current
@@ -37,7 +46,33 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
     return () => window.removeEventListener('focus', focus)
   }, [size])
 
+  // SPEC 9.10: with the voice on, Dip's new answer is read aloud once.
+  if (
+    waitingFrom &&
+    last?.role === 'assistant' &&
+    last.id !== waitingFrom &&
+    last.id !== spokenId &&
+    !thinking
+  ) {
+    setSpokenId(last.id)
+    setWaitingFrom(null)
+  }
+  useEffect(() => {
+    const answer = messages.find((m) => m.id === spokenId)
+    if (answer && settings?.voice.speak) speak(answer.content, settings.voice)
+    // Only when a new answer arrives, not when the settings change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [spokenId])
+
+  // Turning the voice off (or leaving) stops it mid-sentence.
+  useEffect(() => {
+    if (!speaking) stopSpeaking()
+  }, [speaking])
+  useEffect(() => () => stopSpeaking(), [])
+
   const run = async (call: () => Promise<AIChatResult>): Promise<void> => {
+    stopSpeaking()
+    setWaitingFrom(last?.id ?? 'start')
     setError(null)
     const result = await call().catch(failed)
     if (!result.ok) setError(result.error)
@@ -97,6 +132,18 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
             ↺
           </button>
         )}
+        <button
+          type="button"
+          className="icon-button"
+          title={
+            speaking ? 'Dip contesta hablando (clic para apagar)' : 'Que Dip conteste hablando'
+          }
+          aria-pressed={speaking}
+          disabled={!settings}
+          onClick={() => update({ voice: { speak: !speaking } })}
+        >
+          {speaking ? '🔊' : '🔇'}
+        </button>
         <textarea
           ref={inputRef}
           rows={1}
@@ -113,6 +160,7 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
             }
           }}
         />
+        <MicButton target={inputRef} />
         <button type="submit" className="button-primary" disabled={!draft.trim() || thinking}>
           Enviar
         </button>

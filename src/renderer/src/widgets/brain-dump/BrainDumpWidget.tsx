@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { BrainDumpTask } from '../../../../shared/types'
 import { useAIStatus } from '../../store/useAIStatus'
+import { MicButton } from '../../voice/MicButton'
 import type { WidgetProps } from '../types'
 import './brain-dump.css'
 
@@ -50,6 +51,7 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
   const [notes, setNotes] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState<Saved | null>(null)
+  const textRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => saveDraft(text), [text])
 
@@ -136,6 +138,7 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
       {phase !== 'review' ? (
         <>
           <textarea
+            ref={textRef}
             className="brain-dump-text"
             value={text}
             placeholder="Suelta aquí todo lo que tienes en la cabeza, como salga: pendientes, ideas, preocupaciones…"
@@ -144,6 +147,7 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
             onChange={(e) => setText(e.target.value)}
           />
           <div className="brain-dump-actions">
+            <MicButton target={textRef} disabled={phase === 'sorting'} />
             {hasAI && (
               <button
                 className="button-primary"

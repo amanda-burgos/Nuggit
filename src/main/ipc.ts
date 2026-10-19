@@ -1,4 +1,5 @@
 import { BrowserWindow, ipcMain } from 'electron'
+import { dictate, openDictationSettings } from './voice'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, setWidgetLocked, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
@@ -135,6 +136,8 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('notes:update', (_event, id: unknown, patch: unknown) => updateNote(id, patch))
   ipcMain.handle('notes:remove', (_event, ids: unknown) => removeNotes(ids))
   ipcMain.handle('notes:restore', (_event, notes: unknown) => restoreNotes(notes))
+  ipcMain.handle('voice:dictate', (event) => dictate(event.sender))
+  ipcMain.handle('voice:openDictationSettings', () => openDictationSettings())
   ipcMain.handle('focus:load', () => getFocus())
   ipcMain.handle('focus:start', (_event, taskId: unknown) => startFocus(taskId))
   ipcMain.handle('focus:pause', () => pauseFocus())

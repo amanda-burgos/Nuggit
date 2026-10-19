@@ -563,6 +563,12 @@ Cómo quedó (Fase 7):
 
 ### Fase 8 — Voz básica
 
+Cómo quedó (Fase 8):
+- **Hablarle a Dip:** botón 🎤 en el chat de Dip (widget, pestaña y mini chat) y en Brain Dump. Pone el cursor en el campo y abre el **dictado de macOS** (`Menu.sendActionToFirstResponder('startDictation:')`, lo mismo que Edición → Iniciar dictado). El texto lo hace macOS; Nuggit no graba ni manda audio. También sirve Fn (🌐) dos veces en cualquier campo. El reconocimiento de voz de Chromium no se usa: en Electron no funciona sin claves de Google.
+- **Dip contesta hablando:** con `speechSynthesis`. Se prende y apaga con 🔊/🔇 en el chat o en Ajustes (`settings.voice`). Solo habla la ventana desde donde se preguntó (el chat se comparte entre varias). Antes de leer quita emojis, markdown y links. Si cambias de mensaje o lo apagas, se calla.
+- **Ajustes → 🎙️ Voz:** voz (automática según el idioma de la respuesta, prefiriendo la región del sistema, o una elegida), velocidad, "▶ Probar" y cómo activar el dictado, con botón a los ajustes de Dictado de macOS.
+- La voz es parte de Dip y Brain Dump, así que no tiene pestaña propia: su lugar es Ajustes.
+
 ### Fase 8.5 — Calendario
 - Vista de calendario (pestaña + widget) según 9.14.
 - Paso 1: exportar a `.ics` (Apple y Google). Paso 2: Apple Calendar en dos vías. Paso 3 (si da tiempo): Google Calendar en dos vías.
