@@ -1,9 +1,10 @@
 import { actions } from './actions'
+import { brainDump } from './brainDump'
 import { dailies } from './dailies'
 import { dip } from './dip'
 import { tenderizer } from './tenderizer'
 
 // Every agent of Nuggit, in the order Ajustes lists them.
-export const AGENTS = [dip, actions, tenderizer, dailies]
+export const AGENTS = [dip, actions, tenderizer, dailies, brainDump]
 
-export { actions, dailies, dip, tenderizer }
+export { actions, brainDump, dailies, dip, tenderizer }

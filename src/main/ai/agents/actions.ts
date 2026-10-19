@@ -3,7 +3,7 @@ import type { DipAction, Task } from '../../../shared/types'
 import { dipInstructions } from '../dip'
 import type { CheckResult } from '../runAgent'
 import { dateFromWords, finishedTask, pickTask } from '../taskMatch'
-import { defineAgent, fail, isoDate, isoDateOrEmpty, parseJson, text } from './types'
+import { defineAgent, fail, isoDateOrEmpty, nextDays, parseJson, text } from './types'
 
 // The Dip chat with actions: a reply plus, optionally, ONE action on the tasks. The action
 // is only a proposal; the interface shows it as a card and the user confirms it. Dip names
@@ -54,19 +54,6 @@ const Reply = z.object({
   })
 })
 type RawAction = z.infer<typeof Reply>['action']
-
-const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
-
-// Small models are bad at calendar maths: give them the next days ready-made.
-function nextDays(now = new Date()): string {
-  const days: string[] = []
-  for (let i = 0; i < 8; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
-    const name = i === 0 ? 'hoy' : i === 1 ? 'mañana' : `el ${WEEKDAYS[d.getDay()]}`
-    days.push(`${name} (${WEEKDAYS[d.getDay()]}) = ${isoDate(d)}`)
-  }
-  return days.join('; ')
-}
 
 function actionInstructions(): string {
   return `Acciones: además de contestar, puedes proponer UNA acción sobre las tareas en "action", solo si la persona la pide o es claramente lo que quiere:

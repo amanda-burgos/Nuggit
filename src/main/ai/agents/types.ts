@@ -73,6 +73,19 @@ export function isoDate(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
+const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+
+// Small models are bad at calendar maths: give them the next days ready-made.
+export function nextDays(now = new Date()): string {
+  const days: string[] = []
+  for (let i = 0; i < 8; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i)
+    const name = i === 0 ? 'hoy' : i === 1 ? 'mañana' : `el ${WEEKDAYS[d.getDay()]}`
+    days.push(`${name} (${WEEKDAYS[d.getDay()]}) = ${isoDate(d)}`)
+  }
+  return days.join('; ')
+}
+
 // "Haz 2 o 3 preguntas" (Tenderizer and Dailies).
 export const QUESTIONS_SCHEMA = {
   type: 'object',

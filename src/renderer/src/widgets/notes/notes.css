@@ -1,0 +1,109 @@
+.notes {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+}
+
+.notes.is-full {
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.notes-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.notes-bar input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
+.notes-bar input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.notes-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.note-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+}
+
+.note-card:focus-within {
+  border-color: var(--color-accent);
+}
+
+.note-card textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  padding: 0;
+  resize: none;
+  min-height: 1.5em;
+  field-sizing: content;
+  overflow-wrap: anywhere;
+}
+
+.note-card textarea:focus {
+  outline: none;
+}
+
+.note-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.notes-undo {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 999px;
+  background: var(--navy-800);
+  color: #f2f0fb;
+  box-shadow: var(--shadow-popover);
+}
+
+.notes-undo .button-ghost {
+  color: var(--lavender-300);
+  font-weight: 600;
+}

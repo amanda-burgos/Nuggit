@@ -5,6 +5,10 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Notas rápidas:** pestaña y widget **Notas**. Una nota nueva es un clic ("+ Nota") o **⌘N**. Se guardan solas mientras escribes (Fase 6).
+- **Brain Dump:** suelta todo lo que tienes en la cabeza en una caja. Dip lo separa en tareas y notas para que lo revises antes de guardar; sin IA, se guarda como nota (Fase 6).
+- **Agentes de Dip:** cada parte de Dip (chat, acciones, Tenderizer, Dailies, Brain Dump) es un agente con su propia IA, que se puede elegir con un archivo `.env`. Si una respuesta sale mal, Dip recibe el error y la corrige solo. En Ajustes se ve qué usa cada uno (Fase 5.7).
+- **Dailies:** rutinas que se repiten y aparecen como tareas de hoy, con racha 🔥 y "Planear con Dip" (Fase 5.5).
 - **Pin on top te sigue:** un widget "siempre al frente" ahora está en todos los escritorios (Spaces) y encima de apps en pantalla completa, sin activar nada más. Se puede apagar en ⚙︎ → "En todos los escritorios".
 - **Botón "📌 Pin on top"** a la vista en cada widget del quick pickup (🧩), para ponerlo o quitarlo con un clic.
 - **Widgets al fondo a tu alcance:** los que tienen **Pin on back** no reciben clics, así que en el quick pickup ahora tienen **✏️ Editar** (lo sube al frente un momento para moverlo o cambiarlo, y vuelve al fondo al darle "Listo" o al hacer clic en otra parte) y **Quitar del fondo**. Ya nunca hace falta borrarlos.

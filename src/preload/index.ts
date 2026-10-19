@@ -4,6 +4,7 @@ import type {
   Daily,
   DipChatState,
   NextActionState,
+  Note,
   NuggitApi,
   SavedDesktop,
   Settings,
@@ -66,7 +67,8 @@ const api: NuggitApi = {
     proposeTenders: (request) => ipcRenderer.invoke('ai:proposeTenders', request),
     dailyQuestions: (request) => ipcRenderer.invoke('ai:dailyQuestions', request),
     proposeDailies: (request) => ipcRenderer.invoke('ai:proposeDailies', request),
-    proposePersonality: (messages) => ipcRenderer.invoke('ai:proposePersonality', messages)
+    proposePersonality: (messages) => ipcRenderer.invoke('ai:proposePersonality', messages),
+    brainDump: (text) => ipcRenderer.invoke('ai:brainDump', text)
   },
   dipChat: {
     load: () => ipcRenderer.invoke('dipChat:load'),
@@ -92,6 +94,19 @@ const api: NuggitApi = {
       const handler = (_event: IpcRendererEvent, dailies: Daily[]): void => listener(dailies)
       ipcRenderer.on('dailies:changed', handler)
       return () => ipcRenderer.removeListener('dailies:changed', handler)
+    }
+  },
+  notes: {
+    load: () => ipcRenderer.invoke('notes:load'),
+    create: (input) => ipcRenderer.invoke('notes:create', input),
+    createMany: (inputs) => ipcRenderer.invoke('notes:createMany', inputs),
+    update: (id, patch) => ipcRenderer.invoke('notes:update', id, patch),
+    remove: (ids) => ipcRenderer.invoke('notes:remove', ids),
+    restore: (notes) => ipcRenderer.invoke('notes:restore', notes),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, notes: Note[]): void => listener(notes)
+      ipcRenderer.on('notes:changed', handler)
+      return () => ipcRenderer.removeListener('notes:changed', handler)
     }
   },
   nextAction: {

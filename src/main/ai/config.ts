@@ -8,8 +8,8 @@ import rawDefaults from '../../../config/ai.defaults.json'
 // environment variables (and .env) > Ajustes (settings.json) > config/ai.defaults.json.
 // Everything here is a plain function of (env, settings, defaults), so it can be tested.
 
-export type AgentName = 'dip' | 'tenderizer' | 'dailies' | 'actions'
-export const AGENT_NAMES: AgentName[] = ['dip', 'tenderizer', 'dailies', 'actions']
+export type AgentName = 'dip' | 'tenderizer' | 'dailies' | 'actions' | 'brainDump'
+export const AGENT_NAMES: AgentName[] = ['dip', 'tenderizer', 'dailies', 'actions', 'brainDump']
 
 export type ConfigSource = 'env' | 'settings' | 'default'
 export interface Sourced<T> {

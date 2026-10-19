@@ -7,6 +7,7 @@ import { initDipChat } from './dipChat'
 import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
 import { initDailies } from './dailies'
+import { initNotes } from './notes'
 import { initDesktop } from './desktop'
 import { initNextAction } from './nextAction'
 import { initPickupTray } from './pickupTray'
@@ -98,6 +99,11 @@ app.whenReady().then(async () => {
     await initDailies()
   } catch (err) {
     console.error('[startup] could not load dailies', err)
+  }
+  try {
+    await initNotes()
+  } catch (err) {
+    console.error('[startup] could not load notes', err)
   }
   try {
     await initNextAction()

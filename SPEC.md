@@ -282,13 +282,15 @@ La ventana principal de Nuggit tiene una **barra lateral** con pestañas. Cada p
 - **Ahora**: Next Action ("¿Qué hago ahora?", 9.5) en grande.
 - **Tenderizer**: dividir una tarea grande en tenders (9.3) en grande.
 - **Dailies**: las rutinas que se repiten (9.13).
+- **Notas**: Quick Notes (9.7).
+- **Brain Dump**: soltar todo y ordenarlo (9.6).
 - **Ajustes**: Settings (IA, personalidad de Dip, barra de menú, tema...).
-- Toda feature útil tiene su pestaña. Más adelante, cuando existan: **Notas**, **Focus**.
+- Toda feature útil tiene su pestaña. Más adelante, cuando exista: **Focus**.
 
 Reglas:
 - El panel y el widget de una misma feature usan **el mismo componente** (prop `size: "widget" | "full"`), para no duplicar código ni diseño.
 - La barra lateral es colapsable (solo íconos) y responsive.
-- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘, Ajustes.
+- Atajos de teclado: ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas, ⌘8 Brain Dump, ⌘, Ajustes. ⌘N: nota rápida.
 - Recordar la última pestaña abierta.
 
 ### 9.1 Escritorio de widgets
@@ -543,6 +545,12 @@ Cómo quedó (Fase 5.7):
 - Tests: `npm test` (vitest, proveedor falso).
 
 ### Fase 6 — Brain Dump + Quick Notes
+
+Cómo quedó (Fase 6):
+- **Notas** (`notes.json`, widget + pestaña ⌘7): "+ Nota" en un clic o **⌘N** desde cualquier pestaña de la ventana principal (abre Notas con el cursor en la nota nueva). Se guardan solas mientras escribes; una nota que dejas vacía se borra sola; borrar tiene "Deshacer". Más de 3 notas → buscador.
+- **Brain Dump** (widget + pestaña ⌘8): una caja grande; lo que escribes se recuerda aunque cambies de pestaña (solo en este equipo). Con IA, "✨ Ordenar con Dip" usa el agente nuevo **`brainDump`** (8.1: schema, validación y autocorrección como los demás) y muestra tareas (nombre, fecha, ❗ urgente) y notas para editar o quitar; nada se guarda hasta "Guardar", y luego hay "Deshacer". Sin IA (o con "Mejor como una nota"), todo se guarda como una nota.
+- El texto del Brain Dump solo va a la IA al presionar "Ordenar con Dip"; no se le mandan las tareas existentes.
+- ⌘N es dentro de la app; un atajo global (desde cualquier app) queda para después si hace falta.
 
 ### Fase 7 — Focus + Lockdown
 

@@ -60,7 +60,8 @@ export type ThemePreference = 'light' | 'dark' | 'system'
 export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'Command+Shift+Space'
 
 // Tabs of the control center (SPEC 9.0).
-export type AppTab = 'home' | 'dip' | 'tasks' | 'next' | 'tenders' | 'dailies' | 'settings'
+export type AppTab =
+  'home' | 'dip' | 'tasks' | 'next' | 'tenders' | 'dailies' | 'notes' | 'brainDump' | 'settings'
 
 export interface UISettings {
   tab: AppTab // last open tab
@@ -294,6 +295,25 @@ export type TenderQuestionsResult = { ok: true; questions: string[] } | { ok: fa
 export type TenderPlanResult =
   { ok: true; title: string; dueDate?: string; steps: TenderStep[] } | { ok: false; error: string }
 
+// --- Quick Notes (SPEC 9.7) and Brain Dump (9.6) ---
+
+export interface Note {
+  id: string
+  text: string
+  createdAt: string
+  updatedAt: string
+}
+
+// What Dip proposes from a brain dump, to review before saving.
+export interface BrainDumpTask {
+  title: string
+  dueDate?: string // YYYY-MM-DD
+  priority?: Priority
+}
+
+export type BrainDumpResult =
+  { ok: true; tasks: BrainDumpTask[]; notes: string[] } | { ok: false; error: string }
+
 // Dip's suggestion for a new personality text, to approve before saving.
 export type AIPersonalityResult =
   { ok: true; reply: string; personality: string } | { ok: false; error: string }
@@ -393,6 +413,8 @@ export interface NuggitApi {
     proposeDailies(request: DailyPlanRequest): Promise<DailyPlanResult>
     // A conversation about how Dip should be; returns a proposed personality text.
     proposePersonality(messages: AIMessage[]): Promise<AIPersonalityResult>
+    // Brain Dump: Dip splits the text into tasks and notes. Nothing is saved.
+    brainDump(text: string): Promise<BrainDumpResult>
   }
   dipChat: {
     load(): Promise<DipChatState>
@@ -425,6 +447,17 @@ export interface NuggitApi {
     update(id: string, patch: DailyInput): Promise<void>
     remove(ids: string[]): Promise<void>
     onChange(listener: (dailies: Daily[]) => void): () => void
+  }
+  notes: {
+    load(): Promise<Note[]>
+    create(input?: { text?: string }): Promise<Note>
+    // Several at once (Brain Dump); returns them, so they can be undone.
+    createMany(inputs: Array<{ text: string }>): Promise<Note[]>
+    update(id: string, patch: { text: string }): Promise<void>
+    // Returns what was removed, to put back with restore() (Deshacer).
+    remove(ids: string[]): Promise<Note[]>
+    restore(notes: Note[]): Promise<void>
+    onChange(listener: (notes: Note[]) => void): () => void
   }
   popover: {
     // Closes the calling menu bar window (Dip's mini chat or the quick pickup).

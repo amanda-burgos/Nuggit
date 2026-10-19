@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron'
 import type { DetachedWindowOptions, WidgetRect } from '../shared/types'
 import { getDesktop, replaceDesktop, setWidgetLocked, updateWidgetConfig } from './desktop'
 import * as ai from './ai'
+import { splitBrainDump } from './ai/brainDump'
 import { dailyQuestions, proposeDailies } from './ai/dailies'
 import { proposeTenders, tenderQuestions } from './ai/tenders'
 import { createDailies, createDaily, getDailies, removeDailies, updateDaily } from './dailies'
@@ -15,6 +16,7 @@ import {
   undoAction
 } from './dipChat'
 import { dipShortcutWorks } from './dipTray'
+import { createNote, createNotes, getNotes, removeNotes, restoreNotes, updateNote } from './notes'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
@@ -116,6 +118,14 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('dailies:createMany', (_event, inputs: unknown) => createDailies(inputs))
   ipcMain.handle('dailies:update', (_event, id: unknown, patch: unknown) => updateDaily(id, patch))
   ipcMain.handle('dailies:remove', (_event, ids: unknown) => removeDailies(ids))
+
+  ipcMain.handle('notes:load', () => getNotes())
+  ipcMain.handle('notes:create', (_event, input: unknown) => createNote(input))
+  ipcMain.handle('notes:createMany', (_event, inputs: unknown) => createNotes(inputs))
+  ipcMain.handle('notes:update', (_event, id: unknown, patch: unknown) => updateNote(id, patch))
+  ipcMain.handle('notes:remove', (_event, ids: unknown) => removeNotes(ids))
+  ipcMain.handle('notes:restore', (_event, notes: unknown) => restoreNotes(notes))
+  ipcMain.handle('ai:brainDump', (_event, text: unknown) => splitBrainDump(text))
   ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
     ai.proposePersonality(messages)
   )

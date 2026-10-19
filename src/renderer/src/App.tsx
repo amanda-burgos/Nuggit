@@ -8,6 +8,7 @@ import { Sidebar } from './shell/Sidebar'
 import { TABS } from './shell/tabs'
 import './shell/shell.css'
 import { useDesktop } from './store/useDesktop'
+import { newQuickNote } from './store/useNotes'
 import { useSettings } from './store/useSettings'
 
 // The control center (SPEC 9.0): a sidebar with tabs, each one a full-size panel.
@@ -23,10 +24,18 @@ function App(): React.JSX.Element {
   // Any window (e.g. a detached Dip widget) can ask to open Settings here.
   useEffect(() => window.api.app.onOpenSettings(() => selectTab('settings')), [selectTab])
 
-  // ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘, Ajustes.
+  // ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas,
+  // ⌘8 Brain Dump, ⌘, Ajustes. ⌘N: a new quick note (SPEC 9.7).
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return
+      if (e.key.toLowerCase() === 'n') {
+        e.preventDefault()
+        newQuickNote()
+          .then(() => selectTab('notes'))
+          .catch((err) => console.error('Could not create a note', err))
+        return
+      }
       const target = TABS.find((t) => t.shortcut === e.key)
       if (!target) return
       e.preventDefault()
