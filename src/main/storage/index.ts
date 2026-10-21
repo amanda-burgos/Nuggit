@@ -6,6 +6,7 @@ import type {
   WidgetInstance,
   WidgetRect
 } from '../../shared/types'
+import { spotifyUri } from '../../shared/music'
 import { readJson, writeJson } from './jsonStore'
 
 const DEFAULT_SETTINGS: Settings = {
@@ -16,6 +17,7 @@ const DEFAULT_SETTINGS: Settings = {
   pickupTray: 'icon',
   voice: { speak: false, rate: 1, pitch: 1 },
   calendar: { feed: false, apple: false, showCalendars: [], writeToApple: true, autoSync: true },
+  music: { enabled: false, onBreak: 'pause' },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -128,6 +130,7 @@ const SETTINGS_TABS = [
   'ai',
   'voice',
   'calendar',
+  'music',
   'menubar',
   'about'
 ]
@@ -194,6 +197,7 @@ export async function loadSettings(): Promise<Settings> {
     dipTray: { ...DEFAULT_SETTINGS.dipTray, ...(isObject(data.dipTray) ? data.dipTray : {}) },
     voice: { ...DEFAULT_SETTINGS.voice, ...(isObject(data.voice) ? data.voice : {}) },
     calendar: { ...DEFAULT_SETTINGS.calendar, ...(isObject(data.calendar) ? data.calendar : {}) },
+    music: { ...DEFAULT_SETTINGS.music, ...(isObject(data.music) ? data.music : {}) },
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -241,6 +245,19 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       current.voice.whisperModel = whisperModel
     if (callLang === 'auto' || callLang === 'es' || callLang === 'en')
       current.voice.callLang = callLang
+  }
+  if (isObject(patch) && isObject(patch.music)) {
+    const { enabled, onBreak, focusPlaylist, breakPlaylist } = patch.music
+    if (typeof enabled === 'boolean') current.music.enabled = enabled
+    if (onBreak === 'pause' || onBreak === 'playlist') current.music.onBreak = onBreak
+    for (const [key, value] of [
+      ['focusPlaylist', focusPlaylist],
+      ['breakPlaylist', breakPlaylist]
+    ] as const) {
+      const uri = typeof value === 'string' ? spotifyUri(value) : null
+      if (uri) current.music[key] = uri
+      else if (value === null || value === '') delete current.music[key]
+    }
   }
   if (isObject(patch) && isObject(patch.calendar)) {
     const { feed, apple, showCalendars, writeToApple, autoSync } = patch.calendar

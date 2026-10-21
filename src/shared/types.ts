@@ -85,7 +85,7 @@ export interface AppInfo {
 
 // The tabs inside Ajustes (SPEC 9.0).
 export type SettingsTab =
-  'general' | 'appearance' | 'dip' | 'ai' | 'voice' | 'calendar' | 'menubar' | 'about'
+  'general' | 'appearance' | 'dip' | 'ai' | 'voice' | 'calendar' | 'music' | 'menubar' | 'about'
 
 export interface UISettings {
   tab: AppTab // last open tab
@@ -129,6 +129,7 @@ export interface Settings {
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
   voice: VoiceSettings // SPEC 9.10
   calendar: CalendarSettings // SPEC 9.14
+  music: MusicSettings // SPEC 9.19
   ui: UISettings
   background?: string
 }
@@ -269,6 +270,12 @@ export interface SettingsPatch {
   pickupTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
   calendar?: Partial<CalendarSettings>
+  music?: {
+    enabled?: boolean
+    focusPlaylist?: string | null // a link or URI; null or '' removes it
+    onBreak?: 'pause' | 'playlist'
+    breakPlaylist?: string | null
+  }
   voice?: {
     speak?: boolean
     voiceURI?: string | null // null: the best voice
@@ -398,6 +405,23 @@ export interface CalendarStatus {
   lastSync: string | null // ISO
   error: string | null
   moved: number // tasks moved to another day in Calendar, since Nuggit started
+}
+
+// --- Music in Focus (SPEC 9.19) ---
+
+export interface MusicSettings {
+  enabled: boolean // play music while Focus runs
+  focusPlaylist?: string // a Spotify URI, e.g. "spotify:playlist:…"
+  onBreak: 'pause' | 'playlist'
+  breakPlaylist?: string
+}
+
+// What the Spotify app on this Mac is doing.
+export interface MusicStatus {
+  app: 'not-installed' | 'closed' | 'ready' | 'denied'
+  playing: boolean
+  track: string | null
+  artist: string | null
 }
 
 // --- Focus (SPEC 9.8) and Lockdown (9.9) ---
@@ -627,6 +651,15 @@ export interface NuggitApi {
     subscribe(): Promise<void>
     // Changes in the Mac's calendar: the view reloads its events.
     onChange(listener: () => void): () => void
+  }
+  music: {
+    // details: false only checks Spotify is open (never asks macOS for permission).
+    status(details?: boolean): Promise<MusicStatus>
+    playPause(): Promise<MusicStatus>
+    next(): Promise<MusicStatus>
+    // Plays a Spotify link right away ("▶ Probar" in Ajustes). Says why if it can't.
+    play(link: string): Promise<{ ok: boolean; error?: string }>
+    openSpotify(): Promise<void>
   }
   focus: {
     load(): Promise<FocusState>

@@ -640,6 +640,13 @@ Cómo quedó (Fase 8.5):
 - Paso 1 de 9.19: controlar la app de Spotify con AppleScript, playlists de focus/descanso, mini controles.
 - **Listo cuando:** pego mi playlist en Ajustes, empiezo un Pomodoro y suena sola; en el descanso se pausa; y puedo pasar de canción desde el widget de Focus.
 
+Cómo quedó (Fase 8.7):
+- **Ajustes → Música:** "Poner música durante Focus", la playlist para concentrarte (se pega el link de Spotify; acepta `open.spotify.com/…` con o sin `/intl-es/` y `spotify:…`, y se guarda como URI: `src/shared/music.ts`, con tests), qué hacer en el descanso (pausar o poner otra playlist) y "▶ Probar". Muestra si Spotify está instalado/abierto **sin pedir permiso** (solo revisa si la app está abierta).
+- **Control por AppleScript** (`src/main/music.ts`): `play track "spotify:playlist:…"`, `playpause`, `next track`, `pause`. No hace falta login ni Premium (con Spotify gratis salen anuncios). macOS pregunta una vez si Nuggit puede controlar Spotify (la espera alcanza para contestar el aviso).
+- **Con Focus** (`src/main/focus.ts`): empezar → suena la playlist; pausar/seguir el reloj → la música también; descanso → pausa (o la otra playlist); terminar o cancelar → pausa. Solo pausa música que puso Nuggit (al empezar, con "Probar" o con sus ⏯ ⏭), nunca algo que ya estabas escuchando por tu cuenta.
+- **Mini controles** (🎵 canción · artista, ⏯, ⏭) en el widget de Focus y en Lockdown, solo con la música prendida. Si Spotify está cerrado: aviso amable + "Abrir Spotify"; Nuggit nunca lo abre solo y Focus sigue sin música.
+- Probado en vivo con Spotify (gratis): suena al empezar, ⏭ pasa de canción, pausa/sigue con el reloj, se pausa en el descanso y al cancelar.
+
 ### Fase 9 — Pulido visual + personalización
 - Animaciones suaves y detalles de diseño.
 - **Personalización** en Ajustes → "Apariencia": elegir tema (claro/oscuro/sistema), **color de acento**, **fondo** del tablero (colores o imagen propia), y estilo de los widgets (sombra, transparencia, esquinas).
@@ -658,6 +665,7 @@ Cómo quedó (Fase 8.5):
   - **FAQ**: preguntas frecuentes (¿Funciona sin internet? ¿Dónde se guardan mis datos? ¿Cómo conecto Gemini u Ollama? ¿Cómo salgo de Lockdown? ¿Cómo regreso un widget al tablero?...).
   - **Atajos de teclado**.
   - **Novedades (update log)**: muestra `CHANGELOG.md` de forma bonita, versión por versión.
+  - Botón **"Únete al Discord de Nuggit"** en Novedades (y en la ventanita de "Qué hay de nuevo"), para que la gente reaccione, comente y comparta ideas en el servidor. El link de invitación va en un archivo de configuración (`config/community.json`), no escrito en el código. Si todavía no hay link, el botón no se muestra.
 - Al abrir Nuggit después de una actualización, aparece una ventanita "Qué hay de nuevo en la versión X" (con botón "Ver todo" y "Cerrar"). Se puede apagar en Ajustes.
 - Los textos de ayuda viven en un archivo (ej: `help.json` o Markdown) para editarlos fácil.
 - Dip puede responder "¿cómo hago X en Nuggit?" usando esos mismos textos de ayuda.

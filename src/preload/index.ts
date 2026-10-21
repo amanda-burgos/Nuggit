@@ -151,6 +151,13 @@ const api: NuggitApi = {
       return () => ipcRenderer.removeListener('calendar:changed', handler)
     }
   },
+  music: {
+    status: (details) => ipcRenderer.invoke('music:status', details),
+    playPause: () => ipcRenderer.invoke('music:playPause'),
+    next: () => ipcRenderer.invoke('music:next'),
+    play: (link) => ipcRenderer.invoke('music:play', link),
+    openSpotify: () => ipcRenderer.invoke('music:openSpotify')
+  },
   focus: {
     load: () => ipcRenderer.invoke('focus:load'),
     start: (taskId) => ipcRenderer.invoke('focus:start', taskId ?? null),

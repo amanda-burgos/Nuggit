@@ -39,6 +39,7 @@ export function useSettings(): SettingsStore {
         dipTray,
         voice: voicePatch,
         calendar: calendarPatch,
+        music: musicPatch,
         ...rest
       } = patch
       const ui = { ...prev.ui }
@@ -56,6 +57,12 @@ export function useSettings(): SettingsStore {
         ui,
         voice,
         calendar: { ...prev.calendar, ...calendarPatch },
+        // Links are checked (and turned into URIs) by the main process: wait for those.
+        music: {
+          ...prev.music,
+          ...(musicPatch?.enabled !== undefined ? { enabled: musicPatch.enabled } : {}),
+          ...(musicPatch?.onBreak ? { onBreak: musicPatch.onBreak } : {})
+        },
         dipTray: { ...prev.dipTray, ...dipTray }
       }
       if (dipPersonality !== undefined) next.dipPersonality = dipPersonality?.trim() || undefined

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
+import { getMusicStatus, nextTrack, openSpotify, playLink, playPause } from './music'
 import { downloadModel, getSttStatus, transcribe, warmUpStt } from './stt'
 import {
   askMic,
@@ -183,6 +184,11 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('calendar:syncNow', () => syncNow())
   ipcMain.handle('calendar:exportIcs', () => exportIcs())
   ipcMain.handle('calendar:subscribe', () => subscribe())
+  ipcMain.handle('music:status', (_event, details: unknown) => getMusicStatus(details !== false))
+  ipcMain.handle('music:playPause', () => playPause())
+  ipcMain.handle('music:next', () => nextTrack())
+  ipcMain.handle('music:play', (_event, link: unknown) => playLink(link))
+  ipcMain.handle('music:openSpotify', () => openSpotify())
   ipcMain.handle('focus:load', () => getFocus())
   ipcMain.handle('focus:start', (_event, taskId: unknown) => startFocus(taskId))
   ipcMain.handle('focus:pause', () => pauseFocus())

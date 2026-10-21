@@ -3,6 +3,7 @@ import type { FocusPreset, FocusState } from '../../../../shared/types'
 import { formatClock, useFocus, useTimeLeft } from '../../store/useFocus'
 import { useToday } from '../../store/useToday'
 import type { WidgetProps } from '../types'
+import { MusicControls } from './MusicControls'
 import { completeFocusTask, useFocusTask } from './useFocusTask'
 import './focus.css'
 
@@ -85,6 +86,7 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
       </div>
 
       <FocusControls focus={focus} />
+      <MusicControls />
 
       <div className="focus-presets" role="group" aria-label="Tiempos">
         {PRESETS.map((p) => (

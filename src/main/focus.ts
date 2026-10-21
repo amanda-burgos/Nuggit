@@ -4,6 +4,7 @@ import { pickNextActions, toISODate } from '../shared/nextAction'
 import { getNextActionState, startAction } from './nextAction'
 import { readJson, writeJson } from './storage/jsonStore'
 import { getTasks } from './tasks'
+import { onBreakStart, onFocusPause, onFocusStart, onFocusStop } from './music'
 import { setAllVisible } from './widgetWindows'
 
 // SPEC 9.8 and 9.9. The Focus timer lives here, so the widget, its tab, a detached window
@@ -84,6 +85,7 @@ function finishPhase(): void {
     const rounds = (state.roundsDay === today ? state.rounds : 0) + 1
     const durationMs = phaseMs('break', state.preset)
     notify(`¡Ronda lista! 🎉 Descansa ${state.preset.breakMin} min.`)
+    void onBreakStart()
     commit({
       ...state,
       phase: 'break',
@@ -95,6 +97,7 @@ function finishPhase(): void {
     })
   } else if (state.phase === 'break') {
     notify('Se acabó el descanso. ¿Otra ronda? 💪')
+    void onFocusStop()
     commit({ ...state, phase: 'idle', endsAt: null, pausedLeftMs: null, durationMs: 0 })
   }
 }
@@ -148,6 +151,7 @@ export function startFocus(taskId: unknown): void {
   const id = focusTaskId()
   if (id) startAction(id)
   const durationMs = phaseMs('focus', state.preset)
+  void onFocusStart()
   commit({
     ...state,
     phase: 'focus',
@@ -160,6 +164,7 @@ export function startFocus(taskId: unknown): void {
 export function pauseFocus(): void {
   if (state.phase === 'idle' || state.pausedLeftMs !== null) return
   commit({ ...state, pausedLeftMs: leftMs(), endsAt: null })
+  void onFocusPause(true)
 }
 
 export function resumeFocus(): void {
@@ -169,9 +174,11 @@ export function resumeFocus(): void {
     endsAt: new Date(Date.now() + state.pausedLeftMs).toISOString(),
     pausedLeftMs: null
   })
+  void onFocusPause(false)
 }
 
 export function cancelFocus(): void {
+  if (state.phase !== 'idle') void onFocusStop()
   commit({ ...state, phase: 'idle', endsAt: null, pausedLeftMs: null, durationMs: 0 })
 }
 

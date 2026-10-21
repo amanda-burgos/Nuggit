@@ -8,6 +8,7 @@ import { CallSettings } from './CallSettings'
 import { DipPersonality } from './DipPersonality'
 import { GeneralSettings } from './GeneralSettings'
 import { MenuBarSettings } from './MenuBarSettings'
+import { MusicSettings } from './MusicSettings'
 import type { SectionProps } from './shared'
 import { VoiceSettings } from './VoiceSettings'
 import './settings.css'
@@ -24,6 +25,7 @@ const TABS: Array<{ key: SettingsTab; label: string; icon: string }> = [
   { key: 'ai', label: 'IA y proveedores', icon: '🤖' },
   { key: 'voice', label: 'Voz', icon: '🎙️' },
   { key: 'calendar', label: 'Calendario', icon: '📅' },
+  { key: 'music', label: 'Música', icon: '🎵' },
   { key: 'menubar', label: 'Barra de menú', icon: '📍' },
   { key: 'about', label: 'Acerca de', icon: 'ℹ️' }
 ]
@@ -78,6 +80,12 @@ const SECTIONS: Array<{
     keywords:
       'calendario apple google ics exportar suscripcion sincronizar eventos mac icloud webcal',
     Component: CalendarSettings
+  },
+  {
+    id: 'music',
+    tab: 'music',
+    keywords: 'musica spotify playlist focus pomodoro descanso cancion',
+    Component: MusicSettings
   },
   {
     id: 'menubar',

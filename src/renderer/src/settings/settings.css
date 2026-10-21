@@ -24,7 +24,8 @@
 
 .settings-section input[type='password'],
 .settings-section input[list],
-.settings-section .custom-server input {
+.settings-section .custom-server input,
+.settings-section .settings-input {
   font: inherit;
   color: inherit;
   min-width: 0;

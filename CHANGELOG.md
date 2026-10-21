@@ -5,6 +5,7 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Música en Focus 🎵:** pega el link de tu playlist de Spotify en Ajustes → Música y suena sola cuando empiezas a concentrarte; se pausa en el descanso (o pone otra playlist) y al terminar. Pasa de canción o pausa desde Focus y Lockdown. Usa la app de Spotify, sin login ni Premium (Fase 8.7).
 - **Calendario 📅** (pestaña ⌘0 y widget): tus tareas con fecha, tus dailies y los eventos de tu Mac, por día. Puedes anotar una tarea en un día directo desde ahí El día de hoy se ve resaltado (Fase 8.5).
 - **Tus tareas en el Calendario de la Mac:** conecta en dos vías (Nuggit guarda tus tareas y dailies en un calendario "Nuggit", y si mueves una tarea de día allá, se mueve aquí), con sincronización **automática o manual**, como prefieras. También puedes suscribirte (solo lectura) o exportar un .ics para Google Calendar (Fase 8.5).
 - **Llama a Dip 📞:** habla con Dip manos libres. Te escucha, nota cuando terminas, te contesta en voz alta, y si le hablas mientras habla, se calla. Puedes pedirle cosas como "anota tarea de inglés para mañana" y confirmar con un "sí". Tu voz se entiende en tu Mac con whisper (Fase 8.3).

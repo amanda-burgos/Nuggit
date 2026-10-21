@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { formatClock, useFocus, useTimeLeft } from '../../store/useFocus'
 import { FocusControls } from './FocusWidget'
+import { MusicControls } from './MusicControls'
 import { completeFocusTask, useFocusTask } from './useFocusTask'
 import './focus.css'
 
@@ -72,6 +73,8 @@ export function Lockdown(): React.JSX.Element | null {
             </button>
           )}
         </div>
+
+        <MusicControls />
 
         {action?.nextStep && (
           <p className="lockdown-next">
