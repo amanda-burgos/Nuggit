@@ -91,7 +91,38 @@
   font-size: 0.85rem;
 }
 
-.calendar-day.is-today .calendar-date {
+/* Today stands out: a tinted cell and its number in a filled circle. */
+.calendar-day.is-today {
+  background: var(--color-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
+}
+
+.calendar-grid .calendar-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calendar-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 999px;
+}
+
+.calendar-day.is-today .calendar-number {
+  padding: 0 4px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+.calendar-today-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--color-accent);
 }
 

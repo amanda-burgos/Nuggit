@@ -140,7 +140,8 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
               >
                 <span className="calendar-date">
                   {!big && <small>{WEEKDAYS[(parse(day).getDay() + 6) % 7]}</small>}
-                  {parse(day).getDate()}
+                  <span className="calendar-number">{parse(day).getDate()}</span>
+                  {big && day === today && <span className="calendar-today-tag">Hoy</span>}
                 </span>
                 {big ? (
                   <span className="calendar-chips">
