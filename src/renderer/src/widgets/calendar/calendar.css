@@ -1,0 +1,271 @@
+.calendar {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+}
+
+.calendar.is-full {
+  max-width: 980px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.calendar-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calendar-head h3 {
+  margin: 0 8px 0 0;
+  min-width: 170px;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.calendar-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Wide enough: the chosen day next to the month, so both are always in sight. */
+@media (min-width: 1100px) {
+  .calendar.is-full .calendar-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    align-items: start;
+  }
+}
+
+/* --- Month (big) --- */
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.calendar-weekday {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding-bottom: 2px;
+}
+
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.calendar-grid .calendar-day {
+  min-height: 84px;
+}
+
+.calendar-day.is-outside {
+  opacity: 0.45;
+}
+
+.calendar-day.is-selected {
+  border-color: var(--color-accent);
+}
+
+.calendar-date {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.calendar-day.is-today .calendar-date {
+  color: var(--color-accent);
+}
+
+.calendar-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.calendar-chips small {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.calendar-chip {
+  font-size: 0.72rem;
+  line-height: 1.3;
+  padding: 1px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--color-accent-soft);
+}
+
+.calendar-chip.is-daily {
+  background: transparent;
+  border: 1px dashed var(--color-accent);
+}
+
+.calendar-chip.is-event {
+  background: var(--color-border);
+}
+
+/* --- Week strip (small) --- */
+
+.calendar-strip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.calendar-strip .calendar-day {
+  align-items: center;
+  padding: 6px 2px;
+}
+
+.calendar-strip .calendar-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-strip .calendar-date small {
+  font-weight: normal;
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+}
+
+.calendar-dots {
+  display: flex;
+  gap: 2px;
+  min-height: 5px;
+}
+
+.calendar-dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.calendar-dots i.is-event {
+  background: var(--color-text-muted);
+}
+
+/* --- The chosen day --- */
+
+.calendar-agenda h4 {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.calendar-agenda ul {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calendar-hint {
+  margin: 0 0 8px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.calendar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.calendar-item.is-done .calendar-item-main {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+.calendar-item-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+
+.calendar-item-main small {
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+}
+
+.calendar-icon {
+  width: 22px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.calendar-check {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.calendar-item.is-done .calendar-check {
+  background: var(--color-accent);
+}
+
+.calendar-add input {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
+.calendar-add input:focus {
+  outline: none;
+  border-style: solid;
+  border-color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .calendar-grid .calendar-day {
+    min-height: 52px;
+  }
+  .calendar-chips {
+    display: none;
+  }
+}

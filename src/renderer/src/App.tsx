@@ -28,7 +28,7 @@ function App(): React.JSX.Element {
   useEffect(() => window.api.app.onOpenSettings(() => selectTab('settings')), [selectTab])
 
   // ⌘1 Inicio, ⌘2 Dip, ⌘3 Tareas, ⌘4 Ahora, ⌘5 Tenderizer, ⌘6 Dailies, ⌘7 Notas,
-  // ⌘8 Brain Dump, ⌘9 Focus, ⌘, Ajustes. ⌘N: a new quick note (SPEC 9.7).
+  // ⌘8 Brain Dump, ⌘9 Focus, ⌘0 Calendario, ⌘, Ajustes. ⌘N: a new quick note (SPEC 9.7).
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return

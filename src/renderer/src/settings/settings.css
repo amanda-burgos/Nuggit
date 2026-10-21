@@ -571,3 +571,11 @@
 .settings-inline-button {
   align-self: flex-start;
 }
+
+.calendar-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}

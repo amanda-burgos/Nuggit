@@ -15,6 +15,7 @@ const DEFAULT_SETTINGS: Settings = {
   dipTray: { visible: true, shortcut: '' },
   pickupTray: 'icon',
   voice: { speak: false, rate: 1, pitch: 1 },
+  calendar: { feed: false, apple: false, showCalendars: [], writeToApple: true, autoSync: true },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -120,7 +121,16 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
 const STATUS_INDICATORS = ['dot', 'dot-title', 'title', 'off']
 // Gemini ids look like "gemini-flash-latest"; Ollama ones like "llama3.2:3b" or "user/model".
 export const MAX_PERSONALITY = 1500
-const SETTINGS_TABS = ['general', 'appearance', 'dip', 'ai', 'voice', 'menubar', 'about']
+const SETTINGS_TABS = [
+  'general',
+  'appearance',
+  'dip',
+  'ai',
+  'voice',
+  'calendar',
+  'menubar',
+  'about'
+]
 const TABS = [
   'home',
   'dip',
@@ -131,6 +141,7 @@ const TABS = [
   'notes',
   'brainDump',
   'focus',
+  'calendar',
   'settings'
 ]
 const PICKUP_MODES = ['icon', 'menu', 'off']
@@ -182,6 +193,7 @@ export async function loadSettings(): Promise<Settings> {
     ai: { ...DEFAULT_SETTINGS.ai, ...(isObject(data.ai) ? data.ai : {}) },
     dipTray: { ...DEFAULT_SETTINGS.dipTray, ...(isObject(data.dipTray) ? data.dipTray : {}) },
     voice: { ...DEFAULT_SETTINGS.voice, ...(isObject(data.voice) ? data.voice : {}) },
+    calendar: { ...DEFAULT_SETTINGS.calendar, ...(isObject(data.calendar) ? data.calendar : {}) },
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -229,6 +241,20 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       current.voice.whisperModel = whisperModel
     if (callLang === 'auto' || callLang === 'es' || callLang === 'en')
       current.voice.callLang = callLang
+  }
+  if (isObject(patch) && isObject(patch.calendar)) {
+    const { feed, apple, showCalendars, writeToApple, autoSync } = patch.calendar
+    if (typeof autoSync === 'boolean') current.calendar.autoSync = autoSync
+    if (typeof feed === 'boolean') current.calendar.feed = feed
+    if (typeof apple === 'boolean') current.calendar.apple = apple
+    if (typeof writeToApple === 'boolean') current.calendar.writeToApple = writeToApple
+    if (Array.isArray(showCalendars)) {
+      current.calendar.showCalendars = [
+        ...new Set(
+          showCalendars.filter((n): n is string => typeof n === 'string' && n.length < 200)
+        )
+      ].slice(0, 50)
+    }
   }
   if (isObject(patch) && PICKUP_MODES.includes(patch.pickupTray as string)) {
     current.pickupTray = patch.pickupTray as Settings['pickupTray']

@@ -3,6 +3,7 @@ import type { Settings, SettingsPatch, SettingsTab } from '../../../shared/types
 import { AboutSettings } from './AboutSettings'
 import { AISettings } from './AISettings'
 import { AppearanceSettings } from './AppearanceSettings'
+import { CalendarSettings } from './CalendarSettings'
 import { CallSettings } from './CallSettings'
 import { DipPersonality } from './DipPersonality'
 import { GeneralSettings } from './GeneralSettings'
@@ -22,6 +23,7 @@ const TABS: Array<{ key: SettingsTab; label: string; icon: string }> = [
   { key: 'dip', label: 'Dip', icon: '💬' },
   { key: 'ai', label: 'IA y proveedores', icon: '🤖' },
   { key: 'voice', label: 'Voz', icon: '🎙️' },
+  { key: 'calendar', label: 'Calendario', icon: '📅' },
   { key: 'menubar', label: 'Barra de menú', icon: '📍' },
   { key: 'about', label: 'Acerca de', icon: 'ℹ️' }
 ]
@@ -69,6 +71,13 @@ const SECTIONS: Array<{
     tab: 'voice',
     keywords: 'llamada llamar modo llamada transcripcion whisper microfono manos libres',
     Component: CallSettings
+  },
+  {
+    id: 'calendar',
+    tab: 'calendar',
+    keywords:
+      'calendario apple google ics exportar suscripcion sincronizar eventos mac icloud webcal',
+    Component: CalendarSettings
   },
   {
     id: 'menubar',

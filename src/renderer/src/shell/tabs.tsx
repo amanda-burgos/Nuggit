@@ -27,5 +27,6 @@ export const TABS: TabInfo[] = [
     widgetType: 'brain-dump'
   },
   { key: 'focus', label: 'Focus', icon: '⏳', shortcut: '9', widgetType: 'focus' },
+  { key: 'calendar', label: 'Calendario', icon: '📅', shortcut: '0', widgetType: 'calendar' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]

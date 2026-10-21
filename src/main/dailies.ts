@@ -17,6 +17,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/
 
 let dailies: Daily[] = []
+const listeners = new Set<(dailies: Daily[]) => void>()
 let loaded = false
 let today = toISODate(new Date())
 
@@ -120,6 +121,11 @@ function commit(next: Daily[]): void {
     )
   }
   for (const win of BrowserWindow.getAllWindows()) win.webContents.send('dailies:changed', next)
+  listeners.forEach((listener) => listener(next))
+}
+
+export function onDailiesChange(listener: (dailies: Daily[]) => void): void {
+  listeners.add(listener)
 }
 
 // Changes made by the user also update today's tasks.

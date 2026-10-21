@@ -455,6 +455,15 @@ Un widget que solo muestra imágenes, para decorar el escritorio.
 - Las imágenes se **copian** a la carpeta de datos de Nuggit para que no se pierdan si se mueve el archivo original.
 - Funciona en el tablero y despegado al escritorio, con las opciones generales (fijar, sombra, transparencia...) y, desde el quick pickup, "Pin on top".
 
+### 9.19 Música en Focus (Spotify)
+Poner música mientras corre el Pomodoro/Focus.
+- **Paso 1 (simple, sin login):** controlar la **app de Spotify** de la Mac con AppleScript (`osascript`): reproducir, pausar, siguiente, y abrir una playlist por su link/URI. El usuario pega en Ajustes el link de su "playlist de focus" (y opcional otra para los descansos).
+- Comportamiento: al empezar el focus → suena la playlist de focus; al empezar el descanso → pausa o cambia a la de descanso; al terminar/cancelar → pausa. Todo opcional y configurable.
+- Mini controles (⏯ ⏭ y nombre de la canción) dentro del widget de Focus y en Lockdown.
+- Si Spotify no está instalado o abierto, mostrar un aviso amable y seguir sin música.
+- **Paso 2 (después):** conectar la cuenta con la **Web API oficial de Spotify** (login OAuth con PKCE) **solo para leer** las playlists del usuario y elegirlas desde Nuggit sin pegar links. La reproducción se sigue haciendo por AppleScript (paso 1), así **no hace falta Spotify Premium** (la Web API solo exige Premium para controlar la reproducción).
+- Pestaña en Ajustes: "Música".
+
 ## 10. Diseño visual
 
 - Colores base: **navy blue**, **lavender**, **white**, acentos suaves.
@@ -615,6 +624,21 @@ Cómo quedó (Fase 8.3):
 - Vista de calendario (pestaña + widget) según 9.14.
 - Paso 1: exportar a `.ics` (Apple y Google). Paso 2: Apple Calendar en dos vías. Paso 3 (si da tiempo): Google Calendar en dos vías.
 - **Listo cuando:** veo mis tareas y dailies en el calendario de Nuggit y también aparecen en mi calendario del Mac.
+
+Cómo quedó (Fase 8.5):
+- **Pestaña Calendario (⌘0) y widget** (mismo componente): en grande, el mes (lunes primero) con el día elegido al lado (abajo si la ventana es angosta); en chico, los próximos 7 días. Muestra tareas con fecha (se marcan hechas ahí mismo), dailies (desde el día en que se crearon, con ✓ si se hicieron) y eventos de los calendarios de la Mac que elijas. "Anotar una tarea para este día" crea una tarea con esa fecha. Reglas en `src/shared/calendar.ts` (con tests).
+- **Paso 1 — .ics:** "Exportar .ics" (para importar en Google Calendar o cualquier app; es una copia) y **suscripción**: un feed en `webcal://127.0.0.1:47321/nuggit.ics` que Calendario de la Mac sigue solo, sin permisos (solo lectura allá; funciona mientras Nuggit está abierto). Tareas como eventos de todo el día; dailies como eventos que se repiten (`RRULE`), con hora y duración si la tienen.
+- **Paso 2 — Calendario de la Mac en dos vías** (`src/main/calendar/apple.ts`, con JavaScript for Automation, no EventKit: EventKit necesita una app firmada con su propio permiso, que en desarrollo no hay). macOS pregunta una vez si Nuggit puede controlar Calendario.
+  - Nuggit escribe solo en su propio calendario **"Nuggit"** (lo crea si no está) y encuentra sus eventos por la marca `(nuggit:task:…)` en las notas. Los demás calendarios solo se leen, nunca se cambian.
+  - Si mueves una tarea a otro día en Calendario, la tarea se mueve en Nuggit (se compara con lo último que Nuggit escribió, en `calendar-sync.json`).
+  - **Sincronizar: Automático o Manual** (lo elige la persona): automático = a los pocos segundos de cada cambio y cada 10 minutos; manual = solo con "Sincronizar ahora".
+  - Límite: los eventos que se repiten aparecen en Nuggit solo el día en que empezó la serie (el scripting de Calendario no da cada repetición).
+- **Ajustes → Calendario**: dos vías (con qué calendarios mostrar y cómo sincronizar), suscripción, exportar, y aviso si suscripción y dos vías están prendidas a la vez (se verían las tareas dos veces).
+- **Paso 3 — Google Calendar en dos vías: no se hizo** (necesita un proyecto de Google Cloud y OAuth). Mientras, Exportar .ics.
+
+### Fase 8.7 — Música en Focus (Spotify)
+- Paso 1 de 9.19: controlar la app de Spotify con AppleScript, playlists de focus/descanso, mini controles.
+- **Listo cuando:** pego mi playlist en Ajustes, empiezo un Pomodoro y suena sola; en el descanso se pausa; y puedo pasar de canción desde el widget de Focus.
 
 ### Fase 9 — Pulido visual + personalización
 - Animaciones suaves y detalles de diseño.

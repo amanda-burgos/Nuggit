@@ -3,6 +3,7 @@ import type {
   AIStatus,
   Daily,
   DipChatState,
+  CalendarStatus,
   FocusState,
   ModelDownload,
   NextActionState,
@@ -130,6 +131,24 @@ const api: NuggitApi = {
         listener(progress)
       ipcRenderer.on('stt:download', handler)
       return () => ipcRenderer.removeListener('stt:download', handler)
+    }
+  },
+  calendar: {
+    status: () => ipcRenderer.invoke('calendar:status'),
+    onStatus: (listener) => {
+      const handler = (_event: IpcRendererEvent, status: CalendarStatus): void => listener(status)
+      ipcRenderer.on('calendar:status', handler)
+      return () => ipcRenderer.removeListener('calendar:status', handler)
+    },
+    events: (from, to) => ipcRenderer.invoke('calendar:events', from, to),
+    listAppleCalendars: () => ipcRenderer.invoke('calendar:listAppleCalendars'),
+    syncNow: () => ipcRenderer.invoke('calendar:syncNow'),
+    exportIcs: () => ipcRenderer.invoke('calendar:exportIcs'),
+    subscribe: () => ipcRenderer.invoke('calendar:subscribe'),
+    onChange: (listener) => {
+      const handler = (): void => listener()
+      ipcRenderer.on('calendar:changed', handler)
+      return () => ipcRenderer.removeListener('calendar:changed', handler)
     }
   },
   focus: {

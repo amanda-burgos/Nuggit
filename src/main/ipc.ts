@@ -29,6 +29,14 @@ import {
 } from './dipChat'
 import { dipShortcutWorks } from './dipTray'
 import {
+  exportIcs,
+  getCalendarStatus,
+  getEvents,
+  listAppleCalendars,
+  subscribe,
+  syncNow
+} from './calendar'
+import {
   cancelFocus,
   getFocus,
   pauseFocus,
@@ -169,6 +177,12 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('stt:status', () => getSttStatus())
   ipcMain.handle('stt:warmUp', () => warmUpStt())
   ipcMain.handle('stt:downloadModel', () => downloadModel())
+  ipcMain.handle('calendar:status', () => getCalendarStatus())
+  ipcMain.handle('calendar:events', (_event, from: unknown, to: unknown) => getEvents(from, to))
+  ipcMain.handle('calendar:listAppleCalendars', () => listAppleCalendars())
+  ipcMain.handle('calendar:syncNow', () => syncNow())
+  ipcMain.handle('calendar:exportIcs', () => exportIcs())
+  ipcMain.handle('calendar:subscribe', () => subscribe())
   ipcMain.handle('focus:load', () => getFocus())
   ipcMain.handle('focus:start', (_event, taskId: unknown) => startFocus(taskId))
   ipcMain.handle('focus:pause', () => pauseFocus())

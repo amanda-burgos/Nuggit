@@ -10,6 +10,7 @@ import { initDailies } from './dailies'
 import { initNotes } from './notes'
 import { initDesktop } from './desktop'
 import { initFocus, setLockdown } from './focus'
+import { initCalendar } from './calendar'
 import { initNextAction } from './nextAction'
 import { initPickupTray } from './pickupTray'
 import { registerIpc } from './ipc'
@@ -112,6 +113,11 @@ app.whenReady().then(async () => {
     await initNextAction()
   } catch (err) {
     console.error('[startup] could not load Next Action', err)
+  }
+  try {
+    await initCalendar()
+  } catch (err) {
+    console.error('[startup] could not start the calendar', err)
   }
   try {
     await initFocus({ showMainWindow })

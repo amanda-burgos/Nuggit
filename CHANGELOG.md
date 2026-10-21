@@ -5,6 +5,8 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Calendario 📅** (pestaña ⌘0 y widget): tus tareas con fecha, tus dailies y los eventos de tu Mac, por día. Puedes anotar una tarea en un día directo desde ahí (Fase 8.5).
+- **Tus tareas en el Calendario de la Mac:** conecta en dos vías (Nuggit guarda tus tareas y dailies en un calendario "Nuggit", y si mueves una tarea de día allá, se mueve aquí), con sincronización **automática o manual**, como prefieras. También puedes suscribirte (solo lectura) o exportar un .ics para Google Calendar (Fase 8.5).
 - **Llama a Dip 📞:** habla con Dip manos libres. Te escucha, nota cuando terminas, te contesta en voz alta, y si le hablas mientras habla, se calla. Puedes pedirle cosas como "anota tarea de inglés para mañana" y confirmar con un "sí". Tu voz se entiende en tu Mac con whisper (Fase 8.3).
 - **Ajustes en pestañas** con buscador: General, Apariencia, Dip, IA, Voz, Barra de menú y Acerca de. Nuevo: abrir Nuggit al iniciar la Mac (Fase 8.3).
 - **Elige la voz de Dip** de una lista con ▶ para escuchar cada una (Fase 8.3).

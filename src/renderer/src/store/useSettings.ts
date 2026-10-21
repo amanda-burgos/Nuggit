@@ -33,7 +33,14 @@ export function useSettings(): SettingsStore {
       for (const key of ['model', 'ollamaModel'] as const) {
         if (patch.ai && key in patch.ai) ai[key] = patch.ai[key] || undefined
       }
-      const { dipPersonality, ui: uiPatch, dipTray, voice: voicePatch, ...rest } = patch
+      const {
+        dipPersonality,
+        ui: uiPatch,
+        dipTray,
+        voice: voicePatch,
+        calendar: calendarPatch,
+        ...rest
+      } = patch
       const ui = { ...prev.ui }
       if (uiPatch?.tab) ui.tab = uiPatch.tab
       if (uiPatch?.settingsTab) ui.settingsTab = uiPatch.settingsTab
@@ -42,7 +49,15 @@ export function useSettings(): SettingsStore {
       const { voiceURI, ...voiceRest } = voicePatch ?? {}
       const voice = { ...prev.voice, ...voiceRest }
       if (voicePatch && 'voiceURI' in voicePatch) voice.voiceURI = voiceURI || undefined
-      const next = { ...prev, ...rest, ai, ui, voice, dipTray: { ...prev.dipTray, ...dipTray } }
+      const next = {
+        ...prev,
+        ...rest,
+        ai,
+        ui,
+        voice,
+        calendar: { ...prev.calendar, ...calendarPatch },
+        dipTray: { ...prev.dipTray, ...dipTray }
+      }
       if (dipPersonality !== undefined) next.dipPersonality = dipPersonality?.trim() || undefined
       return next
     })

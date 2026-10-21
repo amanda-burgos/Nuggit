@@ -1,5 +1,6 @@
 import { BrowserWindow, nativeTheme } from 'electron'
 import type { Settings } from '../shared/types'
+import { applyCalendarSettings } from './calendar'
 import { setDipTrayOptions } from './dipTray'
 import { setPickupMode } from './pickupTray'
 import { setStatusIndicator } from './statusTray'
@@ -8,7 +9,12 @@ import { setAIProvider, updateSettings } from './storage'
 // Every settings change goes through here, whether it comes from a window or the menu bar,
 // so the theme, the menu bar indicator and every open window stay in step.
 export async function changeSettings(patch: unknown): Promise<Settings> {
-  return applySettings(await updateSettings(patch))
+  const settings = applySettings(await updateSettings(patch))
+  // The calendar feed and the Mac's Calendar sync start or stop with their settings.
+  if (typeof patch === 'object' && patch !== null && 'calendar' in patch) {
+    applyCalendarSettings(settings).catch((err) => console.error('[calendar]', err))
+  }
+  return settings
 }
 
 export async function changeAIProvider(provider: Settings['ai']['provider']): Promise<Settings> {

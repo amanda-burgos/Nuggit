@@ -72,6 +72,7 @@ export type AppTab =
   | 'notes'
   | 'brainDump'
   | 'focus'
+  | 'calendar'
   | 'settings'
 
 // For Ajustes → General and Acerca de.
@@ -83,7 +84,8 @@ export interface AppInfo {
 }
 
 // The tabs inside Ajustes (SPEC 9.0).
-export type SettingsTab = 'general' | 'appearance' | 'dip' | 'ai' | 'voice' | 'menubar' | 'about'
+export type SettingsTab =
+  'general' | 'appearance' | 'dip' | 'ai' | 'voice' | 'calendar' | 'menubar' | 'about'
 
 export interface UISettings {
   tab: AppTab // last open tab
@@ -126,6 +128,7 @@ export interface Settings {
   pickupTray: PickupTrayMode // the quick pickup's menu bar icon (9.16)
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
   voice: VoiceSettings // SPEC 9.10
+  calendar: CalendarSettings // SPEC 9.14
   ui: UISettings
   background?: string
 }
@@ -265,6 +268,7 @@ export interface SettingsPatch {
   dipTray?: { visible?: boolean; shortcut?: DipShortcut }
   pickupTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
+  calendar?: Partial<CalendarSettings>
   voice?: {
     speak?: boolean
     voiceURI?: string | null // null: the best voice
@@ -366,6 +370,35 @@ export type TenderQuestionsResult = { ok: true; questions: string[] } | { ok: fa
 
 export type TenderPlanResult =
   { ok: true; title: string; dueDate?: string; steps: TenderStep[] } | { ok: false; error: string }
+
+// --- Calendar (SPEC 9.14) ---
+
+// Calendars are optional: Nuggit works with none, one or both ways turned on.
+export interface CalendarSettings {
+  feed: boolean // Paso 1: the .ics feed the Mac's Calendar subscribes to
+  apple: boolean // Paso 2: two-way with the Mac's Calendar app
+  showCalendars: string[] // the Mac calendars whose events Nuggit shows (by name)
+  writeToApple: boolean // keep a "Nuggit" calendar there with your tasks and dailies
+  autoSync: boolean // true: after every change and every 10 min; false: only "Sincronizar ahora"
+}
+
+// An event from the Mac's calendar, shown in Nuggit (never changed by Nuggit).
+export interface CalendarEvent {
+  id: string
+  title: string
+  start: string // ISO
+  end: string // ISO
+  allDay: boolean
+  calendar: string
+}
+
+export interface CalendarStatus {
+  feedUrl: string | null // webcal://… while the feed is on
+  apple: 'off' | 'syncing' | 'ok' | 'denied' | 'error'
+  lastSync: string | null // ISO
+  error: string | null
+  moved: number // tasks moved to another day in Calendar, since Nuggit started
+}
 
 // --- Focus (SPEC 9.8) and Lockdown (9.9) ---
 
@@ -579,6 +612,21 @@ export interface NuggitApi {
     warmUpStt(): Promise<void>
     downloadModel(): Promise<void>
     onModelDownload(listener: (progress: ModelDownload) => void): () => void
+  }
+  calendar: {
+    status(): Promise<CalendarStatus>
+    onStatus(listener: (status: CalendarStatus) => void): () => void
+    // Events of the chosen Mac calendars between two dates (YYYY-MM-DD, inclusive).
+    events(from: string, to: string): Promise<CalendarEvent[]>
+    // The Mac's calendars, to choose which ones to show. Asks macOS the first time.
+    listAppleCalendars(): Promise<{ ok: true; calendars: string[] } | { ok: false; error: string }>
+    syncNow(): Promise<void>
+    // Paso 1: save a .ics file (for Google Calendar, or any calendar app).
+    exportIcs(): Promise<{ ok: boolean; path?: string }>
+    // Paso 1: turn on the feed and open the Mac's Calendar to subscribe to it.
+    subscribe(): Promise<void>
+    // Changes in the Mac's calendar: the view reloads its events.
+    onChange(listener: () => void): () => void
   }
   focus: {
     load(): Promise<FocusState>
