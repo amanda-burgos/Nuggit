@@ -6,7 +6,7 @@ export interface TabInfo {
   key: AppTab
   label: string
   icon: React.ReactNode
-  shortcut: string // the key pressed with ⌘
+  shortcut: string // the key pressed with ⌘ ('' = no shortcut: ⌘1–⌘0 are taken)
   widgetType?: string // tabs that show a widget at full size
 }
 
@@ -28,5 +28,6 @@ export const TABS: TabInfo[] = [
   },
   { key: 'focus', label: 'Focus', icon: '⏳', shortcut: '9', widgetType: 'focus' },
   { key: 'calendar', label: 'Calendario', icon: '📅', shortcut: '0', widgetType: 'calendar' },
+  { key: 'music', label: 'Música', icon: '🎵', shortcut: '', widgetType: 'music' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]

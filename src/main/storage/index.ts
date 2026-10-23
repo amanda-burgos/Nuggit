@@ -1,5 +1,6 @@
 import type {
   DetachedWidget,
+  SavedPlaylist,
   SavedDesktop,
   Settings,
   Task,
@@ -17,7 +18,7 @@ const DEFAULT_SETTINGS: Settings = {
   pickupTray: 'icon',
   voice: { speak: false, rate: 1, pitch: 1 },
   calendar: { feed: false, apple: false, showCalendars: [], writeToApple: true, autoSync: true },
-  music: { enabled: false, onBreak: 'pause' },
+  music: { enabled: false, onBreak: 'pause', playlists: [] },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -145,6 +146,7 @@ const TABS = [
   'brainDump',
   'focus',
   'calendar',
+  'music',
   'settings'
 ]
 const PICKUP_MODES = ['icon', 'menu', 'off']
@@ -258,6 +260,24 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       if (uri) current.music[key] = uri
       else if (value === null || value === '') delete current.music[key]
     }
+    if (Array.isArray(patch.music.playlists)) {
+      current.music.playlists = patch.music.playlists
+        .filter(
+          (p): p is SavedPlaylist =>
+            isObject(p) &&
+            typeof p.uri === 'string' &&
+            spotifyUri(p.uri) === p.uri &&
+            typeof p.name === 'string'
+        )
+        .map((p) => ({
+          uri: p.uri,
+          name: p.name.slice(0, 120),
+          ...(typeof p.image === 'string' && p.image.startsWith('https://')
+            ? { image: p.image }
+            : {})
+        }))
+        .slice(0, 20)
+    }
   }
   if (isObject(patch) && isObject(patch.calendar)) {
     const { feed, apple, showCalendars, writeToApple, autoSync } = patch.calendar
@@ -272,6 +292,9 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
         )
       ].slice(0, 50)
     }
+  }
+  if (isObject(patch) && PICKUP_MODES.includes(patch.musicTray as string)) {
+    current.musicTray = patch.musicTray as Settings['musicTray']
   }
   if (isObject(patch) && PICKUP_MODES.includes(patch.pickupTray as string)) {
     current.pickupTray = patch.pickupTray as Settings['pickupTray']

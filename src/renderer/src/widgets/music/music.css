@@ -1,0 +1,244 @@
+.music {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  overflow-y: auto;
+}
+
+.music.is-full {
+  max-width: 460px;
+  width: 100%;
+  margin: 0 auto;
+  justify-content: flex-start;
+}
+
+.music.is-off {
+  align-items: center;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.music.is-off p {
+  margin: 0;
+}
+
+.music-big-icon {
+  font-size: 2rem;
+}
+
+.music-now {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.music-cover {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.music.is-full .music-cover {
+  width: 120px;
+  height: 120px;
+}
+
+.music-cover.is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  background: var(--color-surface-muted);
+  box-shadow: none;
+}
+
+.music-song {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.music-song strong,
+.music-song small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-song small {
+  color: var(--color-text-muted);
+}
+
+.music-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.music-bar {
+  flex: 1;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-surface-muted);
+  overflow: hidden;
+}
+
+.music-bar > div {
+  height: 100%;
+  background: var(--color-accent);
+}
+
+.music-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.music-play {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.music-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.music-volume {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.music-volume input {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--color-accent);
+}
+
+/* --- Choosing a playlist --- */
+
+.music-chooser {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.music-chooser-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.music-hint,
+.music-error {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.music-error {
+  color: #d1383d;
+}
+
+.music-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.music-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.music-list-play {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.music-list-play:hover {
+  outline: 1px solid var(--color-accent);
+}
+
+.music-list-play img,
+.music-list-art {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.music-list-play span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.music-add {
+  display: flex;
+  gap: 6px;
+}
+
+.music-add input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+}
+
+.music-add input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* The playlist list starts at the top instead of floating in the middle. */
+.music:has(.music-chooser) {
+  justify-content: flex-start;
+}

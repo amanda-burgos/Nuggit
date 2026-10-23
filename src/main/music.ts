@@ -3,14 +3,16 @@ import { existsSync } from 'fs'
 import { homedir } from 'os'
 import { join } from 'path'
 import { shell } from 'electron'
-import type { MusicStatus } from '../shared/types'
+import type { MusicStatus, SavedPlaylist } from '../shared/types'
 import { spotifyUri } from '../shared/music'
+import { changeSettings } from './settings'
 import { loadSettings } from './storage'
 
-// SPEC 9.19, Paso 1: music while Focus runs, by controlling the Spotify app on this Mac
-// with AppleScript. No login and no Premium needed. The first time, macOS asks whether
-// Nuggit may control Spotify. If Spotify isn't installed or open, Focus goes on without
-// music (the widget says so kindly) — Nuggit never opens it on its own.
+// SPEC 9.19: music by controlling the Spotify app on this Mac with AppleScript, during
+// Focus (Paso 1) and at any time from the Música widget and its menu bar icon. No login
+// and no Premium needed. The first time, macOS asks whether Nuggit may control Spotify.
+// If Spotify isn't installed or open, things go on without music (the widgets say so
+// kindly) — Nuggit never opens it on its own.
 
 const IS_MAC = process.platform === 'darwin'
 const APP_PATHS = ['/Applications/Spotify.app', join(homedir(), 'Applications/Spotify.app')]
@@ -56,20 +58,54 @@ export async function getMusicStatus(details = true): Promise<MusicStatus> {
   if (!(await running())) return NOTHING
   if (!details) return { ...NOTHING, app: 'ready' }
   try {
+    // Each piece on its own: an ad (or nothing loaded) lacks some of them.
     const out = await osa(`tell application "Spotify"
   set s to player state as string
+  set v to ""
+  set n to ""
+  set a to ""
+  set w to ""
+  set p to ""
+  set d to ""
   try
-    return s & linefeed & (name of current track) & linefeed & (artist of current track)
-  on error
-    return s
+    set v to sound volume as string
   end try
+  try
+    set n to name of current track
+  end try
+  try
+    set a to artist of current track
+  end try
+  try
+    set w to artwork url of current track
+  end try
+  try
+    set p to player position as string
+  end try
+  try
+    set d to (duration of current track) as string
+  end try
+  return s & linefeed & v & linefeed & n & linefeed & a & linefeed & w & linefeed & p & linefeed & d
 end tell`)
-    const [state, track, artist] = out.split('\n')
+    const [state, volume, track, artist, artwork, position, duration] = out.split('\n')
+    // Spanish macOS writes decimals with a comma ("12,5").
+    const num = (text: string | undefined): number | null => {
+      const n = Number((text ?? '').replace(',', '.'))
+      return text && Number.isFinite(n) ? n : null
+    }
+    const ms = num(duration)
     return {
       app: 'ready',
       playing: state === 'playing',
       track: track || null,
-      artist: artist || null
+      artist: artist || null,
+      artwork:
+        artwork && /^https:\/\/[a-z0-9.-]+\.(scdn\.co|spotifycdn\.com)\//.test(artwork)
+          ? artwork
+          : null,
+      volume: num(volume),
+      position: num(position),
+      duration: ms === null ? null : ms / 1000
     }
   } catch (err) {
     if (err instanceof AccessError) return { ...NOTHING, app: 'denied' }
@@ -97,6 +133,16 @@ export async function playPause(): Promise<MusicStatus> {
   const status = await tell('playpause')
   ours = status.playing
   return status
+}
+
+export const previousTrack = (): Promise<MusicStatus> => tell('previous track')
+
+export function setVolume(input: unknown): Promise<MusicStatus> {
+  const volume =
+    typeof input === 'number' && Number.isFinite(input)
+      ? Math.round(Math.min(100, Math.max(0, input)))
+      : null
+  return volume === null ? getMusicStatus() : tell(`set sound volume to ${volume}`)
 }
 
 export async function nextTrack(): Promise<MusicStatus> {
@@ -167,3 +213,51 @@ export async function onFocusPause(paused: boolean): Promise<void> {
   if (!ours || !(await musicOn())) return
   await tell(paused ? 'pause' : 'play')
 }
+
+// --- Saved playlists (to choose from in the Música widget) ---
+
+const MAX_PLAYLISTS = 20
+
+// The name and picture of a playlist from Spotify's public oEmbed page: no login needed.
+async function describe(uri: string): Promise<SavedPlaylist> {
+  const [, kind, id] = uri.split(':')
+  const page = `https://open.spotify.com/${kind}/${id}`
+  try {
+    const response = await fetch(
+      `https://open.spotify.com/oembed?url=${encodeURIComponent(page)}`,
+      {
+        signal: AbortSignal.timeout(8000)
+      }
+    )
+    if (response.ok) {
+      const data = (await response.json()) as { title?: unknown; thumbnail_url?: unknown }
+      const name = typeof data.title === 'string' ? data.title.slice(0, 120) : ''
+      const image = typeof data.thumbnail_url === 'string' ? data.thumbnail_url : undefined
+      if (name) return { uri, name, ...(image ? { image } : {}) }
+    }
+  } catch (err) {
+    console.warn('[music] no name for the playlist', err)
+  }
+  return { uri, name: kind === 'album' ? 'Álbum de Spotify' : 'Playlist de Spotify' }
+}
+
+export async function addPlaylist(link: unknown): Promise<{ ok: boolean; error?: string }> {
+  const uri = typeof link === 'string' ? spotifyUri(link) : null
+  if (!uri) return { ok: false, error: 'Ese no parece un link de Spotify.' }
+  const { music } = await loadSettings()
+  if (music.playlists.some((p) => p.uri === uri)) return { ok: true }
+  if (music.playlists.length >= MAX_PLAYLISTS) {
+    return { ok: false, error: `Caben ${MAX_PLAYLISTS} playlists. Quita alguna primero.` }
+  }
+  const playlist = await describe(uri)
+  await changeSettings({ music: { playlists: [...music.playlists, playlist] } })
+  return { ok: true }
+}
+
+export async function removePlaylist(uri: unknown): Promise<void> {
+  const { music } = await loadSettings()
+  await changeSettings({ music: { playlists: music.playlists.filter((p) => p.uri !== uri) } })
+}
+
+// Whether to show the music icon when the person hasn't chosen: only if Spotify is here.
+export const spotifyInstalled = installed

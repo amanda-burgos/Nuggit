@@ -5,6 +5,7 @@ import { clockWidget } from './clock'
 import { dailiesWidget } from './dailies'
 import { dipWidget } from './dip'
 import { focusWidget } from './focus'
+import { musicWidget } from './music'
 import { nextActionWidget } from './next-action'
 import { notesWidget } from './notes'
 import { tasksWidget } from './tasks'
@@ -14,6 +15,7 @@ import { tendersWidget } from './tenders'
 export const widgetRegistry: AnyWidgetDefinition[] = [
   nextActionWidget,
   focusWidget,
+  musicWidget,
   clockWidget,
   tasksWidget,
   tendersWidget,

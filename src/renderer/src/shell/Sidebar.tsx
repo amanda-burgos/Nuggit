@@ -22,14 +22,14 @@ export function Sidebar({ tab, collapsed, onSelect, onToggleCollapsed }: Props):
             role="tab"
             aria-selected={t.key === tab}
             className={`sidebar-tab${t.key === tab ? ' is-active' : ''}`}
-            title={`${t.label} (⌘${t.shortcut})`}
+            title={t.shortcut ? `${t.label} (⌘${t.shortcut})` : t.label}
             onClick={() => onSelect(t.key)}
           >
             <span className="sidebar-icon" aria-hidden>
               {t.icon}
             </span>
             <span className="sidebar-label">{t.label}</span>
-            <kbd className="sidebar-label sidebar-shortcut">⌘{t.shortcut}</kbd>
+            {t.shortcut && <kbd className="sidebar-label sidebar-shortcut">⌘{t.shortcut}</kbd>}
           </button>
         ))}
       </div>

@@ -73,6 +73,7 @@ export type AppTab =
   | 'brainDump'
   | 'focus'
   | 'calendar'
+  | 'music'
   | 'settings'
 
 // For Ajustes → General and Acerca de.
@@ -126,6 +127,7 @@ export interface Settings {
   statusIndicator: StatusIndicator
   dipTray: { visible: boolean; shortcut: DipShortcut } // Dip's own menu bar icon (9.15)
   pickupTray: PickupTrayMode // the quick pickup's menu bar icon (9.16)
+  musicTray?: PickupTrayMode // the music player's menu bar icon (9.19); unset: icon if Spotify is there
   dipPersonality?: string // the user's changes to Dip's personality; unset = original Dip
   voice: VoiceSettings // SPEC 9.10
   calendar: CalendarSettings // SPEC 9.14
@@ -268,6 +270,7 @@ export interface SettingsPatch {
   statusIndicator?: StatusIndicator
   dipTray?: { visible?: boolean; shortcut?: DipShortcut }
   pickupTray?: PickupTrayMode
+  musicTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
   calendar?: Partial<CalendarSettings>
   music?: {
@@ -275,6 +278,7 @@ export interface SettingsPatch {
     focusPlaylist?: string | null // a link or URI; null or '' removes it
     onBreak?: 'pause' | 'playlist'
     breakPlaylist?: string | null
+    playlists?: SavedPlaylist[]
   }
   voice?: {
     speak?: boolean
@@ -414,6 +418,14 @@ export interface MusicSettings {
   focusPlaylist?: string // a Spotify URI, e.g. "spotify:playlist:…"
   onBreak: 'pause' | 'playlist'
   breakPlaylist?: string
+  playlists: SavedPlaylist[] // to choose from in the Música widget (SPEC 9.19)
+}
+
+// A playlist (or album…) saved by its link; its name and picture come from Spotify.
+export interface SavedPlaylist {
+  uri: string
+  name: string
+  image?: string
 }
 
 // What the Spotify app on this Mac is doing.
@@ -422,6 +434,10 @@ export interface MusicStatus {
   playing: boolean
   track: string | null
   artist: string | null
+  artwork?: string | null // the album cover (https, Spotify's servers)
+  volume?: number | null // 0–100
+  position?: number | null // seconds into the song
+  duration?: number | null // seconds
 }
 
 // --- Focus (SPEC 9.8) and Lockdown (9.9) ---
@@ -660,6 +676,11 @@ export interface NuggitApi {
     // Plays a Spotify link right away ("▶ Probar" in Ajustes). Says why if it can't.
     play(link: string): Promise<{ ok: boolean; error?: string }>
     openSpotify(): Promise<void>
+    previous(): Promise<MusicStatus>
+    setVolume(volume: number): Promise<MusicStatus>
+    // Saves a playlist by its link (its name and picture come from Spotify).
+    addPlaylist(link: string): Promise<{ ok: boolean; error?: string }>
+    removePlaylist(uri: string): Promise<void>
   }
   focus: {
     load(): Promise<FocusState>

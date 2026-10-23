@@ -1,5 +1,6 @@
 import { TasksSettings } from '../widgets/tasks/TasksSettings'
 import { DipTraySettings } from './DipTraySettings'
+import { MusicTraySettings } from './MusicTraySettings'
 import { PickupTraySettings } from './PickupTraySettings'
 import type { SectionProps } from './shared'
 
@@ -11,6 +12,7 @@ export function MenuBarSettings({ settings, update }: SectionProps): React.JSX.E
       <TasksSettings />
       <DipTraySettings settings={settings} update={update} />
       <PickupTraySettings settings={settings} update={update} />
+      <MusicTraySettings settings={settings} update={update} />
     </section>
   )
 }

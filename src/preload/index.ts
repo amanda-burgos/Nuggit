@@ -156,7 +156,11 @@ const api: NuggitApi = {
     playPause: () => ipcRenderer.invoke('music:playPause'),
     next: () => ipcRenderer.invoke('music:next'),
     play: (link) => ipcRenderer.invoke('music:play', link),
-    openSpotify: () => ipcRenderer.invoke('music:openSpotify')
+    openSpotify: () => ipcRenderer.invoke('music:openSpotify'),
+    previous: () => ipcRenderer.invoke('music:previous'),
+    setVolume: (volume) => ipcRenderer.invoke('music:setVolume', volume),
+    addPlaylist: (link) => ipcRenderer.invoke('music:addPlaylist', link),
+    removePlaylist: (uri) => ipcRenderer.invoke('music:removePlaylist', uri)
   },
   focus: {
     load: () => ipcRenderer.invoke('focus:load'),

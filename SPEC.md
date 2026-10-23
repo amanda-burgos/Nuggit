@@ -463,6 +463,10 @@ Poner música mientras corre el Pomodoro/Focus.
 - Si Spotify no está instalado o abierto, mostrar un aviso amable y seguir sin música.
 - **Paso 2 (después):** conectar la cuenta con la **Web API oficial de Spotify** (login OAuth con PKCE) **solo para leer** las playlists del usuario y elegirlas desde Nuggit sin pegar links. La reproducción se sigue haciendo por AppleScript (paso 1), así **no hace falta Spotify Premium** (la Web API solo exige Premium para controlar la reproducción).
 - Pestaña en Ajustes: "Música".
+- **Música sin Focus** (para usarla en cualquier momento):
+  - **Widget "Música"** 🎵: carátula (si se puede), canción y artista, ⏮ ⏯ ⏭, volumen y botón para elegir playlist. Funciona como cualquier widget: tablero, despegado, fijar, Pin on top / Pin on back.
+  - **Ícono propio en la barra de menú** 🎵: al hacer clic, mini reproductor flotante con los mismos controles. Opción en Ajustes → Barra de menú para mostrarlo, ocultarlo o unirlo al menú de Nuggit.
+  - Si Spotify no está abierto, botón "Abrir Spotify".
 
 ## 10. Diseño visual
 
@@ -646,6 +650,17 @@ Cómo quedó (Fase 8.7):
 - **Con Focus** (`src/main/focus.ts`): empezar → suena la playlist; pausar/seguir el reloj → la música también; descanso → pausa (o la otra playlist); terminar o cancelar → pausa. Solo pausa música que puso Nuggit (al empezar, con "Probar" o con sus ⏯ ⏭), nunca algo que ya estabas escuchando por tu cuenta.
 - **Mini controles** (🎵 canción · artista, ⏯, ⏭) en el widget de Focus y en Lockdown, solo con la música prendida. Si Spotify está cerrado: aviso amable + "Abrir Spotify"; Nuggit nunca lo abre solo y Focus sigue sin música.
 - Probado en vivo con Spotify (gratis): suena al empezar, ⏭ pasa de canción, pausa/sigue con el reloj, se pausa en el descanso y al cancelar.
+
+### Fase 8.8 — Widget de música + ícono en la barra de menú
+- Según 9.19 ("Música sin Focus"): widget Música y mini reproductor desde su propio ícono en la barra de menú.
+- **Listo cuando:** sin abrir Focus, controlo Spotify desde el widget fijado en mi escritorio y desde el ícono de la barra de menú.
+
+Cómo quedó (Fase 8.8):
+- **Widget y pestaña "Música" 🎵** (mismo componente; la pestaña no tiene atajo porque ⌘1–⌘0 ya están usados): carátula, canción y artista, barra de tiempo, ⏮ ⏯ ⏭, volumen y **🎶 Playlists**. Como cualquier widget: tablero, despegado, fijar, Pin on top / Pin on back.
+- **Elegir playlist:** se guardan pegando el link una vez; el nombre y la imagen salen del oEmbed público de Spotify (sin login). También aparecen las playlists de Focus. Un clic la pone. Máximo 20.
+- **Ícono propio en la barra de menú** (nota musical dibujada en código, como el del quick pickup) con el mismo reproductor en una ventanita flotante (`?view=music`). En Ajustes → Barra de menú: con su ícono, dentro del menú de Nuggit (que solo aparece con algo en curso) u oculto. Si nunca se eligió, el ícono sale solo si Spotify está instalado.
+- **Datos de Spotify** (`src/main/music.ts`): estado, volumen, canción, artista, carátula, posición y duración, cada uno por separado (un anuncio o nada cargado no tiene todos). Se revisa cada 2 s solo mientras el reproductor está a la vista; entre revisiones el tiempo avanza solo. La carátula viene de los servidores de Spotify (CSP: `img-src https://*.scdn.co https://*.spotifycdn.com`).
+- Si Spotify está cerrado: "Abrir Spotify". Si no hay nada cargado (pasa después de un anuncio en Spotify gratis), ⏯ no tiene qué reanudar: se elige una playlist.
 
 ### Fase 9 — Pulido visual + personalización
 - Animaciones suaves y detalles de diseño.

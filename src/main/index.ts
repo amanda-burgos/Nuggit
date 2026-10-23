@@ -12,9 +12,10 @@ import { initDesktop } from './desktop'
 import { initFocus, setLockdown } from './focus'
 import { initCalendar } from './calendar'
 import { initNextAction } from './nextAction'
+import { initMusicTray } from './musicTray'
 import { initPickupTray } from './pickupTray'
 import { registerIpc } from './ipc'
-import { changeSettings } from './settings'
+import { changeSettings, musicTrayMode } from './settings'
 import { initStatusTray } from './statusTray'
 import { initTasks } from './tasks'
 import { loadSettings } from './storage'
@@ -83,12 +84,14 @@ app.whenReady().then(async () => {
   let statusIndicator: StatusIndicator = 'dot'
   let dipTray: Settings['dipTray'] = { visible: true, shortcut: '' }
   let pickupTray: Settings['pickupTray'] = 'icon'
+  let musicTray: NonNullable<Settings['musicTray']> = 'off'
   try {
     const settings = await loadSettings()
     nativeTheme.themeSource = settings.theme
     statusIndicator = settings.statusIndicator
     dipTray = settings.dipTray
     pickupTray = settings.pickupTray
+    musicTray = musicTrayMode(settings)
     await initDesktop()
   } catch (err) {
     console.error('[startup] could not load saved data', err)
@@ -160,6 +163,7 @@ app.whenReady().then(async () => {
 
   initDipTray(dipTray)
   initPickupTray(pickupTray)
+  initMusicTray(musicTray)
 
   // Clicking the Dock icon brings the board back, even if detached widgets are open.
   app.on('activate', () => {

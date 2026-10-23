@@ -90,7 +90,8 @@ const SECTIONS: Array<{
   {
     id: 'menubar',
     tab: 'menubar',
-    keywords: 'barra de menu icono indicador en curso puntito mini chat atajo quick pickup widgets',
+    keywords:
+      'barra de menu icono indicador en curso puntito mini chat atajo quick pickup widgets musica reproductor',
     Component: MenuBarSettings
   },
   {

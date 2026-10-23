@@ -6,10 +6,11 @@ import App from './App'
 import { DetachedWidget } from './desktop/DetachedWidget'
 import { QuickPickup } from './pickup/QuickPickup'
 import { DipPopover } from './popover/DipPopover'
+import { MusicPopover } from './popover/MusicPopover'
 
 // Every window loads this same page: a detached widget with ?widget=<id>, Dip's menu bar
-// mini chat with ?view=popover, the quick pickup with ?view=pickup, and the main window
-// with nothing.
+// mini chat with ?view=popover, the quick pickup with ?view=pickup, the music mini player
+// with ?view=music, and the main window with nothing.
 const params = new URLSearchParams(window.location.search)
 const detachedId = params.get('widget')
 const view = params.get('view')
@@ -23,6 +24,8 @@ createRoot(document.getElementById('root')!).render(
       <DipPopover />
     ) : view === 'pickup' ? (
       <QuickPickup />
+    ) : view === 'music' ? (
+      <MusicPopover />
     ) : detachedId ? (
       <DetachedWidget id={detachedId} />
     ) : (

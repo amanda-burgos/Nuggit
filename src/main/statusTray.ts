@@ -3,6 +3,7 @@ import type { StatusIndicator, Task } from '../shared/types'
 import { pickNextActions, toISODate, type NextAction } from '../shared/nextAction'
 import { getNextActionState, onNextActionChange, skipAction, startAction } from './nextAction'
 import { getPickupMode, onPickupModeChange, showPickup } from './pickupTray'
+import { getMusicTrayMode, onMusicTrayModeChange, showMusicPlayer } from './musicTray'
 import { completeTask, getTasks, onTasksChange, setStatuses, updateTask } from './tasks'
 
 // While something is "En curso", Nuggit shows a small indicator in the macOS menu bar, so
@@ -101,6 +102,10 @@ function buildMenu(top: NextAction, others: Task[]): Menu {
     ...(getPickupMode() === 'menu'
       ? [{ label: '🧩 Widgets…', click: () => showPickup() } as MenuItemConstructorOptions]
       : []),
+    // The music player can live here too (SPEC 9.19).
+    ...(getMusicTrayMode() === 'menu'
+      ? [{ label: '🎵 Música…', click: () => showMusicPlayer() } as MenuItemConstructorOptions]
+      : []),
     {
       label: 'Mostrar en la barra',
       submenu: (Object.keys(MODE_LABELS) as StatusIndicator[]).map((m) => ({
@@ -161,4 +166,5 @@ export function initStatusTray(options: {
   onTasksChange(render)
   onNextActionChange(render)
   onPickupModeChange(render)
+  onMusicTrayModeChange(render)
 }
