@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
+import { backgroundVars } from '../theme/appearance'
+import { useAppearance } from '../theme/appearanceContext'
+import { BackgroundPicker } from '../theme/BackgroundPicker'
 import { AINotice } from './AINotice'
 import type { AnyWidgetDefinition } from '../widgets/types'
 
@@ -49,6 +52,9 @@ export function WidgetFrame({
 }: Props): React.JSX.Element {
   const [showSettings, setShowSettings] = useState(false)
   const aiStatus = useAIStatus()
+  const appearance = useAppearance()
+  // Its own background if it has one, otherwise the general one (Fase 9).
+  const background = instance.background ?? appearance?.widgetBackground ?? { kind: 'default' }
   // Widgets that need AI show a friendly notice instead while no AI is available.
   const missingAI = def.needsAI && aiStatus !== null && aiStatus.active === null
   const config = { ...def.defaultConfig, ...(instance.config as object) }
@@ -63,11 +69,18 @@ export function WidgetFrame({
     setShowSettings(false)
     onSetLocked(true)
   }
-  // Top of the ⚙︎ panel: options every widget can have (here, the detached-window ones).
-  const hasGeneral = Boolean(onSetShadow || onSetPinBack)
+  const setBackground = (next: typeof instance.background | null): void => {
+    window.api.desktop
+      .setBackground(instance.id, next ?? null)
+      .catch((err) => console.error('Could not change background', err))
+  }
 
   return (
-    <section className={`widget${locked ? ' is-locked' : ''}`} aria-label={def.name}>
+    <section
+      className={`widget${locked ? ' is-locked' : ''}`}
+      aria-label={def.name}
+      style={backgroundVars(background) as React.CSSProperties}
+    >
       <header className="widget-header" onPointerDown={locked ? undefined : onHeaderPointerDown}>
         {showTitle && (
           <>
@@ -91,16 +104,14 @@ export function WidgetFrame({
               <button className="icon-button" title="Fijar: que no se mueva" onClick={lock}>
                 📌
               </button>
-              {(hasGeneral || Settings) && (
-                <button
-                  className={`icon-button${showSettings ? ' is-active' : ''}`}
-                  title="Ajustes del widget"
-                  aria-pressed={showSettings}
-                  onClick={() => setShowSettings((v) => !v)}
-                >
-                  ⚙︎
-                </button>
-              )}
+              <button
+                className={`icon-button${showSettings ? ' is-active' : ''}`}
+                title="Ajustes del widget"
+                aria-pressed={showSettings}
+                onClick={() => setShowSettings((v) => !v)}
+              >
+                ⚙︎
+              </button>
               {onDetach && (
                 <button className="icon-button" title="Despegar al escritorio" onClick={onDetach}>
                   ↗
@@ -129,39 +140,45 @@ export function WidgetFrame({
         {showSettings && !locked ? (
           <div className="widget-settings">
             {/* Top: the same general options for every widget (SPEC 9.16). */}
-            {hasGeneral && (
-              <div className="widget-settings-general">
-                {onSetShadow && (
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={shadow ?? false}
-                      onChange={(e) => onSetShadow(e.target.checked)}
-                    />
-                    <span>Sombra</span>
-                  </label>
-                )}
-                {onSetPinBack && (
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={pinBack ?? false}
-                      onChange={(e) => onSetPinBack(e.target.checked)}
-                    />
-                    <span>
-                      Pin on back: siempre al fondo
-                      <small>
-                        Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe
-                        clics: para quitarlo, usa los widgets rápidos 🧩 de la barra de menú.
-                      </small>
-                    </span>
-                  </label>
-                )}
+            <div className="widget-settings-general">
+              <div className="widget-settings-field">
+                <span>Fondo</span>
+                <BackgroundPicker
+                  value={instance.background ?? null}
+                  generalLabel="Usar el general"
+                  onChange={setBackground}
+                />
               </div>
-            )}
+              {onSetShadow && (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={shadow ?? false}
+                    onChange={(e) => onSetShadow(e.target.checked)}
+                  />
+                  <span>Sombra</span>
+                </label>
+              )}
+              {onSetPinBack && (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={pinBack ?? false}
+                    onChange={(e) => onSetPinBack(e.target.checked)}
+                  />
+                  <span>
+                    Pin on back: siempre al fondo
+                    <small>
+                      Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe
+                      clics: para quitarlo, usa los widgets rápidos 🧩 de la barra de menú.
+                    </small>
+                  </span>
+                </label>
+              )}
+            </div>
             {/* Bottom: this widget's own options, if it has any. */}
             {Settings && (
-              <div className={`widget-settings-own${hasGeneral ? ' has-divider' : ''}`}>
+              <div className="widget-settings-own has-divider">
                 <Settings config={config} updateConfig={onUpdateConfig} />
               </div>
             )}

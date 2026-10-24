@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Nuggit's app icon: a golden nugget and its dip (lavender) on navy. No chicken. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#33407a"/>
+      <stop offset="1" stop-color="#141a33"/>
+    </linearGradient>
+    <radialGradient id="nugget" cx="0.38" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#ffe2a0"/>
+      <stop offset="0.55" stop-color="#f5b956"/>
+      <stop offset="1" stop-color="#d98a2b"/>
+    </radialGradient>
+    <linearGradient id="cup" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e2dafc"/>
+      <stop offset="1" stop-color="#a994ec"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0a0e22" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <!-- the nugget, leaning into its dip -->
+  <g transform="rotate(-12 480 500)">
+    <g filter="url(#soft)">
+      <path d="M250 470 C246 360 330 300 440 296 C520 268 640 290 690 360 C760 400 772 500 730 562 C722 650 640 700 548 690 C470 724 350 712 300 646 C232 610 220 520 250 470 Z" fill="url(#nugget)"/>
+    </g>
+    <!-- crispy bits -->
+    <g fill="#c97a22" opacity="0.5">
+      <circle cx="330" cy="430" r="11"/>
+      <circle cx="640" cy="380" r="9"/>
+      <circle cx="690" cy="520" r="11"/>
+      <circle cx="320" cy="600" r="8"/>
+      <circle cx="560" cy="650" r="9"/>
+      <circle cx="430" cy="352" r="7"/>
+    </g>
+    <!-- shine -->
+    <ellipse cx="410" cy="360" rx="78" ry="26" fill="#fff6de" opacity="0.6" transform="rotate(-10 410 360)"/>
+    <!-- a friendly face -->
+    <g fill="#26305c">
+      <ellipse cx="430" cy="500" rx="20" ry="26"/>
+      <ellipse cx="560" cy="490" rx="20" ry="26"/>
+    </g>
+    <circle cx="437" cy="490" r="7" fill="#ffffff"/>
+    <circle cx="567" cy="480" r="7" fill="#ffffff"/>
+    <path d="M462 566 C482 594 530 594 550 562" fill="none" stroke="#26305c" stroke-width="16" stroke-linecap="round"/>
+    <ellipse cx="385" cy="560" rx="26" ry="14" fill="#f08a6a" opacity="0.45"/>
+    <ellipse cx="612" cy="548" rx="26" ry="14" fill="#f08a6a" opacity="0.45"/>
+  </g>
+  <!-- the dip -->
+  <g filter="url(#soft)">
+    <path d="M592 676 L848 676 C848 790 782 846 720 846 C658 846 592 790 592 676 Z" fill="url(#cup)"/>
+    <ellipse cx="720" cy="676" rx="128" ry="28" fill="#8b72dd"/>
+    <ellipse cx="690" cy="670" rx="50" ry="10" fill="#c9bbf5" opacity="0.7"/>
+  </g>
+</svg>

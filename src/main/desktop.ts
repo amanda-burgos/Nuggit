@@ -1,5 +1,5 @@
 import { BrowserWindow, type WebContents } from 'electron'
-import type { DetachedWidget, SavedDesktop, WidgetInstance } from '../shared/types'
+import type { Background, DetachedWidget, SavedDesktop, WidgetInstance } from '../shared/types'
 import { isSavedDesktop, loadDesktop, saveDesktop } from './storage'
 
 // The main process holds the one true copy of the desktop, because several windows
@@ -69,6 +69,20 @@ function updateWidget(id: string, patch: Partial<WidgetInstance>): void {
 // "Fijar" (SPEC 9.16): the widget can't be moved or resized, wherever it is.
 export function setWidgetLocked(id: string, locked: boolean): void {
   updateWidget(id, { locked })
+}
+
+// Fase 9: a widget's own background (null = use the general one).
+export function setWidgetBackground(id: string, background: Background | null): void {
+  if (!state || !state.widgets.some((w) => w.id === id)) return
+  commit({
+    ...state,
+    widgets: state.widgets.map((w) => {
+      if (w.id !== id) return w
+      const next = { ...w }
+      delete next.background
+      return background ? { ...next, background } : next
+    })
+  })
 }
 
 export function setWidgetHidden(id: string, hidden: boolean): void {

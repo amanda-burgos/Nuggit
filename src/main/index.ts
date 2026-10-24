@@ -12,6 +12,7 @@ import { initDesktop } from './desktop'
 import { initFocus, setLockdown } from './focus'
 import { initCalendar } from './calendar'
 import { initNextAction } from './nextAction'
+import { cleanUpImages, registerImageScheme, serveImages } from './images'
 import { initMusicTray } from './musicTray'
 import { initPickupTray } from './pickupTray'
 import { registerIpc } from './ipc'
@@ -26,6 +27,9 @@ import icon from '../../resources/icon.png?asset'
 // SPEC 8.1: AI settings from a .env file (the project folder in development, or the data
 // folder). Real environment variables win over it.
 setEnvFile(loadDotEnv([app.getAppPath(), process.cwd(), app.getPath('userData')]))
+
+// Pictures copied into the data folder are shown through nuggit-img:// (Fase 9).
+registerImageScheme()
 
 // Optional separate data folder (handy for testing without touching your real data)
 if (process.env['NUGGIT_USER_DATA']) {
@@ -74,7 +78,10 @@ function openSettings(): void {
 }
 
 app.whenReady().then(async () => {
+  serveImages()
   electronApp.setAppUserModelId('com.nuggit.app')
+  // While developing, the Dock would show Electron's icon: show Nuggit's.
+  if (process.platform === 'darwin' && !app.isPackaged) app.dock?.setIcon(icon)
 
   // F12 toggles DevTools in dev; Cmd/Ctrl+R reload is disabled in production
   app.on('browser-window-created', (_, window) => {
@@ -93,6 +100,8 @@ app.whenReady().then(async () => {
     pickupTray = settings.pickupTray
     musicTray = musicTrayMode(settings)
     await initDesktop()
+    // Only once the desktop is loaded: it says which pictures are still in use.
+    cleanUpImages().catch((err) => console.error('[images] clean up', err))
   } catch (err) {
     console.error('[startup] could not load saved data', err)
   }

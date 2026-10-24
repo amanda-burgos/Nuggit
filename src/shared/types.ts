@@ -16,6 +16,26 @@ export interface WidgetInstance {
   config: unknown
   hidden: boolean
   locked?: boolean // "Fijar": can't be moved or resized, no edit controls (SPEC 9.16)
+  background?: Background // its own background, over the general one (Fase 9); unset = general
+}
+
+// A background (board or widgets, Fase 9). Images are copies kept in Nuggit's data folder,
+// named by file ("4f1c….jpg"), shown through the nuggit-img:// protocol.
+export type Background =
+  | { kind: 'default' }
+  | { kind: 'color'; color: string } // #rrggbb
+  | { kind: 'image'; image: string }
+
+export type WidgetCorners = 'square' | 'soft' | 'round'
+
+// Ajustes → Apariencia (Fase 9).
+export interface AppearanceSettings {
+  accent: string // a preset name ("lavender"…) or a #rrggbb color
+  board: Background // behind the widgets on Inicio
+  widgetBackground: Background // every widget, unless one has its own
+  widgetShadow: boolean
+  widgetOpacity: number // 0.6–1: how solid the widgets are
+  widgetCorners: WidgetCorners
 }
 
 // A widget popped out of the board into its own window on the computer's desktop.
@@ -133,7 +153,7 @@ export interface Settings {
   calendar: CalendarSettings // SPEC 9.14
   music: MusicSettings // SPEC 9.19
   ui: UISettings
-  background?: string
+  appearance: AppearanceSettings
 }
 
 // Dip answering out loud with the system voice (SPEC 9.10). Talking to Dip uses the
@@ -273,6 +293,7 @@ export interface SettingsPatch {
   musicTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
   calendar?: Partial<CalendarSettings>
+  appearance?: Partial<AppearanceSettings>
   music?: {
     enabled?: boolean
     focusPlaylist?: string | null // a link or URI; null or '' removes it
@@ -525,6 +546,8 @@ export interface NuggitApi {
     updateConfig(id: string, patch: Record<string, unknown>): Promise<void>
     // "Fijar" (works for board and detached widgets).
     setLocked(id: string, locked: boolean): Promise<void>
+    // Fase 9: a widget's own background; null = back to the general one.
+    setBackground(id: string, background: Background | null): Promise<void>
     // Called whenever another window (or the main process) changes the desktop.
     onChange(listener: (state: SavedDesktop) => void): () => void
   }
@@ -652,6 +675,13 @@ export interface NuggitApi {
     warmUpStt(): Promise<void>
     downloadModel(): Promise<void>
     onModelDownload(listener: (progress: ModelDownload) => void): () => void
+  }
+  images: {
+    // Lets the person choose pictures; they are copied into Nuggit's data folder and
+    // returned by name (shown as nuggit-img://image/<name>).
+    pick(multiple?: boolean): Promise<string[]>
+    // Deletes copies that nothing uses anymore.
+    forget(names: string[]): Promise<void>
   }
   calendar: {
     status(): Promise<CalendarStatus>

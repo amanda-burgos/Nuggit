@@ -5,6 +5,12 @@ Cada versión con lo nuevo, lo arreglado y lo que cambió, en palabras simples.
 ## [Sin publicar]
 
 ### Nuevo
+- **Hazla tuya 🎨:** en Ajustes → Apariencia eliges el color de acento, el fondo del tablero (un color o tu propia foto) y cómo se ven los widgets: su fondo, transparencia, esquinas y sombra. Cada widget también puede tener su propio color o foto desde su ⚙︎, y el texto siempre se lee (Fase 9).
+- **Widget de imagen 🖼️:** pon una foto o varias que vayan cambiando solas, para decorar tu escritorio (Fase 9).
+- **Nuevo ícono:** un nugget sonriente con su salsita Dip (Fase 9).
+
+### Cambió
+- Animaciones suaves al cambiar de pestaña, al aparecer los widgets y en los botones (respetando "Reducir movimiento" de la Mac).
 - **Música en cualquier momento 🎵:** widget y pestaña Música con carátula, ⏮ ⏯ ⏭, volumen y tus playlists guardadas (pegas el link una vez y sale con su nombre e imagen). Y un mini reproductor desde su propio ícono en la barra de menú (Fase 8.8).
 - **Música en Focus 🎵:** pega el link de tu playlist de Spotify en Ajustes → Música y suena sola cuando empiezas a concentrarte; se pausa en el descanso (o pone otra playlist) y al terminar. Pasa de canción o pausa desde Focus y Lockdown. Usa la app de Spotify, sin login ni Premium (Fase 8.7).
 - **Calendario 📅** (pestaña ⌘0 y widget): tus tareas con fecha, tus dailies y los eventos de tu Mac, por día. Puedes anotar una tarea en un día directo desde ahí El día de hoy se ve resaltado (Fase 8.5).

@@ -580,3 +580,42 @@
   max-height: 200px;
   overflow-y: auto;
 }
+
+/* --- Apariencia (Fase 9) --- */
+
+.accent-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.accent-choice {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+  box-shadow: 0 0 0 1px var(--color-border);
+  cursor: pointer;
+  transition: transform 120ms ease;
+}
+
+.accent-choice:hover {
+  transform: scale(1.08);
+}
+
+.accent-choice.is-active {
+  box-shadow: 0 0 0 2px var(--color-text);
+}
+
+.accent-choice.is-custom {
+  background: conic-gradient(#f87171, #fbbf24, #34d399, #60a5fa, #a78bfa, #f472b6, #f87171);
+  overflow: hidden;
+}
+
+.accent-choice.is-custom input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}

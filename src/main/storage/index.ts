@@ -1,4 +1,5 @@
 import type {
+  Background,
   DetachedWidget,
   SavedPlaylist,
   SavedDesktop,
@@ -19,6 +20,14 @@ const DEFAULT_SETTINGS: Settings = {
   voice: { speak: false, rate: 1, pitch: 1 },
   calendar: { feed: false, apple: false, showCalendars: [], writeToApple: true, autoSync: true },
   music: { enabled: false, onBreak: 'pause', playlists: [] },
+  appearance: {
+    accent: 'lavender',
+    board: { kind: 'default' },
+    widgetBackground: { kind: 'default' },
+    widgetShadow: true,
+    widgetOpacity: 1,
+    widgetCorners: 'soft'
+  },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
@@ -56,6 +65,25 @@ export function isSavedDesktop(value: unknown): value is SavedDesktop {
   if (!value.widgets.every(isWidgetInstance)) return false
   if (isObject(value.positions)) return Object.values(value.positions).every(isRect)
   return isObject(value.layouts)
+}
+
+// --- Backgrounds (Fase 9) ---
+
+export const ACCENTS = ['lavender', 'blue', 'mint', 'peach', 'rose', 'sun']
+const HEX = /^#[0-9a-f]{6}$/i
+// An image copied into the data folder: a generated name, never a path.
+export const IMAGE_NAME = /^[0-9a-f-]{36}\.(png|jpe?g|gif|webp|heic|avif)$/i
+
+export function cleanBackground(value: unknown): Background | null {
+  if (!isObject(value)) return null
+  if (value.kind === 'default') return { kind: 'default' }
+  if (value.kind === 'color' && typeof value.color === 'string' && HEX.test(value.color)) {
+    return { kind: 'color', color: value.color.toLowerCase() }
+  }
+  if (value.kind === 'image' && typeof value.image === 'string' && IMAGE_NAME.test(value.image)) {
+    return { kind: 'image', image: value.image }
+  }
+  return null
 }
 
 // --- Desktop ---
@@ -200,6 +228,10 @@ export async function loadSettings(): Promise<Settings> {
     voice: { ...DEFAULT_SETTINGS.voice, ...(isObject(data.voice) ? data.voice : {}) },
     calendar: { ...DEFAULT_SETTINGS.calendar, ...(isObject(data.calendar) ? data.calendar : {}) },
     music: { ...DEFAULT_SETTINGS.music, ...(isObject(data.music) ? data.music : {}) },
+    appearance: {
+      ...DEFAULT_SETTINGS.appearance,
+      ...(isObject(data.appearance) ? data.appearance : {})
+    },
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -247,6 +279,24 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       current.voice.whisperModel = whisperModel
     if (callLang === 'auto' || callLang === 'es' || callLang === 'en')
       current.voice.callLang = callLang
+  }
+  if (isObject(patch) && isObject(patch.appearance)) {
+    const { accent, board, widgetBackground, widgetShadow, widgetOpacity, widgetCorners } =
+      patch.appearance
+    if (typeof accent === 'string' && (ACCENTS.includes(accent) || HEX.test(accent))) {
+      current.appearance.accent = accent
+    }
+    const cleanBoard = cleanBackground(board)
+    if (cleanBoard) current.appearance.board = cleanBoard
+    const cleanWidgets = cleanBackground(widgetBackground)
+    if (cleanWidgets) current.appearance.widgetBackground = cleanWidgets
+    if (typeof widgetShadow === 'boolean') current.appearance.widgetShadow = widgetShadow
+    if (typeof widgetOpacity === 'number' && Number.isFinite(widgetOpacity)) {
+      current.appearance.widgetOpacity = Math.min(1, Math.max(0.6, widgetOpacity))
+    }
+    if (['square', 'soft', 'round'].includes(widgetCorners as string)) {
+      current.appearance.widgetCorners = widgetCorners as Settings['appearance']['widgetCorners']
+    }
   }
   if (isObject(patch) && isObject(patch.music)) {
     const { enabled, onBreak, focusPlaylist, breakPlaylist } = patch.music

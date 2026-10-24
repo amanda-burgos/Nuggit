@@ -128,6 +128,11 @@
   min-height: 0;
   position: relative;
   overflow: hidden;
+  /* Ajustes → Apariencia: a color or a picture behind the widgets (Fase 9). */
+  background-color: var(--board-bg, transparent);
+  background-image: var(--board-image, none);
+  background-size: cover;
+  background-position: center;
 }
 
 /* Widgets are kept inside this inset area. */
@@ -168,11 +173,47 @@
   height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
+  color: var(--color-text);
+  /* Background, transparency, corners and shadow come from Ajustes → Apariencia, and a
+     widget's own background from its ⚙︎ (WidgetFrame sets the --widget-* variables). */
+  background-color: color-mix(
+    in srgb,
+    var(--widget-bg, var(--color-surface)) var(--widget-opacity, 100%),
+    transparent
+  );
+  background-image: var(--widget-image, none);
+  background-size: cover;
+  background-position: center;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-widget);
+  border-radius: var(--widget-radius, var(--radius-lg));
+  box-shadow: var(--widget-shadow, var(--shadow-widget));
   overflow: hidden;
+  animation: widget-in 220ms ease-out;
+}
+
+/* Over a picture, a veil of the theme's own color keeps the text readable. */
+.widget::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--widget-scrim, transparent);
+  pointer-events: none;
+}
+
+.widget > .widget-header,
+.widget > .widget-body {
+  position: relative;
+}
+
+@keyframes widget-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .widget-header {
@@ -285,8 +326,9 @@ html.is-detached-window body {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
+  /* The widget itself draws its background, so transparency shows the desktop behind. */
+  background: transparent;
+  border-radius: var(--widget-radius, var(--radius-md));
   overflow: hidden;
 }
 
@@ -297,6 +339,7 @@ html.is-detached-window body {
   border: none;
   border-radius: 0;
   box-shadow: none;
+  animation: none;
 }
 
 /* Editing a "Pin on back" widget for a moment (quick pickup → Editar). */
@@ -362,6 +405,17 @@ html.is-detached-window body {
   display: block;
   color: var(--color-text-muted);
   font-size: 0.8rem;
+}
+
+.widget-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.widget-settings-field > span {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
 }
 
 .widget-settings-own.has-divider {

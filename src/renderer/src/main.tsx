@@ -7,6 +7,7 @@ import { DetachedWidget } from './desktop/DetachedWidget'
 import { QuickPickup } from './pickup/QuickPickup'
 import { DipPopover } from './popover/DipPopover'
 import { MusicPopover } from './popover/MusicPopover'
+import { AppearanceRoot } from './theme/AppearanceRoot'
 
 // Every window loads this same page: a detached widget with ?widget=<id>, Dip's menu bar
 // mini chat with ?view=popover, the quick pickup with ?view=pickup, the music mini player
@@ -20,16 +21,18 @@ if (detachedId) document.documentElement.classList.add('is-detached-window')
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    {view === 'popover' ? (
-      <DipPopover />
-    ) : view === 'pickup' ? (
-      <QuickPickup />
-    ) : view === 'music' ? (
-      <MusicPopover />
-    ) : detachedId ? (
-      <DetachedWidget id={detachedId} />
-    ) : (
-      <App />
-    )}
+    <AppearanceRoot>
+      {view === 'popover' ? (
+        <DipPopover />
+      ) : view === 'pickup' ? (
+        <QuickPickup />
+      ) : view === 'music' ? (
+        <MusicPopover />
+      ) : detachedId ? (
+        <DetachedWidget id={detachedId} />
+      ) : (
+        <App />
+      )}
+    </AppearanceRoot>
   </StrictMode>
 )

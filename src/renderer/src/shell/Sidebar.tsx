@@ -1,4 +1,5 @@
 import type { AppTab } from '../../../shared/types'
+import logoUrl from '../../../../resources/brand/nuggit-icon.svg'
 import { TABS } from './tabs'
 
 interface Props {
@@ -13,6 +14,7 @@ export function Sidebar({ tab, collapsed, onSelect, onToggleCollapsed }: Props):
   return (
     <nav className={`sidebar${collapsed ? ' is-collapsed' : ''}`} aria-label="Secciones">
       <div className="sidebar-brand">
+        <img className="sidebar-logo" src={logoUrl} alt="" />
         <span className="sidebar-label">Nuggit</span>
       </div>
       <div className="sidebar-tabs" role="tablist" aria-orientation="vertical">

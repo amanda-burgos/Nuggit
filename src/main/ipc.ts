@@ -23,7 +23,14 @@ import {
   synthesize
 } from './voice'
 import type { AppInfo, DetachedWindowOptions, WidgetRect } from '../shared/types'
-import { getDesktop, replaceDesktop, setWidgetLocked, updateWidgetConfig } from './desktop'
+import {
+  getDesktop,
+  replaceDesktop,
+  setWidgetBackground,
+  setWidgetLocked,
+  updateWidgetConfig
+} from './desktop'
+import { forgetImages, pickImages } from './images'
 import * as ai from './ai'
 import { splitBrainDump } from './ai/brainDump'
 import { dailyQuestions, proposeDailies } from './ai/dailies'
@@ -60,7 +67,7 @@ import {
 import { createNote, createNotes, getNotes, removeNotes, restoreNotes, updateNote } from './notes'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
-import { loadSettings } from './storage'
+import { cleanBackground, loadSettings } from './storage'
 import {
   completeTask,
   createTask,
@@ -116,6 +123,16 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('desktop:updateConfig', (_event, id: unknown, patch: unknown) => {
     if (typeof id === 'string' && isObject(patch)) updateWidgetConfig(id, patch)
   })
+  ipcMain.handle('desktop:setBackground', (_event, id: unknown, background: unknown) => {
+    if (typeof id !== 'string') return
+    if (background === null) setWidgetBackground(id, null)
+    else {
+      const clean = cleanBackground(background)
+      if (clean) setWidgetBackground(id, clean)
+    }
+  })
+  ipcMain.handle('images:pick', (event, multiple: unknown) => pickImages(event.sender, multiple))
+  ipcMain.handle('images:forget', (_event, names: unknown) => forgetImages(names))
   ipcMain.handle('desktop:setLocked', (_event, id: unknown, locked: unknown) => {
     if (typeof id === 'string' && typeof locked === 'boolean') setWidgetLocked(id, locked)
   })

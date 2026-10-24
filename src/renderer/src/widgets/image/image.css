@@ -1,0 +1,147 @@
+/* The picture fills the widget; the header only appears on hover, over the picture. */
+.widget-body:has(> .image-widget) {
+  padding: 0;
+}
+
+.widget:has(.image-widget:not(.is-empty)) .widget-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  opacity: 0;
+  background: linear-gradient(var(--color-surface), transparent);
+  transition: opacity 160ms ease;
+}
+
+.widget:has(.image-widget:not(.is-empty)):hover .widget-header,
+.widget:has(.image-widget:not(.is-empty)):focus-within .widget-header {
+  opacity: 1;
+}
+
+.image-widget {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.image-widget img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 900ms ease;
+  user-select: none;
+}
+
+.image-widget img.is-shown {
+  opacity: 1;
+}
+
+.image-widget.is-contain img {
+  object-fit: contain;
+}
+
+.image-widget.is-center img {
+  object-fit: none;
+}
+
+.image-widget.is-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+/* --- Its ⚙︎ --- */
+
+.image-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 0.85rem;
+}
+
+.image-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.image-thumb {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-muted);
+}
+
+.image-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-thumb.is-add {
+  font-size: 1.4rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.image-thumb-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(20, 26, 51, 0.7);
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.image-setting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.image-setting label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.image-setting input {
+  accent-color: var(--color-accent);
+}
+
+.image-setting select {
+  font: inherit;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 3px 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-widget img {
+    transition: none;
+  }
+}

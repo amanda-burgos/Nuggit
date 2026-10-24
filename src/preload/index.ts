@@ -21,6 +21,7 @@ const api: NuggitApi = {
     save: (state) => ipcRenderer.invoke('desktop:save', state),
     updateConfig: (id, patch) => ipcRenderer.invoke('desktop:updateConfig', id, patch),
     setLocked: (id, locked) => ipcRenderer.invoke('desktop:setLocked', id, locked),
+    setBackground: (id, background) => ipcRenderer.invoke('desktop:setBackground', id, background),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: SavedDesktop): void => listener(state)
       ipcRenderer.on('desktop:changed', handler)
@@ -132,6 +133,10 @@ const api: NuggitApi = {
       ipcRenderer.on('stt:download', handler)
       return () => ipcRenderer.removeListener('stt:download', handler)
     }
+  },
+  images: {
+    pick: (multiple) => ipcRenderer.invoke('images:pick', multiple ?? false),
+    forget: (names) => ipcRenderer.invoke('images:forget', names)
   },
   calendar: {
     status: () => ipcRenderer.invoke('calendar:status'),
