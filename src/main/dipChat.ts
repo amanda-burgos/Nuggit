@@ -12,7 +12,8 @@ import type {
 } from '../shared/types'
 import { pickNextActions, toISODate } from '../shared/nextAction'
 import { errorMessage } from './ai'
-import { chatWithActions } from './ai/actions'
+import { chatWithActions, summarizeChat } from './ai/actions'
+import { type ChatMemory, EMPTY_MEMORY, messagesToSend, nextBlock } from './ai/chatMemory'
 import { readJson, writeJson } from './storage/jsonStore'
 import { getNextActionState } from './nextAction'
 import { completeTask, createTask, getTasks, removeTask, setStatuses, updateTask } from './tasks'
@@ -20,9 +21,9 @@ import { completeTask, createTask, getTasks, removeTask, setStatuses, updateTask
 // The conversation with Dip, shared by the Dip widget, its detached window, the Dip tab and
 // the menu bar mini chat. Saved in dip-chat.json so the history survives restarts.
 // Dip can propose one action per answer; it only happens when the user saves its card.
+// The AI gets a summary of the old messages plus the recent ones (ai/chatMemory.ts).
 const MAX_SAVED = 200
 const MAX_TEXT = 4000
-const MAX_HISTORY = 30
 
 // How to undo a saved action, by message id.
 type Undo =
@@ -32,6 +33,9 @@ type Undo =
 
 let state: DipChatState = { messages: [], pending: false }
 let undos: Record<string, Undo> = {}
+let memory: ChatMemory = EMPTY_MEMORY
+// The summary being written in the background, to cancel it when the person writes.
+let summarizing: AbortController | null = null
 let loaded = false
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -53,6 +57,11 @@ export async function initDipChat(): Promise<void> {
   const messages =
     isObject(data) && Array.isArray(data.messages) ? data.messages.filter(isMessage) : []
   undos = isObject(data) && isObject(data.undos) ? (data.undos as Record<string, Undo>) : {}
+  const saved = isObject(data) && isObject(data.memory) ? data.memory : null
+  memory =
+    saved && typeof saved.summary === 'string' && typeof saved.upTo === 'string'
+      ? { summary: saved.summary, upTo: saved.upTo }
+      : EMPTY_MEMORY
   state = { messages, pending: false }
   loaded = true
 }
@@ -61,16 +70,19 @@ export function getDipChat(): DipChatState {
   return state
 }
 
-function commit(next: DipChatState, save: boolean): void {
+function save(): void {
+  if (!loaded) return
+  const messages = state.messages.slice(-MAX_SAVED)
+  const ids = new Set(messages.map((m) => m.id))
+  undos = Object.fromEntries(Object.entries(undos).filter(([id]) => ids.has(id)))
+  writeJson('dip-chat', { version: 1, messages, undos, memory }).catch((err) =>
+    console.error('[dip-chat] could not save', err)
+  )
+}
+
+function commit(next: DipChatState, persist: boolean): void {
   state = next
-  if (save && loaded) {
-    const messages = next.messages.slice(-MAX_SAVED)
-    const ids = new Set(messages.map((m) => m.id))
-    undos = Object.fromEntries(Object.entries(undos).filter(([id]) => ids.has(id)))
-    writeJson('dip-chat', { version: 1, messages, undos }).catch((err) =>
-      console.error('[dip-chat] could not save', err)
-    )
-  }
+  if (persist) save()
   for (const win of BrowserWindow.getAllWindows()) win.webContents.send('dipChat:changed', state)
 }
 
@@ -91,9 +103,9 @@ const STATE_NOTES = {
   undone: 'la persona la deshizo'
 }
 
-// What Dip sees of the history: the text, plus what happened to each proposed action.
-function history(): Array<{ role: 'user' | 'assistant'; content: string }> {
-  return state.messages.slice(-MAX_HISTORY).map((m) => ({
+// What Dip sees of some messages: the text, plus what happened to each proposed action.
+function forAI(messages: DipChatMessage[]): Array<{ role: 'user' | 'assistant'; content: string }> {
+  return messages.map((m) => ({
     role: m.role,
     content:
       m.action && m.actionState
@@ -106,7 +118,10 @@ function history(): Array<{ role: 'user' | 'assistant'; content: string }> {
 async function answer(voice = false): Promise<AIChatResult> {
   commit({ ...state, pending: true }, false)
   try {
-    const result = await chatWithActions(history(), { voice })
+    const result = await chatWithActions(forAI(messagesToSend(state.messages, memory)), {
+      voice,
+      summary: memory.summary
+    })
     const reply: DipChatMessage = {
       ...message('assistant', result.text),
       ...(result.action ? { action: result.action, actionState: 'pending' as const } : {})
@@ -116,13 +131,47 @@ async function answer(voice = false): Promise<AIChatResult> {
   } catch (err) {
     commit({ ...state, pending: false }, false)
     return { ok: false, error: errorMessage(err) }
+  } finally {
+    summarize()
   }
+}
+
+// Moves the summary forward when 6 more messages can go into it. In the background, after
+// Dip answers; if it fails the messages are just sent in full until a later try works.
+function summarize(): void {
+  if (summarizing || state.pending) return
+  const block = nextBlock(state.messages, memory)
+  if (!block) return
+  const controller = new AbortController()
+  summarizing = controller
+  const before = memory
+  summarizeChat(before.summary, forAI(block), controller.signal)
+    .then((summary) => {
+      if (summarizing !== controller || memory !== before) return
+      summarizing = null
+      memory = { summary, upTo: block[block.length - 1].id }
+      save()
+      summarize() // another block may be waiting
+    })
+    .catch((err) => {
+      if (summarizing !== controller) return // cancelled
+      summarizing = null
+      console.warn('[dip-chat] could not summarize', err)
+    })
+}
+
+// The person's message goes first: a summary in progress is cancelled (freeing a server that
+// answers one request at a time) and tried again after Dip answers.
+function stopSummarizing(): void {
+  summarizing?.abort()
+  summarizing = null
 }
 
 export async function sendToDip(input: unknown, options?: unknown): Promise<AIChatResult> {
   const text = typeof input === 'string' ? input.trim().slice(0, MAX_TEXT) : ''
   if (!text) return { ok: false, error: 'Escribe algo para Dip.' }
   if (state.pending) return { ok: false, error: 'Dip todavía está contestando.' }
+  stopSummarizing()
   commit({ ...state, messages: [...state.messages, message('user', text)] }, true)
   const voice = isObject(options) && options.voice === true
   return answer(voice)
@@ -134,12 +183,15 @@ export async function retryDip(): Promise<AIChatResult> {
   if (state.pending || last?.role !== 'user') {
     return { ok: false, error: 'No hay nada que reintentar.' }
   }
+  stopSummarizing()
   return answer()
 }
 
 export function clearDipChat(): void {
   if (state.pending) return
+  stopSummarizing()
   undos = {}
+  memory = EMPTY_MEMORY
   commit({ messages: [], pending: false }, true)
 }
 

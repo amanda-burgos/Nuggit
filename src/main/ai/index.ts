@@ -22,6 +22,7 @@ import {
   DEFAULTS,
   envGeminiKey,
   envServerKey,
+  estimateCostUsd,
   resolveAgentConfig
 } from './config'
 import { createGeminiProvider } from './gemini'
@@ -166,7 +167,8 @@ export async function askAgent<A extends AgentDefinition, K extends keyof A['tas
   agent: A,
   taskName: K,
   ctx: TaskContext<A['tasks'][K]>,
-  messages: AIMessage[]
+  messages: AIMessage[],
+  { signal }: { signal?: AbortSignal } = {}
 ): Promise<{ value: TaskOutput<A['tasks'][K]>; backend: AIBackend }> {
   const task = agent.tasks[taskName]
   const settings = await loadSettings()
@@ -183,11 +185,13 @@ export async function askAgent<A extends AgentDefinition, K extends keyof A['tas
       check: (raw) => task.check(raw, ctx),
       candidates: list,
       maxRetries: config.maxRetries,
-      log: (attempt) => logAttempt(demo ? { ...attempt, demo } : attempt)
+      log: (attempt) => logAttempt(demo ? { ...attempt, demo } : attempt),
+      price: estimateCostUsd,
+      signal
     })
     return { value: result.value, backend: result.backend }
   } catch (err) {
-    refreshStatus().catch(() => undefined)
+    if (!signal?.aborted) refreshStatus().catch(() => undefined)
     throw err
   }
 }

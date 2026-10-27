@@ -1,11 +1,12 @@
 import { z } from 'zod'
 import type { Task } from '../../../shared/types'
 import { dipBase, dipInstructions, PERSONALITY_SCHEMA, personalityInstructions } from '../dip'
+import { countWords, SUMMARY_MAX_WORDS } from '../chatMemory'
 import type { CheckResult } from '../runAgent'
 import { defineAgent, parseJson, plainText } from './types'
 
-// Dip, the plain chat: answers, writes its own new personality (Ajustes) and turns a step
-// into a 2-minute version ("Solo empieza").
+// Dip, the plain chat: answers, writes its own new personality (Ajustes), turns a step
+// into a 2-minute version ("Solo empieza") and keeps the summary of a long chat.
 
 const Personality = z.object({
   reply: z.string().trim().min(1, '"reply" está vacío'),
@@ -26,6 +27,19 @@ function checkTinyStep(raw: string): CheckResult<string> {
     return { ok: false, error: 'tiene que ser UNA sola frase, sin listas ni varias líneas.' }
   }
   return { ok: true, value: answer }
+}
+
+function checkSummary(raw: string): CheckResult<string> {
+  const summary = raw.trim()
+  if (!summary) return { ok: false, error: 'el resumen está vacío.' }
+  const words = countWords(summary)
+  if (words > SUMMARY_MAX_WORDS) {
+    return {
+      ok: false,
+      error: `tiene ${words} palabras y el máximo es ${SUMMARY_MAX_WORDS}. Acórtalo.`
+    }
+  }
+  return { ok: true, value: summary }
 }
 
 export const dip = defineAgent({
@@ -51,6 +65,14 @@ export const dip = defineAgent({
 Responde con UNA sola frase corta (máximo 25 palabras), sin listas ni comillas, empezando con un verbo.`
         ]),
       check: checkTinyStep
+    },
+    summary: {
+      system: () =>
+        `Resumes una conversación entre una persona y Dip (su compañero para organizar tareas) para que Dip la recuerde después.
+Recibes el resumen anterior (si hay) y los mensajes nuevos. Escribe UN solo resumen que junte los dos, de máximo ${SUMMARY_MAX_WORDS} palabras, en tercera persona ("La persona…"), sin títulos ni saludos.
+Conserva lo importante: su nombre y lo que contó de sí misma, tareas, fechas y plazos que mencionó, lo que decidió, las acciones que guardó, canceló o deshizo, y cómo se siente. Quita la charla que ya no importa.
+Responde solo con el resumen.`,
+      check: checkSummary
     }
   }
 })

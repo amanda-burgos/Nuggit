@@ -43,6 +43,11 @@ const DefaultsSchema = z.object({
   models: z.object({ gemini: z.string(), ollama: z.string(), openaiCompatible: z.string() }),
   ollamaUrl: z.url(),
   maxRetries: z.number().int().min(0).max(5),
+  // Dollars per million tokens, by Gemini model, for the cost in logs/agents.log.
+  geminiPricesPerMillionTokens: z.record(
+    z.string(),
+    z.union([z.string(), z.object({ input: z.number().min(0), output: z.number().min(0) })])
+  ),
   agents: z.record(z.string(), agentDefaults),
   stt: z.object({
     provider: z.union([z.literal('auto'), sttName]),
@@ -145,6 +150,19 @@ export function resolveAgentConfig(
     })
   ) as Record<AIBackend, Sourced<string>>
   return { provider, order, models, maxRetries: defaults.maxRetries }
+}
+
+// Estimated dollars of one call, for logs/agents.log. Ollama and the user's own server are
+// free; Gemini uses the price table, and is null for a model not in it or without tokens.
+export function estimateCostUsd(
+  backend: AIBackend,
+  usage: { model: string; tokensIn: number | null; tokensOut: number | null },
+  defaults: AIDefaults = DEFAULTS
+): number | null {
+  if (backend !== 'gemini') return 0
+  const price = defaults.geminiPricesPerMillionTokens[usage.model]
+  if (typeof price !== 'object' || usage.tokensIn === null || usage.tokensOut === null) return null
+  return (usage.tokensIn * price.input + usage.tokensOut * price.output) / 1_000_000
 }
 
 export function ollamaUrl(env: Env = process.env, defaults: AIDefaults = DEFAULTS): string {

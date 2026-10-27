@@ -18,6 +18,7 @@ export interface ActionsContext {
   nextAction: string // what the Next Action widget suggests ('' if nothing / not shared)
   userText: string // the user's last message
   voice?: boolean // said in a call: answer short and spoken
+  summary?: string // the older part of the chat, summarized (SPEC 9.4)
 }
 
 export interface ActionsReply {
@@ -129,6 +130,9 @@ export const actions = defineAgent({
       system: (ctx: ActionsContext) =>
         dipInstructions(ctx.shareTasks ? ctx.tasks : null, ctx.personality, [
           ctx.nextAction,
+          ctx.summary
+            ? `Lo que ya hablaron antes en este chat (resumen; los mensajes siguientes van completos): ${ctx.summary}`
+            : '',
           actionInstructions(),
           ctx.voice ? CALL_STYLE : ''
         ]),

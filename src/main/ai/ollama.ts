@@ -1,6 +1,6 @@
 import type { AIMessage, AIModelOption } from '../../shared/types'
 import { ollamaUrl } from './config'
-import { AIError, type AIProvider, type ChatOptions } from './provider'
+import { AIError, type AIProvider, type ChatOptions, withSignal } from './provider'
 
 // Ollama runs models on this computer: no account, no key, nothing leaves the Mac.
 // It listens on ollamaUrl() (config/ai.defaults.json or NUGGIT_OLLAMA_URL) once it is open.
@@ -29,12 +29,17 @@ function friendlyError(err: unknown): AIError {
   return new AIError('Algo salió mal al hablar con Ollama. Intenta otra vez.')
 }
 
-async function request<T>(path: string, timeoutMs: number, body?: unknown): Promise<T> {
+async function request<T>(
+  path: string,
+  timeoutMs: number,
+  body?: unknown,
+  signal?: AbortSignal
+): Promise<T> {
   const response = await fetch(`${ollamaUrl()}${path}`, {
     method: body ? 'POST' : 'GET',
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
     body: body ? JSON.stringify(body) : undefined,
-    signal: AbortSignal.timeout(timeoutMs)
+    signal: withSignal(timeoutMs, signal)
   })
   if (!response.ok) {
     const detail = await response.text().catch(() => '')
@@ -80,7 +85,11 @@ export function createOllamaProvider(getModel: () => Promise<string | undefined>
     async chat(messages: AIMessage[], opts?: ChatOptions): Promise<string> {
       const model = await resolveModel()
       try {
-        const data = await request<{ message?: { content?: string } }>(
+        const data = await request<{
+          message?: { content?: string }
+          prompt_eval_count?: number
+          eval_count?: number
+        }>(
           '/api/chat',
           CHAT_TIMEOUT_MS,
           {
@@ -88,8 +97,14 @@ export function createOllamaProvider(getModel: () => Promise<string | undefined>
             messages,
             stream: false,
             ...(opts?.schema ? { format: opts.schema } : opts?.json ? { format: 'json' } : {})
-          }
+          },
+          opts?.signal
         )
+        opts?.onUsage?.({
+          model,
+          tokensIn: data.prompt_eval_count ?? null,
+          tokensOut: data.eval_count ?? null
+        })
         const text = data.message?.content?.trim()
         if (!text) throw new AIError('Ollama no contestó nada. Intenta decirlo de otra forma.')
         return text

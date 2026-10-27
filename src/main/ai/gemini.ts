@@ -68,8 +68,18 @@ export function createGeminiProvider(
           config: {
             ...(system.length ? { systemInstruction: system.join('\n\n') } : {}),
             ...(opts?.json || opts?.schema ? { responseMimeType: 'application/json' } : {}),
-            ...(opts?.schema ? { responseJsonSchema: opts.schema } : {})
+            ...(opts?.schema ? { responseJsonSchema: opts.schema } : {}),
+            ...(opts?.signal ? { abortSignal: opts.signal } : {})
           }
+        })
+        const usage = response.usageMetadata
+        opts?.onUsage?.({
+          model,
+          tokensIn: usage?.promptTokenCount ?? null,
+          tokensOut:
+            usage?.candidatesTokenCount === undefined && usage?.thoughtsTokenCount === undefined
+              ? null
+              : (usage.candidatesTokenCount ?? 0) + (usage.thoughtsTokenCount ?? 0)
         })
         const text = response.text?.trim()
         if (!text) throw new AIError('Gemini no contestó nada. Intenta decirlo de otra forma.')

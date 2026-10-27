@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { AIBackend, AIMessage, Task } from '../../../shared/types'
 import { actions, type ActionsReply } from '../agents/actions'
 import { tenderizer, type TenderPlan } from '../agents/tenderizer'
-import { AIError, type AIProvider } from '../provider'
+import { AIError, type AIProvider, CANCELLED } from '../provider'
 import {
   type AgentAttempt,
   type Candidate,
@@ -131,6 +131,59 @@ describe('runAgent', () => {
     const provider = fakeProvider(['a', 'b', 'c'])
     await expect(runTenderizer([candidate(provider)])).rejects.toThrow(TANGLED)
     await expect(runTenderizer([])).rejects.toThrow(/ninguna IA/)
+  })
+
+  it('logs tokens, time and cost of every try', async () => {
+    const provider: AIProvider = {
+      ...fakeProvider([]),
+      async chat(_messages, opts) {
+        opts?.onUsage?.({ model: 'fake-model', tokensIn: 1000, tokensOut: 200 })
+        return VALID_PLAN
+      }
+    }
+    const log: AgentAttempt[] = []
+    await runAgent({
+      agent: 'tenderizer',
+      task: 'plan',
+      messages: [{ role: 'user', content: 'hola' }],
+      check: (raw) => tenderizer.tasks.plan.check(raw),
+      candidates: [candidate(provider, 'gemini')],
+      maxRetries: 0,
+      log: (a) => log.push(a),
+      price: (_backend, usage) => (usage.tokensIn! + usage.tokensOut!) / 1_000_000
+    })
+    expect(log[0]).toMatchObject({ tokensIn: 1000, tokensOut: 200, costUsd: 0.0012 })
+    expect(log[0].ms).toBeGreaterThanOrEqual(0)
+  })
+
+  it('logs null tokens when the provider doesn’t say them', async () => {
+    const log: AgentAttempt[] = []
+    await runTenderizer([candidate(fakeProvider([VALID_PLAN]))], (a) => log.push(a))
+    expect(log[0]).toMatchObject({ tokensIn: null, tokensOut: null, costUsd: null })
+  })
+
+  it('stops at once when cancelled, without trying other providers', async () => {
+    const controller = new AbortController()
+    const slow: AIProvider = {
+      ...fakeProvider([]),
+      chat: (_messages, opts) =>
+        new Promise((_resolve, reject) =>
+          opts?.signal?.addEventListener('abort', () => reject(new Error('aborted')))
+        )
+    }
+    const backup = fakeProvider([VALID_PLAN])
+    const run = runAgent({
+      agent: 'tenderizer',
+      task: 'plan',
+      messages: [{ role: 'user', content: 'hola' }],
+      check: (raw) => tenderizer.tasks.plan.check(raw),
+      candidates: [candidate(slow, 'custom'), candidate(backup)],
+      maxRetries: 2,
+      signal: controller.signal
+    })
+    controller.abort()
+    await expect(run).rejects.toThrow(CANCELLED)
+    expect(backup.calls).toHaveLength(0)
   })
 
   it('keeps the user’s words out of the log', async () => {

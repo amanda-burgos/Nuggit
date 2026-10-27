@@ -1,5 +1,5 @@
 import type { AIBackend, AIMessage } from '../../shared/types'
-import { AIError, type AIProvider } from './provider'
+import { AIError, type AIProvider, CANCELLED, type ChatUsage } from './provider'
 
 // SPEC 8.1, self-correction: one loop for every agent. It calls the model, checks the
 // answer, and when the check fails it sends the agent its own answer plus the exact error
@@ -25,6 +25,10 @@ export interface AgentAttempt {
   error?: string // without the user's data
   corrected?: boolean // true when an answer passed after one or more fixes
   demo?: boolean // the answer was broken on purpose (NUGGIT_DEMO_BREAK_FIRST_ANSWER)
+  tokensIn: number | null // null when the provider doesn't say
+  tokensOut: number | null
+  ms: number // how long the call to the model took
+  costUsd: number | null // estimated; null when the price is unknown
 }
 
 export interface RunAgentOptions<T> {
@@ -36,6 +40,10 @@ export interface RunAgentOptions<T> {
   candidates: Candidate[]
   maxRetries: number
   log?(attempt: AgentAttempt): void
+  // Estimated dollars of one call; without it, every call costs null.
+  price?(backend: AIBackend, usage: ChatUsage): number | null
+  // Stops everything (no more fixes, no other provider) and throws CANCELLED.
+  signal?: AbortSignal
 }
 
 export interface RunAgentResult<T> {
@@ -71,21 +79,59 @@ export async function runAgent<T>(opts: RunAgentOptions<T>): Promise<RunAgentRes
   for (const { backend, model, provider } of opts.candidates) {
     let messages = opts.messages
     for (let attempt = 1; attempt <= opts.maxRetries + 1; attempt++) {
+      if (opts.signal?.aborted) throw new AIError(CANCELLED)
       let raw: string
+      let usage: ChatUsage = { model, tokensIn: null, tokensOut: null }
+      const started = Date.now()
+      let ms = 0
+      const metrics = (): Pick<AgentAttempt, 'tokensIn' | 'tokensOut' | 'ms' | 'costUsd'> => ({
+        tokensIn: usage.tokensIn,
+        tokensOut: usage.tokensOut,
+        ms,
+        costUsd: opts.price?.(backend, usage) ?? null
+      })
       try {
-        raw = await provider.chat(messages, opts.schema ? { schema: opts.schema } : undefined)
+        raw = await provider.chat(messages, {
+          ...(opts.schema ? { schema: opts.schema } : {}),
+          ...(opts.signal ? { signal: opts.signal } : {}),
+          onUsage: (u) => (usage = u)
+        })
+        ms = Date.now() - started
       } catch (err) {
+        ms = Date.now() - started
         // The provider itself failed (down, no key...): fixing the answer won't help.
-        log({ provider: backend, model, attempt, result: 'error', error: redact(describe(err)) })
+        log({
+          provider: backend,
+          model,
+          attempt,
+          result: 'error',
+          error: redact(describe(err)),
+          ...metrics()
+        })
+        if (opts.signal?.aborted) throw new AIError(CANCELLED)
         errors.push(err)
         break
       }
       const checked = opts.check(raw)
       if (checked.ok) {
-        log({ provider: backend, model, attempt, result: 'ok', corrected: attempt > 1 })
+        log({
+          provider: backend,
+          model,
+          attempt,
+          result: 'ok',
+          corrected: attempt > 1,
+          ...metrics()
+        })
         return { value: checked.value, backend, model, attempts: attempt }
       }
-      log({ provider: backend, model, attempt, result: 'invalid', error: redact(checked.error) })
+      log({
+        provider: backend,
+        model,
+        attempt,
+        result: 'invalid',
+        error: redact(checked.error),
+        ...metrics()
+      })
       if (attempt > opts.maxRetries) {
         errors.push(new AIError(TANGLED))
         break

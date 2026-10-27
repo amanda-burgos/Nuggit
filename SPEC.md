@@ -324,6 +324,11 @@ La respuesta de la IA debe ser JSON validado (pasos: título + minutos). Si la I
 Panel de chat pequeño. Puede responder preguntas generales y de estudio, y usar el contexto de las tareas (con permiso).
 Entiende frases como **"ya terminé X"**: propone marcarla como hecha y sugiere el siguiente tender.
 
+Memoria del chat (audit de costos, hallazgo 5):
+- Dip ya no recibe los últimos 30 mensajes enteros: recibe un **resumen** (máx. 100 palabras) de lo viejo y los mensajes recientes completos (entre 6 y 11). El historial en pantalla no cambia.
+- El resumen avanza de 6 en 6 en segundo plano después de que Dip contesta, y se guarda en `dip-chat.json` (`memory`). Si la persona escribe mientras se resume, se cancela y se reintenta después, así su mensaje nunca espera. Si resumir falla, los mensajes van completos (tope 30). "Borrar chat" borra también el resumen.
+- Lógica en `src/main/ai/chatMemory.ts` (sin Electron, con tests).
+
 ### 9.5 Next Action ("¿Qué hago ahora?")
 Muestra **una** acción (máximo 3) con su tiempo estimado y un botón **[Empezar]**.
 Funciona **sin IA**, con reglas simples:
@@ -575,6 +580,8 @@ Cómo quedó (Fase 5.7):
 - `config/ai.defaults.json` (validado con zod al arrancar) · `.env.example` documentado. `.env` se busca en la carpeta del proyecto, la carpeta actual o la de datos; las variables reales mandan sobre `.env`. En auto, `NUGGIT_AI_MODEL` es para el primero del orden. Extras: `NUGGIT_GEMINI_MODEL`, `NUGGIT_OLLAMA_MODEL`.
 - `runAgent` (sin Electron, con tests): un error del proveedor (caído, sin key) pasa directo al siguiente; una respuesta inválida se le devuelve al agente con el error exacto, máx. 2 reintentos. En `actions`, "no existe la tarea X" vuelve al agente, que corrige o pregunta (la ejecución real sigue siendo después de que la persona confirma).
 - Log: `logs/agents.log` en la carpeta de datos, una línea JSON por intento; el texto entre comillas se borra. Rota a `.old` pasando 1 MB.
+- Cada intento lleva además `tokensIn`, `tokensOut` (incluye thinking), `ms` y `costUsd` estimado (audit de costos, hallazgo 2). Ollama y el servidor propio cuestan 0; Gemini usa `geminiPricesPerMillionTokens` de `config/ai.defaults.json` (se actualiza a mano); `null` si el modelo no está en la tabla o el proveedor no da tokens.
+- Las llamadas se pueden cancelar (`signal`): se corta al instante, sin reintentos ni otros proveedores.
 - Ajustes → IA de Dip → "🧠 Agentes": IA y modelo de cada agente y de dónde viene (.env / Ajustes / por defecto), qué `.env` se cargó y dónde está el log.
 - Demo para clase: `NUGGIT_DEMO_BREAK_FIRST_ANSWER=tenderizer` corta a la mitad la primera respuesta de ese agente; en el log sale `"demo": true`. Con la IA de verdad, el schema casi nunca falla, así que esto sirve para mostrarlo a voluntad.
 - Tests: `npm test` (vitest, proveedor falso).

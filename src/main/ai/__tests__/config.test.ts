@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Settings } from '../../../shared/types'
-import { customServer, DEFAULTS, ollamaUrl, resolveAgentConfig } from '../config'
+import { customServer, DEFAULTS, estimateCostUsd, ollamaUrl, resolveAgentConfig } from '../config'
 
 const settings = (ai: Partial<Settings['ai']> = {}): Settings =>
   ({ ai: { provider: 'auto', shareTasksWithAI: false, ...ai } }) as Settings
@@ -70,5 +70,27 @@ describe('environment-only settings', () => {
       model: 'm',
       servers: ['http://b/v1', 'http://c/v1']
     })
+  })
+})
+
+describe('estimateCostUsd', () => {
+  const usage = { model: 'gemini-flash-latest', tokensIn: 1_000_000, tokensOut: 1_000_000 }
+
+  it('is free on Ollama and the own server', () => {
+    expect(estimateCostUsd('ollama', usage)).toBe(0)
+    expect(estimateCostUsd('custom', usage)).toBe(0)
+  })
+
+  it('uses the Gemini price table of the defaults file', () => {
+    const { input, output } = DEFAULTS.geminiPricesPerMillionTokens['gemini-flash-latest'] as {
+      input: number
+      output: number
+    }
+    expect(estimateCostUsd('gemini', usage)).toBeCloseTo(input + output)
+  })
+
+  it('is null for an unknown model or missing tokens', () => {
+    expect(estimateCostUsd('gemini', { ...usage, model: 'gemini-otro' })).toBeNull()
+    expect(estimateCostUsd('gemini', { ...usage, tokensOut: null })).toBeNull()
   })
 })

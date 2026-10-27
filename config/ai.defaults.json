@@ -8,6 +8,10 @@
   },
   "ollamaUrl": "http://127.0.0.1:11434",
   "maxRetries": 2,
+  "geminiPricesPerMillionTokens": {
+    "_note": "USD per 1M tokens (Gemini API Standard, valid to 2026-12-31; Flash doubles on 2027-01-01). Thinking counts as output. A model not listed costs null in logs/agents.log.",
+    "gemini-flash-latest": { "input": 0.75, "output": 3.75 }
+  },
   "stt": {
     "provider": "auto",
     "order": ["whisper", "openaiCompatible", "gemini"],

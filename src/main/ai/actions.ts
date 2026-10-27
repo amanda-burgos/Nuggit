@@ -3,7 +3,7 @@ import { pickNextActions } from '../../shared/nextAction'
 import { getNextActionState } from '../nextAction'
 import { loadSettings } from '../storage'
 import { getTasks } from '../tasks'
-import { actions } from './agents'
+import { actions, dip } from './agents'
 import { isoDate } from './agents/types'
 import { askAgent } from './index'
 
@@ -23,7 +23,7 @@ function nextActionContext(tasks: Task[]): string {
 
 export async function chatWithActions(
   messages: AIMessage[],
-  { voice = false }: { voice?: boolean } = {}
+  { voice = false, summary = '' }: { voice?: boolean; summary?: string } = {}
 ): Promise<{ text: string; action?: DipAction; backend: AIBackend }> {
   const settings = await loadSettings()
   const tasks = getTasks()
@@ -37,9 +37,33 @@ export async function chatWithActions(
       personality: settings.dipPersonality,
       nextAction: shareTasks ? nextActionContext(tasks) : '',
       userText: messages[messages.length - 1]?.content ?? '',
-      voice
+      voice,
+      summary
     },
     messages
   )
   return { ...value, backend }
+}
+
+// Folds a block of messages into the chat's summary (chatMemory.ts). The signal cancels it
+// when the person writes again, so their message never waits behind it.
+export async function summarizeChat(
+  previous: string,
+  block: AIMessage[],
+  signal: AbortSignal
+): Promise<string> {
+  const lines = block.map((m) => `${m.role === 'user' ? 'Persona' : 'Dip'}: ${m.content}`)
+  const { value } = await askAgent(
+    dip,
+    'summary',
+    {},
+    [
+      {
+        role: 'user',
+        content: `Resumen anterior: ${previous || '(ninguno)'}\n\nMensajes nuevos:\n${lines.join('\n')}`
+      }
+    ],
+    { signal }
+  )
+  return value
 }

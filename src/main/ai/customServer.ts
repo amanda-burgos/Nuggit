@@ -1,5 +1,5 @@
 import type { AIMessage, AIModelOption, CustomServerSettings } from '../../shared/types'
-import { AIError, type AIProvider, type ChatOptions } from './provider'
+import { AIError, type AIProvider, CANCELLED, type ChatOptions, withSignal } from './provider'
 
 // The user's own server that speaks the OpenAI API (/v1/chat/completions), with backups.
 // Its addresses come from Ajustes (settings.json): none are written here. These servers
@@ -85,13 +85,14 @@ async function post(
   url: string,
   body: unknown,
   key: string | null,
-  timeoutMs: number
+  timeoutMs: number,
+  signal?: AbortSignal
 ): Promise<Response> {
   return fetch(url, {
     method: 'POST',
     headers: headers(key),
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(timeoutMs)
+    signal: withSignal(timeoutMs, signal)
   })
 }
 
@@ -115,10 +116,17 @@ async function chatOnce(
       `${baseUrl}/chat/completions`,
       format ? { ...body, response_format: format } : body,
       config.key,
-      timeoutMs
+      timeoutMs,
+      opts?.signal
     )
     if (response.status === 400 && format) {
-      response = await post(`${baseUrl}/chat/completions`, body, config.key, timeoutMs)
+      response = await post(
+        `${baseUrl}/chat/completions`,
+        body,
+        config.key,
+        timeoutMs,
+        opts?.signal
+      )
     }
     if (!response.ok) {
       console.warn(
@@ -127,7 +135,15 @@ async function chatOnce(
       )
       return failureFor(response.status, config.model)
     }
-    const text = answerText(await response.json())
+    const data = await response.json()
+    const usage = (data as { usage?: { prompt_tokens?: unknown; completion_tokens?: unknown } })
+      ?.usage
+    opts?.onUsage?.({
+      model: config.model,
+      tokensIn: typeof usage?.prompt_tokens === 'number' ? usage.prompt_tokens : null,
+      tokensOut: typeof usage?.completion_tokens === 'number' ? usage.completion_tokens : null
+    })
+    const text = answerText(data)
     if (!text) {
       return {
         kind: 'request',
@@ -186,6 +202,8 @@ export function createCustomServerProvider(
       const c = await config()
       let failure: Failure | null = null
       for (const [i, baseUrl] of c.servers.entries()) {
+        // Cancelled: don't go on to the backups either.
+        if (opts?.signal?.aborted) throw new AIError(CANCELLED)
         const last = i === c.servers.length - 1
         const result = await chatOnce(
           baseUrl,
@@ -195,6 +213,7 @@ export function createCustomServerProvider(
           last ? LAST_CHAT_TIMEOUT_MS : CHAT_TIMEOUT_MS
         )
         if (typeof result === 'string') return result
+        if (opts?.signal?.aborted) throw new AIError(CANCELLED)
         // Keep the most telling reason: a real answer from a server beats "unreachable".
         if (!failure || failure.kind === 'unreachable') failure = result
       }
