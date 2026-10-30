@@ -17,6 +17,7 @@ export interface WidgetInstance {
   hidden: boolean
   locked?: boolean // "Fijar": can't be moved or resized, no edit controls (SPEC 9.16)
   background?: Background // its own background, over the general one (Fase 9); unset = general
+  radius?: number // its own corner roundness in px, over the general one; unset = general
 }
 
 // A background (board or widgets, Fase 9). Images are copies kept in Nuggit's data folder,
@@ -26,16 +27,21 @@ export type Background =
   | { kind: 'color'; color: string } // #rrggbb
   | { kind: 'image'; image: string }
 
-export type WidgetCorners = 'square' | 'soft' | 'round'
+// How round widget corners can be, in px (Ajustes → Apariencia and each widget's ⚙︎).
+export const WIDGET_RADIUS_MIN = 0
+export const WIDGET_RADIUS_MAX = 32
 
 // Ajustes → Apariencia (Fase 9).
 export interface AppearanceSettings {
   accent: string // a preset name ("lavender"…) or a #rrggbb color
   board: Background // behind the widgets on Inicio
+  boardOpacity: number // 0.1–1: how strongly the board background shows
+  boardEverywhere: boolean // the board background also behind the other tabs
+  themeColor?: string // #rrggbb: Tema "Mi color", the app's own base color; unset = light/dark
   widgetBackground: Background // every widget, unless one has its own
   widgetShadow: boolean
   widgetOpacity: number // 0.6–1: how solid the widgets are
-  widgetCorners: WidgetCorners
+  widgetRadius: number // px, WIDGET_RADIUS_MIN–MAX: how round the widget corners are
 }
 
 // A widget popped out of the board into its own window on the computer's desktop.
@@ -293,7 +299,8 @@ export interface SettingsPatch {
   musicTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
   calendar?: Partial<CalendarSettings>
-  appearance?: Partial<AppearanceSettings>
+  // themeColor: null = back to light/dark
+  appearance?: Partial<Omit<AppearanceSettings, 'themeColor'>> & { themeColor?: string | null }
   music?: {
     enabled?: boolean
     focusPlaylist?: string | null // a link or URI; null or '' removes it
@@ -548,6 +555,8 @@ export interface NuggitApi {
     setLocked(id: string, locked: boolean): Promise<void>
     // Fase 9: a widget's own background; null = back to the general one.
     setBackground(id: string, background: Background | null): Promise<void>
+    // A widget's own corner roundness in px; null = back to the general one.
+    setRadius(id: string, radius: number | null): Promise<void>
     // Called whenever another window (or the main process) changes the desktop.
     onChange(listener: (state: SavedDesktop) => void): () => void
   }

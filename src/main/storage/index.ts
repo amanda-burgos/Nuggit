@@ -8,6 +8,7 @@ import type {
   WidgetInstance,
   WidgetRect
 } from '../../shared/types'
+import { WIDGET_RADIUS_MAX, WIDGET_RADIUS_MIN } from '../../shared/types'
 import { spotifyUri } from '../../shared/music'
 import { readJson, writeJson } from './jsonStore'
 
@@ -23,16 +24,38 @@ const DEFAULT_SETTINGS: Settings = {
   appearance: {
     accent: 'lavender',
     board: { kind: 'default' },
+    boardOpacity: 1,
+    boardEverywhere: false,
     widgetBackground: { kind: 'default' },
     widgetShadow: true,
     widgetOpacity: 1,
-    widgetCorners: 'soft'
+    widgetRadius: 18
   },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
+}
+
+// The three old corner choices, kept so settings saved before the slider look the same.
+const OLD_CORNERS: Record<string, number> = { square: 6, soft: 18, round: 28 }
+
+export function clampRadius(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  return Math.min(WIDGET_RADIUS_MAX, Math.max(WIDGET_RADIUS_MIN, Math.round(value)))
+}
+
+function loadAppearance(saved: unknown): Settings['appearance'] {
+  if (!isObject(saved)) return { ...DEFAULT_SETTINGS.appearance }
+  const { widgetCorners, ...rest } = saved
+  const appearance = { ...DEFAULT_SETTINGS.appearance, ...rest } as Settings['appearance']
+  const radius = clampRadius(saved.widgetRadius) ?? OLD_CORNERS[widgetCorners as string] ?? null
+  if (radius !== null) appearance.widgetRadius = radius
+  if (typeof appearance.themeColor !== 'string' || !HEX.test(appearance.themeColor)) {
+    delete appearance.themeColor
+  }
+  return appearance
 }
 
 function isRect(value: unknown): value is WidgetRect {
@@ -228,10 +251,7 @@ export async function loadSettings(): Promise<Settings> {
     voice: { ...DEFAULT_SETTINGS.voice, ...(isObject(data.voice) ? data.voice : {}) },
     calendar: { ...DEFAULT_SETTINGS.calendar, ...(isObject(data.calendar) ? data.calendar : {}) },
     music: { ...DEFAULT_SETTINGS.music, ...(isObject(data.music) ? data.music : {}) },
-    appearance: {
-      ...DEFAULT_SETTINGS.appearance,
-      ...(isObject(data.appearance) ? data.appearance : {})
-    },
+    appearance: loadAppearance(data.appearance),
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -281,22 +301,37 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       current.voice.callLang = callLang
   }
   if (isObject(patch) && isObject(patch.appearance)) {
-    const { accent, board, widgetBackground, widgetShadow, widgetOpacity, widgetCorners } =
-      patch.appearance
+    const {
+      accent,
+      board,
+      boardOpacity,
+      boardEverywhere,
+      themeColor,
+      widgetBackground,
+      widgetShadow,
+      widgetOpacity,
+      widgetRadius
+    } = patch.appearance
     if (typeof accent === 'string' && (ACCENTS.includes(accent) || HEX.test(accent))) {
       current.appearance.accent = accent
     }
     const cleanBoard = cleanBackground(board)
     if (cleanBoard) current.appearance.board = cleanBoard
+    if (typeof boardOpacity === 'number' && Number.isFinite(boardOpacity)) {
+      current.appearance.boardOpacity = Math.min(1, Math.max(0.1, boardOpacity))
+    }
+    if (typeof boardEverywhere === 'boolean') current.appearance.boardEverywhere = boardEverywhere
+    if (typeof themeColor === 'string' && HEX.test(themeColor)) {
+      current.appearance.themeColor = themeColor.toLowerCase()
+    } else if (themeColor === null) delete current.appearance.themeColor
     const cleanWidgets = cleanBackground(widgetBackground)
     if (cleanWidgets) current.appearance.widgetBackground = cleanWidgets
     if (typeof widgetShadow === 'boolean') current.appearance.widgetShadow = widgetShadow
     if (typeof widgetOpacity === 'number' && Number.isFinite(widgetOpacity)) {
       current.appearance.widgetOpacity = Math.min(1, Math.max(0.6, widgetOpacity))
     }
-    if (['square', 'soft', 'round'].includes(widgetCorners as string)) {
-      current.appearance.widgetCorners = widgetCorners as Settings['appearance']['widgetCorners']
-    }
+    const radius = clampRadius(widgetRadius)
+    if (radius !== null) current.appearance.widgetRadius = radius
   }
   if (isObject(patch) && isObject(patch.music)) {
     const { enabled, onBreak, focusPlaylist, breakPlaylist } = patch.music

@@ -128,11 +128,7 @@
   min-height: 0;
   position: relative;
   overflow: hidden;
-  /* Ajustes → Apariencia: a color or a picture behind the widgets (Fase 9). */
-  background-color: var(--board-bg, transparent);
-  background-image: var(--board-image, none);
-  background-size: cover;
-  background-position: center;
+  /* Its background (Ajustes → Apariencia) is drawn behind the whole panel: .app-main.has-backdrop. */
 }
 
 /* Widgets are kept inside this inset area. */
@@ -416,6 +412,18 @@ html.is-detached-window body {
 .widget-settings-field > span {
   font-size: 0.8rem;
   color: var(--color-text-muted);
+}
+
+.widget-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.widget-settings-row input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
 }
 
 .widget-settings-own.has-divider {

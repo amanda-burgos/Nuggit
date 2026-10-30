@@ -22,6 +22,7 @@ const api: NuggitApi = {
     updateConfig: (id, patch) => ipcRenderer.invoke('desktop:updateConfig', id, patch),
     setLocked: (id, locked) => ipcRenderer.invoke('desktop:setLocked', id, locked),
     setBackground: (id, background) => ipcRenderer.invoke('desktop:setBackground', id, background),
+    setRadius: (id, radius) => ipcRenderer.invoke('desktop:setRadius', id, radius),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: SavedDesktop): void => listener(state)
       ipcRenderer.on('desktop:changed', handler)

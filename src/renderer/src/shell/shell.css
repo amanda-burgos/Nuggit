@@ -110,6 +110,26 @@
   overflow: hidden;
 }
 
+/* Ajustes → Apariencia: a color or a picture behind Inicio (and the other tabs, if chosen),
+   as strong as its slider says (Fase 9). */
+.app-main.has-backdrop {
+  position: relative;
+  isolation: isolate;
+}
+
+.app-main.has-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--board-bg, transparent);
+  background-image: var(--board-image, none);
+  background-size: cover;
+  background-position: center;
+  opacity: var(--board-opacity, 1);
+}
+
 .panel {
   flex: 1;
   min-height: 0;

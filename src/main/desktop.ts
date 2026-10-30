@@ -85,6 +85,20 @@ export function setWidgetBackground(id: string, background: Background | null): 
   })
 }
 
+// A widget's own corner roundness in px (null = use the general one).
+export function setWidgetRadius(id: string, radius: number | null): void {
+  if (!state || !state.widgets.some((w) => w.id === id)) return
+  commit({
+    ...state,
+    widgets: state.widgets.map((w) => {
+      if (w.id !== id) return w
+      const next = { ...w }
+      delete next.radius
+      return radius === null ? next : { ...next, radius }
+    })
+  })
+}
+
 export function setWidgetHidden(id: string, hidden: boolean): void {
   updateWidget(id, { hidden })
 }

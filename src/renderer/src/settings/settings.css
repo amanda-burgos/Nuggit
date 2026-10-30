@@ -619,3 +619,23 @@
   opacity: 0;
   cursor: pointer;
 }
+
+/* Tema "Mi color": the color well right after its option. */
+.theme-color-choice {
+  display: inline-flex;
+  margin-left: 6px;
+}
+
+.theme-color-choice.is-off {
+  opacity: 0.5;
+}
+
+.theme-color-choice input {
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}

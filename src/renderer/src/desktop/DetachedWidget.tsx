@@ -45,7 +45,14 @@ export function DetachedWidget({ id }: Props): React.JSX.Element {
   const editingBack = entry?.pinBack && new URLSearchParams(location.search).has('editBack')
 
   return (
-    <div className="detached">
+    <div
+      className="detached"
+      style={
+        instance.radius !== undefined
+          ? ({ '--widget-radius': `${instance.radius}px` } as React.CSSProperties)
+          : undefined
+      }
+    >
       {editingBack && (
         <div className="detached-editing" role="status">
           <span>✏️ Editando · al terminar vuelve al fondo</span>

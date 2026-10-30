@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Nuggit's app icon for now: Dip's bubble and bolt on navy (macOS grid: 824px tile). -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2e3a6e"/>
+      <stop offset="1" stop-color="#141a33"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.3" cy="0.22" r="0.75">
+      <stop offset="0" stop-color="#a994ec" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#a994ec" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bubble" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e2dafc"/>
+      <stop offset="1" stop-color="#a994ec"/>
+    </linearGradient>
+    <linearGradient id="bolt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe08a"/>
+      <stop offset="1" stop-color="#f0a92a"/>
+    </linearGradient>
+    <filter id="boltShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="0.6" stdDeviation="0.6" flood-color="#5a3e9e" flood-opacity="0.5"/>
+    </filter>
+    <clipPath id="tileClip"><rect x="100" y="100" width="824" height="824" rx="185"/></clipPath>
+  </defs>
+
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#tile)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#glow)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="183.5" fill="none" stroke="#ffffff" stroke-opacity="0.08" stroke-width="3"/>
+
+  <g clip-path="url(#tileClip)">
+  <g transform="translate(192 167) scale(10)">
+    <path transform="translate(0 1.6)" fill="#05081a" fill-opacity="0.45" stroke="#05081a" stroke-opacity="0.2" stroke-width="2.4" stroke-linejoin="round"
+      d="M12 10 h40 a8 8 0 0 1 8 8 v24 a8 8 0 0 1 -8 8 h-24 l-12 10 v-10 h-4 a8 8 0 0 1 -8 -8 v-24 a8 8 0 0 1 8 -8 z"/>
+    <path fill="url(#bubble)" stroke="#f1edff" stroke-width="1.2" stroke-linejoin="round"
+      d="M12 10 h40 a8 8 0 0 1 8 8 v24 a8 8 0 0 1 -8 8 h-24 l-12 10 v-10 h-4 a8 8 0 0 1 -8 -8 v-24 a8 8 0 0 1 8 -8 z"/>
+    <path filter="url(#boltShadow)" fill="url(#bolt)" stroke="#b9741a" stroke-width="0.8" stroke-linejoin="round"
+      d="M33.5 16 l-10 16 h9 l-4 14 l12 -18 h-9 z"/>
+  </g>
+  </g>
+</svg>

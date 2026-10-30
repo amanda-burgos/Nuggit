@@ -1,4 +1,4 @@
-import type { AppearanceSettings, Background, WidgetCorners } from '../../../shared/types'
+import type { AppearanceSettings, Background } from '../../../shared/types'
 
 // Fase 9: Ajustes → Apariencia applied as CSS variables, so every window (the board,
 // detached widgets, the menu bar windows) looks the same and follows light/dark.
@@ -11,8 +11,6 @@ export const ACCENT_PRESETS: Record<string, { name: string; light: string; dark:
   rose: { name: 'Rosa', light: '#d9508f', dark: '#ff8dbf' },
   sun: { name: 'Sol', light: '#c18a0c', dark: '#f5c84c' }
 }
-
-const RADIUS: Record<WidgetCorners, string> = { square: '6px', soft: '18px', round: '28px' }
 
 export const imageUrl = (name: string): string => `nuggit-img://image/${encodeURIComponent(name)}`
 
@@ -54,6 +52,38 @@ export function backgroundVars(background: Background): Record<string, string> {
   return {}
 }
 
+// Tema "Mi color": darker colors get light text and a dark base (where both texts read equally).
+export const isDarkColor = (hex: string): boolean => luminance(hex) < 0.215
+
+// The theme tokens (tokens.css) made from one color: the window is that color, the cards a
+// bit lighter, the text light or dark to match.
+function themeVars(hex: string): Record<string, string> {
+  const mix = (a: string, pct: number, b: string): string =>
+    `color-mix(in srgb, ${a} ${pct}%, ${b})`
+  if (isDarkColor(hex)) {
+    return {
+      '--color-bg': hex,
+      '--color-surface': mix(hex, 90, '#ffffff'),
+      '--color-surface-muted': mix(hex, 80, '#ffffff'),
+      '--color-border': mix(hex, 66, '#ffffff'),
+      '--color-text': '#f7f5ff',
+      '--color-text-muted': mix('#f7f5ff', 68, hex),
+      '--color-accent-soft': mix('var(--color-accent)', 30, 'var(--color-surface)')
+    }
+  }
+  return {
+    '--color-bg': hex,
+    '--color-surface': mix(hex, 30, '#ffffff'),
+    '--color-surface-muted': mix(hex, 60, '#ffffff'),
+    '--color-border': mix(hex, 82, '#1b2346'),
+    '--color-text': '#1b2346',
+    '--color-text-muted': mix('#1b2346', 72, hex),
+    '--color-accent-soft': mix('var(--color-accent)', 24, 'var(--color-surface)')
+  }
+}
+
+const THEME_KEYS = Object.keys(themeVars('#000000'))
+
 export function applyAppearance(appearance: AppearanceSettings): void {
   const root = document.documentElement.style
   const preset = ACCENT_PRESETS[appearance.accent]
@@ -72,7 +102,18 @@ export function applyAppearance(appearance: AppearanceSettings): void {
     board.kind === 'image' ? `url("${imageUrl(board.image)}")` : 'none'
   )
 
-  root.setProperty('--widget-radius', RADIUS[appearance.widgetCorners] ?? RADIUS.soft)
+  root.setProperty('--board-opacity', String(appearance.boardOpacity ?? 1))
+
+  // Set on the root element, these win over tokens.css; without a color, tokens.css applies.
+  if (appearance.themeColor) {
+    for (const [key, value] of Object.entries(themeVars(appearance.themeColor))) {
+      root.setProperty(key, value)
+    }
+  } else {
+    for (const key of THEME_KEYS) root.removeProperty(key)
+  }
+
+  root.setProperty('--widget-radius', `${appearance.widgetRadius ?? 18}px`)
   root.setProperty('--widget-shadow', appearance.widgetShadow ? 'var(--shadow-widget)' : 'none')
   root.setProperty('--widget-opacity', `${Math.round(appearance.widgetOpacity * 100)}%`)
 }

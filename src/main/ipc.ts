@@ -27,6 +27,7 @@ import {
   getDesktop,
   replaceDesktop,
   setWidgetBackground,
+  setWidgetRadius,
   setWidgetLocked,
   updateWidgetConfig
 } from './desktop'
@@ -67,7 +68,7 @@ import {
 import { createNote, createNotes, getNotes, removeNotes, restoreNotes, updateNote } from './notes'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
-import { cleanBackground, loadSettings } from './storage'
+import { clampRadius, cleanBackground, loadSettings } from './storage'
 import {
   completeTask,
   createTask,
@@ -129,6 +130,14 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
     else {
       const clean = cleanBackground(background)
       if (clean) setWidgetBackground(id, clean)
+    }
+  })
+  ipcMain.handle('desktop:setRadius', (_event, id: unknown, radius: unknown) => {
+    if (typeof id !== 'string') return
+    if (radius === null) setWidgetRadius(id, null)
+    else {
+      const clean = clampRadius(radius)
+      if (clean !== null) setWidgetRadius(id, clean)
     }
   })
   ipcMain.handle('images:pick', (event, multiple: unknown) => pickImages(event.sender, multiple))

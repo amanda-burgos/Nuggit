@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
+import { WIDGET_RADIUS_MAX, WIDGET_RADIUS_MIN } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
 import { backgroundVars } from '../theme/appearance'
 import { useAppearance } from '../theme/appearanceContext'
@@ -69,6 +70,12 @@ export function WidgetFrame({
     setShowSettings(false)
     onSetLocked(true)
   }
+  const setRadius = (next: number | null): void => {
+    window.api.desktop
+      .setRadius(instance.id, next)
+      .catch((err) => console.error('Could not change corners', err))
+  }
+  const generalRadius = appearance?.widgetRadius ?? 18
   const setBackground = (next: typeof instance.background | null): void => {
     window.api.desktop
       .setBackground(instance.id, next ?? null)
@@ -79,7 +86,12 @@ export function WidgetFrame({
     <section
       className={`widget${locked ? ' is-locked' : ''}`}
       aria-label={def.name}
-      style={backgroundVars(background) as React.CSSProperties}
+      style={
+        {
+          ...backgroundVars(background),
+          ...(instance.radius !== undefined && { '--widget-radius': `${instance.radius}px` })
+        } as React.CSSProperties
+      }
     >
       <header className="widget-header" onPointerDown={locked ? undefined : onHeaderPointerDown}>
         {showTitle && (
@@ -148,6 +160,32 @@ export function WidgetFrame({
                   generalLabel="Usar el general"
                   onChange={setBackground}
                 />
+              </div>
+              <div className="widget-settings-field">
+                <span>
+                  Esquinas: {instance.radius ?? generalRadius} px
+                  {instance.radius === undefined ? ' (las generales)' : ''}
+                </span>
+                <div className="widget-settings-row">
+                  <input
+                    type="range"
+                    aria-label="Esquinas de este widget"
+                    min={WIDGET_RADIUS_MIN}
+                    max={WIDGET_RADIUS_MAX}
+                    step={1}
+                    value={instance.radius ?? generalRadius}
+                    onChange={(e) => setRadius(Number(e.target.value))}
+                  />
+                  {instance.radius !== undefined && (
+                    <button
+                      type="button"
+                      className="bg-choice is-text"
+                      onClick={() => setRadius(null)}
+                    >
+                      Usar las generales
+                    </button>
+                  )}
+                </div>
               </div>
               {onSetShadow && (
                 <label>

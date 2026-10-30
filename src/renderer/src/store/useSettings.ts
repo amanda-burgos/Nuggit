@@ -50,6 +50,9 @@ export function useSettings(): SettingsStore {
       if (uiPatch?.panel) ui.panels = { ...ui.panels, [uiPatch.panel.type]: uiPatch.panel.config }
       const { voiceURI, ...voiceRest } = voicePatch ?? {}
       const voice = { ...prev.voice, ...voiceRest }
+      const { themeColor, ...appearanceRest } = appearancePatch ?? {}
+      const appearance = { ...prev.appearance, ...appearanceRest }
+      if (themeColor !== undefined) appearance.themeColor = themeColor ?? undefined
       if (voicePatch && 'voiceURI' in voicePatch) voice.voiceURI = voiceURI || undefined
       const next = {
         ...prev,
@@ -58,7 +61,7 @@ export function useSettings(): SettingsStore {
         ui,
         voice,
         calendar: { ...prev.calendar, ...calendarPatch },
-        appearance: { ...prev.appearance, ...appearancePatch },
+        appearance,
         // Links are checked (and turned into URIs) by the main process: wait for those.
         music: {
           ...prev.music,

@@ -1,5 +1,5 @@
 import type { AppTab } from '../../../shared/types'
-import logoUrl from '../../../../resources/brand/nuggit-icon.svg'
+import logoUrl from '../../../../resources/brand/dip-app-icon.svg'
 import { TABS } from './tabs'
 
 interface Props {

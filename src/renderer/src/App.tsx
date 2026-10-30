@@ -51,6 +51,8 @@ function App(): React.JSX.Element {
   if (!desktop || !settings) return <div className="app" />
 
   const widgetType = TABS.find((t) => t.key === tab)?.widgetType
+  const { board, boardEverywhere } = settings.appearance
+  const backdrop = board.kind !== 'default' && (tab === 'home' || boardEverywhere)
 
   return (
     <div className="app">
@@ -60,7 +62,7 @@ function App(): React.JSX.Element {
         onSelect={selectTab}
         onToggleCollapsed={() => update({ ui: { sidebarCollapsed: !collapsed } })}
       />
-      <main className="app-main">
+      <main className={`app-main${backdrop ? ' has-backdrop' : ''}`}>
         {tab === 'home' && (
           <>
             <Toolbar
