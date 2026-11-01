@@ -19,6 +19,7 @@ export interface ActionsContext {
   userText: string // the user's last message
   voice?: boolean // said in a call: answer short and spoken
   summary?: string // the older part of the chat, summarized (SPEC 9.4)
+  help?: string // the Ayuda texts that match a "¿cómo hago X?" question (Fase 10)
 }
 
 export interface ActionsReply {
@@ -133,6 +134,7 @@ export const actions = defineAgent({
           ctx.summary
             ? `Lo que ya hablaron antes en este chat (resumen; los mensajes siguientes van completos): ${ctx.summary}`
             : '',
+          ctx.help ?? '',
           actionInstructions(),
           ctx.voice ? CALL_STYLE : ''
         ]),

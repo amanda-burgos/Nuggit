@@ -66,8 +66,11 @@ export function createTrayPopover(options: {
     if (!popover) popover = create()
     const win = popover
     place(win, anchor)
+    // On the Mac, show() activates Nuggit before the window is on screen, and macOS then
+    // jumps to the Space where Nuggit's main window is. Putting it on screen first, without
+    // activating, and only then focusing it keeps you on the Space you're on.
     const reveal = (): void => {
-      win.show()
+      win.showInactive()
       win.focus()
     }
     if (win.webContents.isLoading()) win.webContents.once('did-finish-load', reveal)

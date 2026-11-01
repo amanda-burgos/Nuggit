@@ -31,7 +31,8 @@ const DEFAULT_SETTINGS: Settings = {
     widgetOpacity: 1,
     widgetRadius: 18
   },
-  ui: { tab: 'home', sidebarCollapsed: false, panels: {} }
+  ui: { tab: 'home', sidebarCollapsed: false, panels: {} },
+  onboarding: { tourDone: false, whatsNew: true }
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -198,6 +199,7 @@ const TABS = [
   'focus',
   'calendar',
   'music',
+  'help',
   'settings'
 ]
 const PICKUP_MODES = ['icon', 'menu', 'off']
@@ -252,6 +254,10 @@ export async function loadSettings(): Promise<Settings> {
     calendar: { ...DEFAULT_SETTINGS.calendar, ...(isObject(data.calendar) ? data.calendar : {}) },
     music: { ...DEFAULT_SETTINGS.music, ...(isObject(data.music) ? data.music : {}) },
     appearance: loadAppearance(data.appearance),
+    onboarding: {
+      ...DEFAULT_SETTINGS.onboarding,
+      ...(isObject(data.onboarding) ? data.onboarding : {})
+    },
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -393,6 +399,17 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     if (typeof sidebarCollapsed === 'boolean') current.ui.sidebarCollapsed = sidebarCollapsed
     if (isObject(panel) && typeof panel.type === 'string' && isObject(panel.config)) {
       current.ui.panels = { ...current.ui.panels, [panel.type]: panel.config }
+    }
+  }
+  if (isObject(patch) && isObject(patch.onboarding)) {
+    const { tourDone, whatsNew, lastSeenVersion, lastSeenNews } = patch.onboarding
+    if (typeof tourDone === 'boolean') current.onboarding.tourDone = tourDone
+    if (typeof whatsNew === 'boolean') current.onboarding.whatsNew = whatsNew
+    if (typeof lastSeenVersion === 'string' && lastSeenVersion.length <= 40) {
+      current.onboarding.lastSeenVersion = lastSeenVersion
+    }
+    if (typeof lastSeenNews === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(lastSeenNews)) {
+      current.onboarding.lastSeenNews = lastSeenNews
     }
   }
   if (isObject(patch) && isObject(patch.ai)) {

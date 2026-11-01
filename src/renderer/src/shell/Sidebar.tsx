@@ -7,10 +7,19 @@ interface Props {
   collapsed: boolean
   onSelect(tab: AppTab): void
   onToggleCollapsed(): void
+  newsCount: number // 📣 entries you haven't seen yet
+  onOpenNews(): void
 }
 
 // The control center's tabs. Collapsed (or in a narrow window) it shows only icons.
-export function Sidebar({ tab, collapsed, onSelect, onToggleCollapsed }: Props): React.JSX.Element {
+export function Sidebar({
+  tab,
+  collapsed,
+  onSelect,
+  onToggleCollapsed,
+  newsCount,
+  onOpenNews
+}: Props): React.JSX.Element {
   return (
     <nav className={`sidebar${collapsed ? ' is-collapsed' : ''}`} aria-label="Secciones">
       <div className="sidebar-brand">
@@ -22,6 +31,7 @@ export function Sidebar({ tab, collapsed, onSelect, onToggleCollapsed }: Props):
           <button
             key={t.key}
             role="tab"
+            data-tour={`tab-${t.key}`}
             aria-selected={t.key === tab}
             className={`sidebar-tab${t.key === tab ? ' is-active' : ''}`}
             title={t.shortcut ? `${t.label} (⌘${t.shortcut})` : t.label}
@@ -35,6 +45,18 @@ export function Sidebar({ tab, collapsed, onSelect, onToggleCollapsed }: Props):
           </button>
         ))}
       </div>
+      <button
+        className="sidebar-tab sidebar-news"
+        title={newsCount ? `Novedades (${newsCount} sin ver)` : 'Novedades'}
+        onClick={onOpenNews}
+      >
+        <span className="sidebar-icon" aria-hidden>
+          📣
+          {newsCount > 0 && <span className="sidebar-news-dot" />}
+        </span>
+        <span className="sidebar-label">Novedades</span>
+        {newsCount > 0 && <span className="sidebar-label sidebar-news-count">{newsCount}</span>}
+      </button>
       <button
         className="sidebar-tab sidebar-toggle"
         title={collapsed ? 'Mostrar nombres' : 'Solo íconos'}

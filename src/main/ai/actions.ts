@@ -1,4 +1,5 @@
 import type { AIBackend, AIMessage, DipAction, Task } from '../../shared/types'
+import { helpForDip } from '../../shared/help'
 import { pickNextActions } from '../../shared/nextAction'
 import { getNextActionState } from '../nextAction'
 import { loadSettings } from '../storage'
@@ -28,6 +29,7 @@ export async function chatWithActions(
   const settings = await loadSettings()
   const tasks = getTasks()
   const shareTasks = settings.ai.shareTasksWithAI
+  const userText = messages[messages.length - 1]?.content ?? ''
   const { value, backend } = await askAgent(
     actions,
     'reply',
@@ -36,9 +38,10 @@ export async function chatWithActions(
       shareTasks,
       personality: settings.dipPersonality,
       nextAction: shareTasks ? nextActionContext(tasks) : '',
-      userText: messages[messages.length - 1]?.content ?? '',
+      userText,
       voice,
-      summary
+      summary,
+      help: helpForDip(userText)
     },
     messages
   )

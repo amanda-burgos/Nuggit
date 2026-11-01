@@ -29,5 +29,6 @@ export const TABS: TabInfo[] = [
   { key: 'focus', label: 'Focus', icon: '⏳', shortcut: '9', widgetType: 'focus' },
   { key: 'calendar', label: 'Calendario', icon: '📅', shortcut: '0', widgetType: 'calendar' },
   { key: 'music', label: 'Música', icon: '🎵', shortcut: '', widgetType: 'music' },
+  { key: 'help', label: 'Ayuda', icon: '❓', shortcut: '' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]

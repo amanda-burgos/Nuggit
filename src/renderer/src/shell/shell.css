@@ -79,11 +79,44 @@
   font-size: 0.85rem;
 }
 
+/* 📣 Novedades: right above "Solo íconos", with how many entries are new (just a dot when
+   the sidebar shows only icons). */
+.sidebar-icon {
+  position: relative;
+}
+
+.sidebar-news-dot {
+  position: absolute;
+  top: -1px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+.sidebar-news-count {
+  margin-left: auto;
+  min-width: 20px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+
 .sidebar.is-collapsed {
   width: 60px;
 }
 
 .sidebar.is-collapsed .sidebar-label {
+  display: none;
+}
+
+.sidebar:not(.is-collapsed) .sidebar-news-dot {
   display: none;
 }
 
@@ -95,6 +128,10 @@
 
   .sidebar .sidebar-label {
     display: none;
+  }
+
+  .sidebar .sidebar-news-dot {
+    display: block;
   }
 
   .sidebar-toggle {

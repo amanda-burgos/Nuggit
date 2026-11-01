@@ -40,13 +40,14 @@ const SECTIONS: Array<{
   {
     id: 'general',
     tab: 'general',
-    keywords: 'general iniciar login arranque abrir al iniciar idioma atajos teclado shortcuts',
+    keywords:
+      'general iniciar login arranque abrir al iniciar idioma atajos teclado shortcuts novedades qué hay de nuevo actualización tour',
     Component: GeneralSettings
   },
   {
     id: 'appearance',
     tab: 'appearance',
-    keywords: 'apariencia tema claro oscuro sistema colores fondo',
+    keywords: 'apariencia tema claro oscuro sistema mi color colores fondo transparencia',
     Component: AppearanceSettings
   },
   {

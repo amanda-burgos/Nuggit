@@ -1,7 +1,13 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { newestDate, releaseFor, unseenCount, type ChangelogRelease } from '../../shared/changelog'
 import type { AppTab } from '../../shared/types'
 import { Desktop } from './desktop/Desktop'
 import { Toolbar } from './desktop/Toolbar'
+import { HelpPanel } from './help/HelpPanel'
+import { RELEASES } from './help/news'
+import { Tour } from './help/Tour'
+import { NewsPanel } from './help/NewsPanel'
+import { WhatsNew } from './help/WhatsNew'
 import { SettingsPanel } from './settings/SettingsPanel'
 import { FullPanel } from './shell/FullPanel'
 import { Sidebar } from './shell/Sidebar'
@@ -23,6 +29,51 @@ function App(): React.JSX.Element {
   const collapsed = settings?.ui.sidebarCollapsed ?? false
 
   const selectTab = useCallback((next: AppTab) => update({ ui: { tab: next } }), [update])
+
+  // Fase 10: the welcome tour (first time), "Qué hay de nuevo" (after an update) and the
+  // 📣 Novedades panel.
+  const [touring, setTouring] = useState(false)
+  const [news, setNews] = useState<{ release: ChangelogRelease; version: string } | null>(null)
+  const [newsOpen, setNewsOpen] = useState(false)
+  const greeted = useRef(false)
+
+  useEffect(() => {
+    if (!settings || greeted.current) return
+    greeted.current = true
+    const { onboarding } = settings
+    window.api.app
+      .info()
+      .then(({ version }) => {
+        if (!onboarding.tourDone) {
+          setTouring(true)
+          selectTab('home')
+        }
+        if (onboarding.lastSeenVersion === version) return
+        // Only after an update: a new person gets the tour instead.
+        const release = releaseFor(RELEASES, version)
+        if (onboarding.tourDone && onboarding.lastSeenVersion && onboarding.whatsNew && release) {
+          setNews({ release, version })
+        }
+        update({ onboarding: { lastSeenVersion: version } })
+      })
+      .catch((err) => console.error('Could not check the version', err))
+  }, [settings, selectTab, update])
+
+  const startTour = (): void => {
+    selectTab('home')
+    setTouring(true)
+  }
+  const finishTour = (): void => {
+    setTouring(false)
+    update({ onboarding: { tourDone: true } })
+  }
+  // 📣 Novedades: opening it counts everything in it as seen (the dot goes away).
+  const openNews = (): void => {
+    setNews(null)
+    setNewsOpen(true)
+    const newest = newestDate(RELEASES)
+    if (newest) update({ onboarding: { lastSeenNews: newest } })
+  }
 
   // Any window (e.g. a detached Dip widget) can ask to open Settings here.
   useEffect(() => window.api.app.onOpenSettings(() => selectTab('settings')), [selectTab])
@@ -61,6 +112,8 @@ function App(): React.JSX.Element {
         collapsed={collapsed}
         onSelect={selectTab}
         onToggleCollapsed={() => update({ ui: { sidebarCollapsed: !collapsed } })}
+        newsCount={unseenCount(RELEASES, settings.onboarding.lastSeenNews)}
+        onOpenNews={openNews}
       />
       <main className={`app-main${backdrop ? ' has-backdrop' : ''}`}>
         {tab === 'home' && (
@@ -79,9 +132,22 @@ function App(): React.JSX.Element {
         {widgetType && (
           <FullPanel key={widgetType} type={widgetType} settings={settings} update={update} />
         )}
+        {tab === 'help' && (
+          <HelpPanel update={update} onStartTour={startTour} onOpenNews={openNews} />
+        )}
         {tab === 'settings' && <SettingsPanel settings={settings} update={update} />}
       </main>
       {focus?.lockdown && <Lockdown />}
+      {touring && !focus?.lockdown && <Tour onDone={finishTour} />}
+      {newsOpen && <NewsPanel onClose={() => setNewsOpen(false)} />}
+      {news && !touring && (
+        <WhatsNew
+          release={news.release}
+          version={news.version}
+          onSeeAll={openNews}
+          onClose={() => setNews(null)}
+        />
+      )}
     </div>
   )
 }

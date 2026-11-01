@@ -1,16 +1,9 @@
 import { useEffect, useState } from 'react'
+import { HELP } from '../../../shared/help'
 import type { AppInfo } from '../../../shared/types'
+import type { SectionProps } from './shared'
 
-const SHORTCUTS: Array<[string, string]> = [
-  ['⌘1 … ⌘9', 'Inicio, Dip, Tareas, Ahora, Tenderizer, Dailies, Notas, Brain Dump, Focus'],
-  ['⌘,', 'Ajustes'],
-  ['⌘N', 'Nota rápida'],
-  ['Esc', 'Salir de Lockdown'],
-  ['Fn Fn (🌐)', 'Dictar en cualquier campo de texto'],
-  ['Enter / ⇧ Enter', 'Mandar a Dip / nueva línea']
-]
-
-export function GeneralSettings(): React.JSX.Element {
+export function GeneralSettings({ settings, update }: SectionProps): React.JSX.Element {
   const [info, setInfo] = useState<AppInfo | null>(null)
 
   useEffect(() => {
@@ -46,6 +39,18 @@ export function GeneralSettings(): React.JSX.Element {
         </span>
       </label>
 
+      <label className="settings-check">
+        <input
+          type="checkbox"
+          checked={settings.onboarding.whatsNew}
+          onChange={(e) => update({ onboarding: { whatsNew: e.target.checked } })}
+        />
+        <span>
+          Mostrar “Qué hay de nuevo” después de cada actualización
+          <small>Todas las novedades siguen en ❓ Ayuda → Novedades.</small>
+        </span>
+      </label>
+
       <div className="settings-field">
         <span>Idioma</span>
         <small className="settings-hint">
@@ -56,7 +61,7 @@ export function GeneralSettings(): React.JSX.Element {
       <div className="settings-subsection">
         <h4>⌨️ Atajos de teclado</h4>
         <dl className="settings-shortcuts">
-          {SHORTCUTS.map(([keys, what]) => (
+          {HELP.shortcuts.map(({ keys, what }) => (
             <div key={keys}>
               <dt>
                 <kbd>{keys}</kbd>
@@ -65,9 +70,6 @@ export function GeneralSettings(): React.JSX.Element {
             </div>
           ))}
         </dl>
-        <small className="settings-hint">
-          El atajo del mini chat de Dip se elige en Barra de menú.
-        </small>
       </div>
     </section>
   )

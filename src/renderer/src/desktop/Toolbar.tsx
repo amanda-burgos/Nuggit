@@ -50,6 +50,7 @@ export function Toolbar({
         <div className="menu-anchor" ref={menuRef}>
           <button
             className="button-primary"
+            data-tour="add-widget"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((v) => !v)}
           >

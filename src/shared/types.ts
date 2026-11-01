@@ -100,6 +100,7 @@ export type AppTab =
   | 'focus'
   | 'calendar'
   | 'music'
+  | 'help'
   | 'settings'
 
 // For Ajustes → General and Acerca de.
@@ -160,6 +161,15 @@ export interface Settings {
   music: MusicSettings // SPEC 9.19
   ui: UISettings
   appearance: AppearanceSettings
+  onboarding: OnboardingSettings
+}
+
+// Fase 10: the welcome tour and "Qué hay de nuevo".
+export interface OnboardingSettings {
+  tourDone: boolean // the welcome tour was finished or skipped
+  whatsNew: boolean // show "Qué hay de nuevo" after an update (Ajustes → General)
+  lastSeenVersion?: string // the version whose news were already shown
+  lastSeenNews?: string // the newest 📣 Novedades date already seen (AAAA-MM-DD)
 }
 
 // Dip answering out loud with the system voice (SPEC 9.10). Talking to Dip uses the
@@ -299,6 +309,7 @@ export interface SettingsPatch {
   musicTray?: PickupTrayMode
   dipPersonality?: string | null // null or '' restores the original Dip
   calendar?: Partial<CalendarSettings>
+  onboarding?: Partial<OnboardingSettings>
   // themeColor: null = back to light/dark
   appearance?: Partial<Omit<AppearanceSettings, 'themeColor'>> & { themeColor?: string | null }
   music?: {

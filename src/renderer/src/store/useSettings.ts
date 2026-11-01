@@ -41,6 +41,7 @@ export function useSettings(): SettingsStore {
         calendar: calendarPatch,
         music: musicPatch,
         appearance: appearancePatch,
+        onboarding: onboardingPatch,
         ...rest
       } = patch
       const ui = { ...prev.ui }
@@ -62,6 +63,7 @@ export function useSettings(): SettingsStore {
         voice,
         calendar: { ...prev.calendar, ...calendarPatch },
         appearance,
+        onboarding: { ...prev.onboarding, ...onboardingPatch },
         // Links are checked (and turned into URIs) by the main process: wait for those.
         music: {
           ...prev.music,

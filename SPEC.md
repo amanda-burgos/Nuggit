@@ -701,6 +701,14 @@ Cómo quedó (Fase 9):
 - Dip puede responder "¿cómo hago X en Nuggit?" usando esos mismos textos de ayuda.
 - **Listo cuando:** alguien que nunca vio Nuggit puede abrirla, seguir el tour y saber usarla sin preguntarme nada.
 
+Cómo quedó (Fase 10):
+- **Textos de ayuda** en `config/help.json` (cómo se usa, dónde personalizar, FAQ y atajos): se editan ahí y salen en la pestaña Ayuda, en los atajos de Ajustes → General y en lo que sabe Dip. El link de Discord va en `config/community.json` (`discordInvite`); vacío = sin botón.
+- **Pestaña ❓ Ayuda** (sin atajo: ⌘0–⌘9 ya están usados): buscador, secciones con chips, "Abrir →" lleva al ajuste exacto, FAQ desplegable, atajos y una sección de Novedades que abre 📣, con "Ver el tour otra vez".
+- **📣 Novedades** (botón abajo en la barra de la izquierda): todo el `CHANGELOG.md` por fecha, lo más nuevo arriba. Cada entrada es `## [Título] - AAAA-MM-DD` (o una versión). Muestra cuántas entradas no has visto (`onboarding.lastSeenNews`, la fecha más nueva que ya viste; con la barra en solo íconos es un puntito). Abrirlo las marca como vistas. "Ver todo" en Qué hay de nuevo abre este panel.
+- **Tour de bienvenida:** 5 burbujas (tablero, despegar, barra de menú, Dip, Ajustes + Ayuda) que resaltan cada parte; "Saltar", "Atrás", flechas y Esc. Sale cuando `onboarding.tourDone` es falso (también a quien ya usaba Nuggit, una vez).
+- **Qué hay de nuevo:** al abrir Nuggit con una versión distinta a `onboarding.lastSeenVersion`, muestra esa versión del CHANGELOG (o la más nueva, "Sin publicar", mientras se desarrolla). A alguien nuevo no le sale: ve el tour. Se apaga en Ajustes → General.
+- **Dip y la ayuda:** si la pregunta parece de "¿cómo/dónde…?", se le pasan solo las 3 entradas de ayuda que mejor coinciden (búsqueda por palabras, sin IA), para no gastar tokens en cada mensaje (`src/shared/help.ts`).
+
 ### Después del MVP (ideas)
 QOTD (banco de preguntas incluido + generadas por código + IA para conversar), School, Recordatorios (con la app en la barra de menú), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 

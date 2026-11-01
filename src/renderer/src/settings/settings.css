@@ -548,27 +548,6 @@
   user-select: all;
 }
 
-.settings-news {
-  font-size: 0.85rem;
-}
-
-.settings-news h5 {
-  margin: 10px 0 4px;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-}
-
-.settings-news-item {
-  margin: 0 0 6px;
-}
-
-.settings-news-item::before {
-  content: '• ';
-  color: var(--color-text-muted);
-}
-
 .settings-inline-button {
   align-self: flex-start;
 }

@@ -1,0 +1,258 @@
+{
+  "guides": [
+    {
+      "id": "board",
+      "icon": "🏠",
+      "title": "El tablero (Inicio)",
+      "keywords": [
+        "tablero",
+        "inicio",
+        "widget",
+        "widgets",
+        "agregar",
+        "mover",
+        "tamaño",
+        "ocultar",
+        "quitar"
+      ],
+      "text": "Inicio es tu escritorio de widgets. Con **+ Widget** agregas uno (reloj, tareas, Dip, Focus, notas, música, imagen…). Lo mueves arrastrando su encabezado y le cambias el tamaño desde la esquina de abajo a la derecha. En su encabezado: **📌** lo fija para que no se mueva, **⚙︎** abre sus opciones, **–** lo oculta (vuelve desde + Widget) y **×** lo quita."
+    },
+    {
+      "id": "detach",
+      "icon": "↗",
+      "title": "Despegar widgets al escritorio de la Mac",
+      "keywords": [
+        "despegar",
+        "escritorio",
+        "regresar",
+        "tablero",
+        "ventana",
+        "pin",
+        "encima",
+        "fondo",
+        "frente"
+      ],
+      "text": "Toca **↗** en el encabezado de un widget y sale del tablero como ventanita propia en tu escritorio. Se queda donde la dejes, aunque cierres Nuggit. Para devolverlo, toca **↙** (Regresar al tablero). Desde el quick pickup (🧩 en la barra de menú) puedes ponerlo **Pin on top** (siempre al frente, en todos los escritorios) o **Pin on back** (al fondo, detrás de todo)."
+    },
+    {
+      "id": "menubar",
+      "icon": "📍",
+      "title": "La barra de menú de la Mac",
+      "keywords": [
+        "barra",
+        "menú",
+        "menu",
+        "icono",
+        "ícono",
+        "quick pickup",
+        "pickup",
+        "🧩",
+        "mini chat"
+      ],
+      "text": "Arriba en la barra de menú de tu Mac Nuggit tiene sus íconos: el de **Nuggit** (lo que estás haciendo ahora y el siguiente paso), el de **Dip** (un mini chat que abres desde cualquier app), el **🧩 quick pickup** (para sacar cualquier widget al escritorio con un clic) y, si quieres, el de **Música**. Eliges cuáles se ven en Ajustes → Barra de menú."
+    },
+    {
+      "id": "dip",
+      "icon": "💬",
+      "title": "Dip, tu compañero",
+      "keywords": ["dip", "chat", "ia", "preguntar", "acciones", "anotar", "tarea", "personalidad"],
+      "text": "Dip es tu compañero para organizarte. Háblale normal: \"anota tarea de inglés para mañana\", \"ya terminé mate\", \"¿qué hago ahora?\". Cuando quiere cambiar algo te muestra una tarjeta y **tú confirmas** antes de que se guarde. También le puedes preguntar cómo se usa Nuggit. Para que vea tus tareas, activa **Compartir tareas con Dip** en Ajustes → IA y proveedores."
+    },
+    {
+      "id": "tasks",
+      "icon": "✅",
+      "title": "Tareas",
+      "keywords": ["tareas", "tarea", "subtareas", "fecha", "completar", "hecha", "borrar"],
+      "text": "En **Tareas** (⌘3) escribes una tarea y le das Enter. Puedes ponerle fecha, subtareas y marcarla como hecha con un clic; las hechas salen de la lista. También se pueden anotar diciéndoselo a Dip."
+    },
+    {
+      "id": "next",
+      "icon": "🎯",
+      "title": "Ahora: ¿qué hago ahora?",
+      "keywords": ["ahora", "siguiente", "next", "qué hago", "ya terminé"],
+      "text": "**Ahora** (⌘4) te dice **una sola cosa** que hacer en este momento, para no perderte en la lista. Cuando la terminas, \"ya terminé\" la marca y te sugiere la siguiente. Lo mismo se ve en el ícono de Nuggit de la barra de menú."
+    },
+    {
+      "id": "tenders",
+      "icon": "🪜",
+      "title": "Tenderizer: partir tareas grandes",
+      "keywords": ["tenderizer", "tenders", "pasos", "partir", "proyecto", "grande"],
+      "text": "Si una tarea se siente enorme, llévala a **Tenderizer** (⌘5). Dip te hace un par de preguntas y la parte en pasitos chiquitos (tenders). Revisas los pasos, los cambias si quieres y los guardas. Si cuesta empezar, \"Solo empieza\" te da una versión de 2 minutos del paso."
+    },
+    {
+      "id": "dailies",
+      "icon": "🔁",
+      "title": "Dailies: rutinas",
+      "keywords": ["dailies", "rutina", "rutinas", "diario", "racha", "repetir", "hábito"],
+      "text": "En **Dailies** (⌘6) creas rutinas que se repiten (todos los días o los días que elijas). Aparecen como tareas de hoy y llevan tu **racha 🔥**. Con \"Planear con Dip\" te ayuda a armarlas."
+    },
+    {
+      "id": "notes",
+      "icon": "📝",
+      "title": "Notas y Brain Dump",
+      "keywords": ["notas", "nota", "brain dump", "cabeza", "soltar", "⌘n"],
+      "text": "**Notas** (⌘7) son notas rápidas que se guardan solas; ⌘N crea una nueva desde cualquier lado. En **Brain Dump** (⌘8) sueltas todo lo que tienes en la cabeza en una caja y Dip lo separa en tareas y notas para que las revises antes de guardar."
+    },
+    {
+      "id": "focus",
+      "icon": "⏳",
+      "title": "Focus y Lockdown",
+      "keywords": [
+        "focus",
+        "concentrar",
+        "temporizador",
+        "pomodoro",
+        "lockdown",
+        "descanso",
+        "salir",
+        "esc"
+      ],
+      "text": "En **Focus** (⌘9) eliges una tarea y un tiempo (25/5, 15/5 o el tuyo) y empiezas. Puedes pausar, cambiar o cancelar cuando quieras. **Lockdown** pone una pantalla de concentración con solo tu tarea, el reloj y el siguiente paso, y esconde los widgets. Sales con **Esc**."
+    },
+    {
+      "id": "calendar",
+      "icon": "📅",
+      "title": "Calendario",
+      "keywords": ["calendario", "fecha", "día", "eventos", "mac", "google", "ics"],
+      "text": "El **Calendario** (⌘0) junta tus tareas con fecha, tus dailies y los eventos de tu Mac, por día. Puedes anotar una tarea directo en un día. En Ajustes → Calendario conectas el Calendario de la Mac (en dos vías) o exportas un .ics para Google Calendar."
+    },
+    {
+      "id": "music",
+      "icon": "🎵",
+      "title": "Música",
+      "keywords": ["música", "musica", "spotify", "playlist", "canción"],
+      "text": "Con la app de **Spotify** abierta, la pestaña **Música** te deja pausar, pasar canciones y poner tus playlists guardadas. En Ajustes → Música pegas el link de una playlist para que suene sola al empezar Focus."
+    },
+    {
+      "id": "voice",
+      "icon": "🎤",
+      "title": "Voz y llamada con Dip",
+      "keywords": ["voz", "hablar", "micrófono", "dictado", "llamada", "llamar", "escuchar"],
+      "text": "Toca **🎤** para hablarle a Dip en vez de escribir, y **🔊** para que te conteste hablando. Con **📞** lo llamas manos libres: te escucha, te contesta y se calla si lo interrumpes. La voz de Dip se elige en Ajustes → Voz."
+    }
+  ],
+  "customize": [
+    {
+      "id": "appearance",
+      "icon": "🎨",
+      "title": "Colores, tema y fondo",
+      "text": "Tema claro, oscuro o tu propio color, el color de acento, el fondo de la app (un color o tu foto, con transparencia) y cómo se ven los widgets.",
+      "settingsTab": "appearance"
+    },
+    {
+      "id": "widget-own",
+      "icon": "⚙︎",
+      "title": "Un widget en particular",
+      "text": "Cada widget tiene su ⚙︎ en el encabezado: su propio fondo, esquinas, sombra y sus opciones."
+    },
+    {
+      "id": "dip-personality",
+      "icon": "💬",
+      "title": "La personalidad de Dip",
+      "text": "Cuéntale a Dip cómo quieres que te hable (más corto, más divertido, como pirata…). Siempre puedes volver al Dip original.",
+      "settingsTab": "dip"
+    },
+    {
+      "id": "ai",
+      "icon": "🤖",
+      "title": "La IA (Gemini u Ollama)",
+      "text": "Conecta Gemini con tu key gratis u Ollama en tu Mac, y decide si Dip puede ver tus tareas.",
+      "settingsTab": "ai"
+    },
+    {
+      "id": "voice-settings",
+      "icon": "🎙️",
+      "title": "La voz de Dip",
+      "text": "Elige la voz, la velocidad y el tono, y cómo entiende Nuggit lo que dices.",
+      "settingsTab": "voice"
+    },
+    {
+      "id": "menubar-settings",
+      "icon": "📍",
+      "title": "La barra de menú",
+      "text": "Qué íconos se ven arriba, cómo se ve lo que estás haciendo y el atajo para abrir a Dip desde cualquier app.",
+      "settingsTab": "menubar"
+    },
+    {
+      "id": "general",
+      "icon": "⚙︎",
+      "title": "General",
+      "text": "Abrir Nuggit al prender la Mac y la ventanita de \"Qué hay de nuevo\" después de cada actualización.",
+      "settingsTab": "general"
+    }
+  ],
+  "faq": [
+    {
+      "id": "offline",
+      "q": "¿Funciona sin internet?",
+      "keywords": ["internet", "offline", "conexión", "sin"],
+      "a": "Sí. Tareas, notas, dailies, Focus, el calendario y los widgets funcionan sin internet. Dip necesita IA: con Gemini hace falta internet; con **Ollama**, la IA corre en tu Mac y funciona sin internet."
+    },
+    {
+      "id": "data",
+      "q": "¿Dónde se guardan mis datos?",
+      "keywords": ["datos", "guardan", "privacidad", "carpeta", "nube", "seguro"],
+      "a": "En tu Mac, en una carpeta de Nuggit (la ves en Ajustes → Acerca de). No hay cuenta ni nube. Tu key de Gemini se guarda cifrada. Dip solo ve tus tareas si activas **Compartir tareas con Dip**."
+    },
+    {
+      "id": "connect-ai",
+      "q": "¿Cómo conecto Gemini u Ollama?",
+      "keywords": ["gemini", "ollama", "key", "conectar", "api", "ia"],
+      "a": "Ve a Ajustes → **IA y proveedores**. Para Gemini, saca una key gratis en Google AI Studio, pégala y toca \"Probar conexión\". Para Ollama, instálalo en tu Mac y Nuggit lo encuentra solo. Ahí mismo eliges cuál usar."
+    },
+    {
+      "id": "lockdown-exit",
+      "q": "¿Cómo salgo de Lockdown?",
+      "keywords": ["lockdown", "salir", "esc", "atrapado", "pantalla"],
+      "a": "Presiona **Esc**, o el botón de salir en la pantalla de Lockdown. Tu Focus sigue corriendo."
+    },
+    {
+      "id": "widget-back",
+      "q": "¿Cómo regreso un widget al tablero?",
+      "keywords": ["regresar", "widget", "tablero", "despegado", "volver"],
+      "a": "En el encabezado del widget despegado toca **↙** (Regresar al tablero). Si está fijado (🔒), primero toca el candado. Si está en Pin on back, ábrelo desde el 🧩 quick pickup y toca **✏️ Editar** o **Quitar del fondo**."
+    },
+    {
+      "id": "widget-gone",
+      "q": "Oculté un widget, ¿cómo lo recupero?",
+      "keywords": ["oculté", "ocultar", "desapareció", "recuperar", "widget"],
+      "a": "En Inicio toca **+ Widget**: los ocultos salen ahí (el número en el botón dice cuántos hay) para volver a mostrarlos."
+    },
+    {
+      "id": "dip-tasks",
+      "q": "Dip dice que no puede ver mis tareas",
+      "keywords": ["dip", "ver", "tareas", "permiso", "compartir"],
+      "a": "Es a propósito: tus tareas son tuyas. Si quieres que Dip las vea, activa **Compartir tareas con Dip** en Ajustes → IA y proveedores."
+    },
+    {
+      "id": "dip-confirm",
+      "q": "¿Dip puede cambiar mis cosas sin preguntar?",
+      "keywords": ["dip", "cambiar", "borrar", "confirmar", "permiso", "acciones"],
+      "a": "No. Cuando Dip quiere crear, completar o cambiar una tarea, te muestra una tarjeta y solo se guarda si tú confirmas. Y lo puedes deshacer."
+    },
+    {
+      "id": "tour",
+      "q": "¿Puedo ver el tour de bienvenida otra vez?",
+      "keywords": ["tour", "bienvenida", "tutorial", "otra vez", "repetir"],
+      "a": "Sí: arriba en esta pestaña de Ayuda toca **Ver el tour otra vez**."
+    }
+  ],
+  "shortcuts": [
+    {
+      "keys": "⌘1 … ⌘0",
+      "what": "Cambiar de pestaña: Inicio, Dip, Tareas, Ahora, Tenderizer, Dailies, Notas, Brain Dump, Focus, Calendario"
+    },
+    { "keys": "⌘,", "what": "Abrir Ajustes" },
+    { "keys": "⌘N", "what": "Nueva nota rápida" },
+    { "keys": "Enter", "what": "Mandar el mensaje a Dip (⇧ Enter: nueva línea)" },
+    { "keys": "Fn Fn (🌐)", "what": "Dictar con la voz en cualquier campo de texto" },
+    {
+      "keys": "Esc",
+      "what": "Salir de Lockdown, colgar la llamada con Dip o cerrar una ventanita"
+    },
+    {
+      "keys": "Tu atajo",
+      "what": "Abrir el mini chat de Dip desde cualquier app (lo eliges en Ajustes → Barra de menú)"
+    }
+  ]
+}
