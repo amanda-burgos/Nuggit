@@ -9,6 +9,8 @@ import { imageWidget } from './image'
 import { musicWidget } from './music'
 import { nextActionWidget } from './next-action'
 import { notesWidget } from './notes'
+import { qotdWidget } from './qotd'
+import { remindersWidget } from './reminders'
 import { tasksWidget } from './tasks'
 import { tendersWidget } from './tenders'
 
@@ -22,8 +24,10 @@ export const widgetRegistry: AnyWidgetDefinition[] = [
   tasksWidget,
   tendersWidget,
   dailiesWidget,
+  remindersWidget,
   calendarWidget,
   notesWidget,
+  qotdWidget,
   brainDumpWidget,
   dipWidget
 ]

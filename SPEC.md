@@ -284,7 +284,7 @@ La ventana principal de Nuggit tiene una **barra lateral** con pestañas. Cada p
 - **Dailies**: las rutinas que se repiten (9.13).
 - **Notas**: Quick Notes (9.7).
 - **Brain Dump**: soltar todo y ordenarlo (9.6).
-- **Focus**: el temporizador (9.8), con la entrada a Lockdown (9.9).
+- **Focus**: el temporizador (9.8).
 - **Ajustes**: Settings (IA, personalidad de Dip, barra de menú, tema...).
 - Toda feature útil tiene su pestaña.
 
@@ -356,7 +356,9 @@ Crear una nota debe ser un solo clic o un atajo de teclado.
 ### 9.8 Focus
 Temporizador configurable (25/5, 15/5, personalizado). Pausar, cancelar y cambiar en cualquier momento. Muestra la tarea actual.
 
-### 9.9 Lockdown
+### 9.9 Lockdown (quitado el 2026-10-31)
+**Se quitó.** Como solo podía vivir dentro de la app, no bloqueaba nada: con ⌘Tab te salías como si nada, así que "salir con Esc" no tenía sentido. Si regresa, sería de verdad (modo kiosko de Electron, como los navegadores de exámenes: sin Dock, sin barra de menú, sin ⌘Tab) con Esc para salir. Lo que decía antes:
+
 Pantalla de concentración: solo la tarea actual, el temporizador y el siguiente paso. Oculta los demás widgets. **Solo dentro de la app**: nunca bloquear el sistema. Salida siempre visible (botón + tecla Esc).
 
 ### 9.10 Voz
@@ -600,7 +602,7 @@ Cómo quedó (Fase 7):
 - **Focus** (widget + pestaña ⌘9): 25/5, 15/5 o Personalizado (1–180 min). Empezar, Pausa/Seguir y Cancelar; en el descanso, "Saltar descanso". Cambiar los tiempos con el reloj andando conserva lo ya hecho (si el nuevo tiempo ya pasó, la fase termina).
 - El temporizador vive en el proceso main (`focus.json`): widget, pestaña, ventana despegada y Lockdown muestran lo mismo, sigue corriendo sin ventanas y sobrevive a reiniciar Nuggit. Al terminar la concentración empieza el descanso solo; al terminar el descanso, espera. Un solo aviso del sistema por fase, sin más.
 - **Tarea actual:** la que elijas en la lista, o si no la de "¿Qué hago ahora?" (mismas reglas, `focusAction` en `src/shared/nextAction.ts`). Empezar la marca "En curso". "✅ Hecho" la completa y pasa sola al siguiente paso. Cuenta las rondas del día.
-- **Lockdown** (botón 🔒 en Focus): cubre la ventana principal con solo la tarea, el reloj, sus botones y el siguiente paso. Esconde los widgets despegados y los devuelve al salir. Salida siempre visible (botón "Salir" + Esc). Cerrar la ventana también sale, y Lockdown nunca vuelve solo al abrir Nuggit. No bloquea nada fuera de la app.
+- ~~**Lockdown**~~ (quitado el 2026-10-31, ver 9.9) (botón 🔒 en Focus): cubre la ventana principal con solo la tarea, el reloj, sus botones y el siguiente paso. Esconde los widgets despegados y los devuelve al salir. Salida siempre visible (botón "Salir" + Esc). Cerrar la ventana también sale, y Lockdown nunca vuelve solo al abrir Nuggit. No bloquea nada fuera de la app.
 
 ### Fase 8 — Voz básica
 
@@ -709,8 +711,40 @@ Cómo quedó (Fase 10):
 - **Qué hay de nuevo:** al abrir Nuggit con una versión distinta a `onboarding.lastSeenVersion`, muestra esa versión del CHANGELOG (o la más nueva, "Sin publicar", mientras se desarrolla). A alguien nuevo no le sale: ve el tour. Se apaga en Ajustes → General.
 - **Dip y la ayuda:** si la pregunta parece de "¿cómo/dónde…?", se le pasan solo las 3 entradas de ayuda que mejor coinciden (búsqueda por palabras, sin IA), para no gastar tokens en cada mensaje (`src/shared/help.ts`).
 
+### Fase 11 — Pregunta del día (QOTD)
+- Una pregunta al día: divertida, para conocerte, para pensar, "¿qué prefieres?" o "imagina". Funciona sin IA.
+- **Banco incluido** en `config/qotd.json` (se edita ahí) + **generadas por código**: las parejas dentro de cada grupo de `prefieres` ("¿Qué prefieres: X o Y?", solo cosas parecidas: comida con comida, lugares con lugares) y plantillas con `{x}`.
+- **🔀 Otra:** otra pregunta para hoy (no cuando ya contestaste).
+- **Respuesta opcional**, se guarda sola; en la pestaña se ven las de otros días.
+- **💬 Platicar con Dip:** abre Dip con la pregunta (y tu respuesta, si hay) para conversar.
+- **Temas que te gustan** (✏️ Mis temas: Matemáticas, Historia, Ciencia, Espacio, Idiomas, Libros, Arte, Música, Deportes, Tecnología, Videojuegos, Animales, Cine): cada tema que escojas tiene **su propio cuadrito** con su pregunta del día, y contestas las que quieras.
+- **Escribe tu propio tema** ("K-pop", "🧪 Química") con "+ Agregar" en Mis temas; se borra con ×. Si ya existe (aunque sea con o sin acentos), solo lo prende.
+- Widget y pestaña 💭 **Pregunta** (sin atajo). El widget muestra un cuadrito: la general o el tema que escojas en su ⚙︎.
+- **Listo cuando:** abres Nuggit, ves la pregunta de hoy, la contestas o platicas con Dip, y mañana sale otra.
+
+Cómo quedó (Fase 11):
+- **La pregunta sale de la fecha** (`src/shared/qotd.ts`): mismo día = misma pregunta en todas las ventanas, sin guardarla. ~6 de cada 10 días del banco (en un orden revuelto fijo, así no se repite hasta usar todo el banco) y el resto generadas. "Otra" suma 1 a `skip` de ese día.
+- **Temas propios:** no hay preguntas escritas para ellos, así que salen de `customTemplates` ("¿Qué es lo que más te gusta de {x}?"…) y funcionan sin IA. Un emoji al principio es su ícono (si no, ⭐). Van en `settings.qotdCustomTopics` con id `mi-…`. Cada uno empieza 5 preguntas más adelante que el anterior, para que dos temas tuyos no pregunten lo mismo el mismo día.
+- **Temas:** sus preguntas están en `topics` de `config/qotd.json`. Cada tema da una pregunta al día recorriendo sus preguntas en un orden revuelto fijo (no se repite hasta usarlas todas); cada tema empieza en un lugar distinto. Los temas escogidos van en `settings.qotdTopics`.
+- **Se guarda** en `qotd.json` por cuadrito (`2026-10-31` la general, `2026-10-31:historia` la de un tema): `skip`, y al contestar la pregunta, su tipo y tu respuesta (así las respuestas viejas conservan su pregunta aunque cambie el banco). Respuesta vacía = se borra.
+- **Platicar con Dip** manda un mensaje normal al chat de Dip ("Pregunta del día: … Mi respuesta: …") y abre la pestaña Dip con `app.openTab`, también desde un widget despegado.
+
+### Fase 12 — Recordatorios
+- Un recordatorio: qué, día y hora, y si se repite (una vez, todos los días, algunos días o cada X días; las mismas opciones que los dailies).
+- A su hora sale un **aviso del sistema**, aunque no haya ventanas abiertas: basta con que Nuggit esté abierto en la barra de menú. Tocar el aviso abre la pestaña.
+- **Posponer** (+10 min, +1 hora) o **Listo** después de que sonó. Rápidos: "En 15 min", "En 1 hora", "Mañana 9:00".
+- Widget (los próximos 5 y agregar rápido) y pestaña ⏰ **Recordatorios** (sin atajo): todo lo anterior + repetir, editar, borrar con Deshacer y "Ya sonaron".
+- **Listo cuando:** pongo "tomar agua" en 2 minutos, cierro la ventana, y me llega el aviso; uno de "todos los días a las 9" vuelve a sonar mañana.
+
+Cómo quedó (Fase 12):
+- Viven en el proceso main (`reminders.json`, `src/main/reminders.ts`); la cuenta de cuándo suena está en `src/shared/reminders.ts` (usa `isDueOn` de los dailies). Las horas son locales, como texto `AAAA-MM-DDTHH:MM`.
+- Cada recordatorio guarda `after`: todo lo que tocaba hasta esa hora ya sonó. Suena la primera vez que toca después de `after`, y al sonar `after` pasa a "ahora". Cambiar el día, la hora o la repetición lo empieza de nuevo desde ahora.
+- Un temporizador despierta a la siguiente hora (o cada hora como máximo, por si la Mac durmió o cambió el reloj) y al despertar la Mac (`powerMonitor` "resume").
+- **Si Nuggit estaba cerrado:** lo que tocaba en las últimas 12 h suena una vez al abrir ("Era a las 9:00"); lo más viejo se salta sin avisar. Si suenan varios a la vez, sale un solo aviso con todos.
+- La pestaña ofrece "Abrir Nuggit al prender la Mac" si está apagado.
+
 ### Después del MVP (ideas)
-QOTD (banco de preguntas incluido + generadas por código + IA para conversar), School, Recordatorios (con la app en la barra de menú), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
+School, Recordatorios con Dip ("recuérdame a las 5…"), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 
 ---
 

@@ -1,0 +1,143 @@
+/* --- Recordatorios (Fase 12) --- */
+
+.reminders {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+}
+
+.reminders.is-full {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  gap: 16px;
+}
+
+.reminders h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+.reminder-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reminders.is-full > .reminder-editor {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+
+.reminder-editor input {
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+}
+
+.reminder-editor-title {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.reminder-editor-row,
+.reminder-quick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reminder-editor-row input {
+  flex: 1 1 120px;
+  min-width: 0;
+}
+
+.reminder-hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.reminder-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reminder-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-muted);
+}
+
+.reminder-item.is-editing {
+  display: block;
+}
+
+.reminder-list.is-past .reminder-item {
+  opacity: 0.7;
+}
+
+.reminder-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reminder-text strong {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.reminder-when {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.reminders-rang {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reminder-rang {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-soft);
+  border: 1px solid var(--color-accent);
+  font-weight: 600;
+}
+
+.reminder-rang-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.reminders-undo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+}

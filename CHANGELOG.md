@@ -4,6 +4,23 @@ Lo nuevo, lo arreglado y lo que cambió, por fecha y en palabras simples. Se ve 
 
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
+## [Recordatorios] - 2026-11-02
+
+### Nuevo
+
+- **Recordatorios ⏰:** dile a Nuggit qué te recuerda y a qué hora (o toca "En 15 min", "En 1 hora", "Mañana 9:00"). Una vez o que se repita: todos los días, algunos días o cada X días. Te avisa con una notificación de la Mac aunque cierres la ventana, mientras Nuggit esté abierto en la barra de menú. ¿No es buen momento? Posponlo 10 min o 1 hora. Pestaña y widget nuevos (Fase 12).
+
+## [Pregunta del día] - 2026-10-31
+
+### Nuevo
+
+- **Pregunta del día 💭:** cada día una pregunta para ti: divertida, para conocerte, para pensar, "¿qué prefieres?" o "imagina". Si no te late, 🔀 Otra. Escribe tu respuesta (se guarda sola), mira las de otros días en la pestaña **Pregunta**, o toca 💬 **Platicar con Dip** para hablar de ella. También es widget (Fase 11).
+- **Tus temas en la Pregunta del día:** en ✏️ Mis temas escoges lo que te gusta (matemáticas, historia, ciencia, espacio, música, videojuegos…) y cada tema tiene su propio cuadrito con su pregunta del día. Contestas las que quieras. ¿No está tu tema? Escríbelo ("K-pop", "🧪 Química") y también tendrá sus preguntas (Fase 11).
+
+### Cambió
+
+- **Adiós, Lockdown:** como no bloqueaba la Mac de verdad (con ⌘Tab te salías), lo quitamos por ahora. Focus sigue igual.
+
 ## [Ayuda, tour y tu propio color] - 2026-10-30
 
 ### Nuevo

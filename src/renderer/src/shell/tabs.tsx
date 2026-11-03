@@ -28,7 +28,15 @@ export const TABS: TabInfo[] = [
   },
   { key: 'focus', label: 'Focus', icon: '⏳', shortcut: '9', widgetType: 'focus' },
   { key: 'calendar', label: 'Calendario', icon: '📅', shortcut: '0', widgetType: 'calendar' },
+  {
+    key: 'reminders',
+    label: 'Recordatorios',
+    icon: '⏰',
+    shortcut: '',
+    widgetType: 'reminders'
+  },
   { key: 'music', label: 'Música', icon: '🎵', shortcut: '', widgetType: 'music' },
+  { key: 'qotd', label: 'Pregunta', icon: '💭', shortcut: '', widgetType: 'qotd' },
   { key: 'help', label: 'Ayuda', icon: '❓', shortcut: '' },
   { key: 'settings', label: 'Ajustes', icon: '⚙︎', shortcut: ',' }
 ]

@@ -32,7 +32,9 @@ const DEFAULT_SETTINGS: Settings = {
     widgetRadius: 18
   },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} },
-  onboarding: { tourDone: false, whatsNew: true }
+  onboarding: { tourDone: false, whatsNew: true },
+  qotdTopics: [],
+  qotdCustomTopics: []
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -199,6 +201,8 @@ const TABS = [
   'focus',
   'calendar',
   'music',
+  'qotd',
+  'reminders',
   'help',
   'settings'
 ]
@@ -243,6 +247,28 @@ function cleanOrder(value: unknown): Settings['ai']['order'] | null {
   return [...order, ...BACKENDS.filter((b) => !order.includes(b))]
 }
 
+// Topics you wrote yourself for the question of the day: { id: "mi-…", label }.
+function cleanCustomTopics(value: unknown): Settings['qotdCustomTopics'] | null {
+  if (!Array.isArray(value)) return null
+  const seen = new Set<string>()
+  const topics: Settings['qotdCustomTopics'] = []
+  for (const item of value) {
+    if (!isObject(item) || typeof item.id !== 'string' || typeof item.label !== 'string') continue
+    const label = item.label.trim().slice(0, 40)
+    if (!/^mi-[a-z0-9-]{1,30}$/.test(item.id) || !label || seen.has(item.id)) continue
+    seen.add(item.id)
+    topics.push({ id: item.id, label })
+  }
+  return topics.slice(0, 20)
+}
+
+// Topic ids for the question of the day (the renderer ignores ones it doesn't know).
+function cleanTopics(value: unknown): string[] | null {
+  if (!Array.isArray(value)) return null
+  const ids = value.filter((v): v is string => typeof v === 'string' && /^[a-z0-9-]{1,30}$/.test(v))
+  return [...new Set(ids)].slice(0, 30)
+}
+
 export async function loadSettings(): Promise<Settings> {
   const data = await readJson<Partial<Settings>>('settings', {})
   return {
@@ -258,6 +284,8 @@ export async function loadSettings(): Promise<Settings> {
       ...DEFAULT_SETTINGS.onboarding,
       ...(isObject(data.onboarding) ? data.onboarding : {})
     },
+    qotdTopics: cleanTopics(data.qotdTopics) ?? [],
+    qotdCustomTopics: cleanCustomTopics(data.qotdCustomTopics) ?? [],
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -400,6 +428,12 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     if (isObject(panel) && typeof panel.type === 'string' && isObject(panel.config)) {
       current.ui.panels = { ...current.ui.panels, [panel.type]: panel.config }
     }
+  }
+  if (isObject(patch)) {
+    const topics = cleanTopics(patch.qotdTopics)
+    if (topics) current.qotdTopics = topics
+    const custom = cleanCustomTopics(patch.qotdCustomTopics)
+    if (custom) current.qotdCustomTopics = custom
   }
   if (isObject(patch) && isObject(patch.onboarding)) {
     const { tourDone, whatsNew, lastSeenVersion, lastSeenNews } = patch.onboarding

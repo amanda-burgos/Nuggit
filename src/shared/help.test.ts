@@ -4,7 +4,7 @@ import { helpForDip, searchHelp } from './help'
 
 describe('searchHelp', () => {
   it('finds the entry a question is about, accents or not', () => {
-    expect(searchHelp('¿Cómo salgo de lockdown?')[0].title).toMatch(/Lockdown/)
+    expect(searchHelp('¿Cómo uso el temporizador de focus?')[0].title).toMatch(/Focus/)
     expect(searchHelp('como regreso un widget al tablero')[0].title).toMatch(/regreso/)
   })
 

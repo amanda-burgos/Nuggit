@@ -5,10 +5,9 @@ import { getNextActionState, startAction } from './nextAction'
 import { readJson, writeJson } from './storage/jsonStore'
 import { getTasks } from './tasks'
 import { onBreakStart, onFocusPause, onFocusStart, onFocusStop } from './music'
-import { setAllVisible } from './widgetWindows'
 
-// SPEC 9.8 and 9.9. The Focus timer lives here, so the widget, its tab, a detached window
-// and Lockdown all show the same one; it also keeps running (and survives a restart)
+// SPEC 9.8. The Focus timer lives here, so the widget, its tab and a detached window all
+// show the same one; it also keeps running (and survives a restart)
 // while no window is open. A focus round is followed by its break, then it waits.
 
 const MIN_MINUTES = 1
@@ -23,11 +22,9 @@ let state: FocusState = {
   durationMs: 0,
   taskId: null,
   rounds: 0,
-  roundsDay: toISODate(new Date()),
-  lockdown: false
+  roundsDay: toISODate(new Date())
 }
 let timer: ReturnType<typeof setTimeout> | null = null
-let showMainWindow: () => void = () => undefined
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -57,7 +54,7 @@ function leftMs(now = Date.now()): number {
 
 function commit(next: FocusState): void {
   state = next
-  writeJson('focus', { version: 1, ...next, lockdown: false }).catch((err) =>
+  writeJson('focus', { version: 1, ...next }).catch((err) =>
     console.error('[focus] could not save', err)
   )
   for (const win of BrowserWindow.getAllWindows()) win.webContents.send('focus:changed', next)
@@ -102,8 +99,7 @@ function finishPhase(): void {
   }
 }
 
-export async function initFocus(deps: { showMainWindow(): void }): Promise<void> {
-  showMainWindow = deps.showMainWindow
+export async function initFocus(): Promise<void> {
   const data = await readJson<unknown>('focus', null)
   if (isObject(data)) {
     const phase = data.phase === 'focus' || data.phase === 'break' ? data.phase : 'idle'
@@ -117,9 +113,7 @@ export async function initFocus(deps: { showMainWindow(): void }): Promise<void>
       durationMs: running && typeof data.durationMs === 'number' ? data.durationMs : 0,
       taskId: typeof data.taskId === 'string' ? data.taskId : null,
       rounds: typeof data.rounds === 'number' ? data.rounds : 0,
-      roundsDay: typeof data.roundsDay === 'string' ? data.roundsDay : state.roundsDay,
-      // Lockdown never comes back after a restart: Nuggit must never trap anyone.
-      lockdown: false
+      roundsDay: typeof data.roundsDay === 'string' ? data.roundsDay : state.roundsDay
     }
     if (running && !state.endsAt && state.pausedLeftMs === null) state.phase = 'idle'
   }
@@ -206,13 +200,4 @@ export function setFocusTask(taskId: unknown): void {
   if (typeof taskId !== 'string' || !getTasks().some((t) => t.id === taskId)) return
   commit({ ...state, taskId })
   if (state.phase === 'focus') startAction(taskId)
-}
-
-// Lockdown happens only inside Nuggit: the main window comes to the front with the
-// Lockdown screen, and the detached widgets hide until it ends. Nothing else is blocked.
-export function setLockdown(on: unknown): void {
-  if (typeof on !== 'boolean' || on === state.lockdown) return
-  setAllVisible(!on)
-  if (on) showMainWindow()
-  commit({ ...state, lockdown: on })
 }

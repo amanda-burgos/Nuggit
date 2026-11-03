@@ -14,16 +14,13 @@ import { Sidebar } from './shell/Sidebar'
 import { TABS } from './shell/tabs'
 import './shell/shell.css'
 import { useDesktop } from './store/useDesktop'
-import { useFocus } from './store/useFocus'
 import { newQuickNote } from './store/useNotes'
 import { useSettings } from './store/useSettings'
-import { Lockdown } from './widgets/focus/Lockdown'
 
 // The control center (SPEC 9.0): a sidebar with tabs, each one a full-size panel.
 function App(): React.JSX.Element {
   const desktopStore = useDesktop()
   const { settings, update } = useSettings()
-  const focus = useFocus()
   const { desktop } = desktopStore
   const tab = settings?.ui.tab ?? 'home'
   const collapsed = settings?.ui.sidebarCollapsed ?? false
@@ -137,8 +134,7 @@ function App(): React.JSX.Element {
         )}
         {tab === 'settings' && <SettingsPanel settings={settings} update={update} />}
       </main>
-      {focus?.lockdown && <Lockdown />}
-      {touring && !focus?.lockdown && <Tour onDone={finishTour} />}
+      {touring && <Tour onDone={finishTour} />}
       {newsOpen && <NewsPanel onClose={() => setNewsOpen(false)} />}
       {news && !touring && (
         <WhatsNew

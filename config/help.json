@@ -96,18 +96,9 @@
     {
       "id": "focus",
       "icon": "⏳",
-      "title": "Focus y Lockdown",
-      "keywords": [
-        "focus",
-        "concentrar",
-        "temporizador",
-        "pomodoro",
-        "lockdown",
-        "descanso",
-        "salir",
-        "esc"
-      ],
-      "text": "En **Focus** (⌘9) eliges una tarea y un tiempo (25/5, 15/5 o el tuyo) y empiezas. Puedes pausar, cambiar o cancelar cuando quieras. **Lockdown** pone una pantalla de concentración con solo tu tarea, el reloj y el siguiente paso, y esconde los widgets. Sales con **Esc**."
+      "title": "Focus",
+      "keywords": ["focus", "concentrar", "temporizador", "pomodoro", "descanso", "salir", "esc"],
+      "text": "En **Focus** (⌘9) eliges una tarea y un tiempo (25/5, 15/5 o el tuyo) y empiezas. Puedes pausar, cambiar o cancelar cuando quieras, y sigue corriendo aunque cierres la ventana."
     },
     {
       "id": "calendar",
@@ -129,6 +120,41 @@
       "title": "Voz y llamada con Dip",
       "keywords": ["voz", "hablar", "micrófono", "dictado", "llamada", "llamar", "escuchar"],
       "text": "Toca **🎤** para hablarle a Dip en vez de escribir, y **🔊** para que te conteste hablando. Con **📞** lo llamas manos libres: te escucha, te contesta y se calla si lo interrumpes. La voz de Dip se elige en Ajustes → Voz."
+    },
+    {
+      "id": "qotd",
+      "icon": "💭",
+      "title": "Pregunta del día",
+      "keywords": [
+        "pregunta",
+        "pregunta del día",
+        "qotd",
+        "platicar",
+        "respuesta",
+        "respuestas",
+        "temas",
+        "matemáticas",
+        "historia"
+      ],
+      "text": "Cada día hay una **pregunta** nueva en la pestaña **Pregunta** (y en su widget). En **✏️ Mis temas** escoges lo que te gusta (matemáticas, historia, ciencia…) y cada tema tiene su propio cuadrito con su pregunta. Si tu tema no está, escríbelo y dale **+ Agregar**. Contesta las que quieras (se guardan solas), toca **🔀 Otra** si no te late una, o **💬 Platicar con Dip** para hablar de ella."
+    },
+    {
+      "id": "reminders",
+      "icon": "⏰",
+      "title": "Recordatorios",
+      "keywords": [
+        "recordatorio",
+        "recordatorios",
+        "recuérdame",
+        "recordar",
+        "aviso",
+        "avisos",
+        "alarma",
+        "notificación",
+        "posponer",
+        "hora"
+      ],
+      "text": "En la pestaña **Recordatorios** (o su widget) escribes qué te recuerdo, el día y la hora (o tocas **En 15 min**, **En 1 hora**, **Mañana 9:00**). Puede ser **una vez** o repetirse: todos los días, algunos días o cada X días. A esa hora te sale un **aviso de la Mac**, aunque la ventana esté cerrada: Nuggit solo tiene que estar abierto (en la barra de menú basta). Al tocar el aviso se abre la pestaña, donde puedes **posponerlo** (+10 min, +1 hora) o darle **Listo**."
     }
   ],
   "customize": [
@@ -201,12 +227,6 @@
       "a": "Ve a Ajustes → **IA y proveedores**. Para Gemini, saca una key gratis en Google AI Studio, pégala y toca \"Probar conexión\". Para Ollama, instálalo en tu Mac y Nuggit lo encuentra solo. Ahí mismo eliges cuál usar."
     },
     {
-      "id": "lockdown-exit",
-      "q": "¿Cómo salgo de Lockdown?",
-      "keywords": ["lockdown", "salir", "esc", "atrapado", "pantalla"],
-      "a": "Presiona **Esc**, o el botón de salir en la pantalla de Lockdown. Tu Focus sigue corriendo."
-    },
-    {
       "id": "widget-back",
       "q": "¿Cómo regreso un widget al tablero?",
       "keywords": ["regresar", "widget", "tablero", "despegado", "volver"],
@@ -242,13 +262,25 @@
       "keys": "⌘1 … ⌘0",
       "what": "Cambiar de pestaña: Inicio, Dip, Tareas, Ahora, Tenderizer, Dailies, Notas, Brain Dump, Focus, Calendario"
     },
-    { "keys": "⌘,", "what": "Abrir Ajustes" },
-    { "keys": "⌘N", "what": "Nueva nota rápida" },
-    { "keys": "Enter", "what": "Mandar el mensaje a Dip (⇧ Enter: nueva línea)" },
-    { "keys": "Fn Fn (🌐)", "what": "Dictar con la voz en cualquier campo de texto" },
+    {
+      "keys": "⌘,",
+      "what": "Abrir Ajustes"
+    },
+    {
+      "keys": "⌘N",
+      "what": "Nueva nota rápida"
+    },
+    {
+      "keys": "Enter",
+      "what": "Mandar el mensaje a Dip (⇧ Enter: nueva línea)"
+    },
+    {
+      "keys": "Fn Fn (🌐)",
+      "what": "Dictar con la voz en cualquier campo de texto"
+    },
     {
       "keys": "Esc",
-      "what": "Salir de Lockdown, colgar la llamada con Dip o cerrar una ventanita"
+      "what": "Colgar la llamada con Dip o cerrar una ventanita"
     },
     {
       "keys": "Tu atajo",

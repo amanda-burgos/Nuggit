@@ -62,10 +62,19 @@ import {
   resumeFocus,
   setFocusPreset,
   setFocusTask,
-  setLockdown,
   startFocus
 } from './focus'
 import { createNote, createNotes, getNotes, removeNotes, restoreNotes, updateNote } from './notes'
+import { answerQotd, getQotd, skipQotd } from './qotd'
+import {
+  createReminder,
+  dismissReminder,
+  getReminders,
+  removeReminders,
+  restoreReminders,
+  snoozeReminder,
+  updateReminder
+} from './reminders'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
 import { clampRadius, cleanBackground, loadSettings } from './storage'
@@ -86,7 +95,6 @@ import {
   finishEditingBack,
   focusWidget,
   openWidget,
-  setAllVisible,
   setWindowOptions,
   setSizeLimits,
   startEditingBack
@@ -107,6 +115,7 @@ function isSize(value: unknown): value is { w: number; h: number } {
 interface IpcDeps {
   openSettings(): void
   openBoard(): void // the main window, on the Inicio tab
+  openTab(tab: unknown): void // the main window, on that tab
 }
 
 function appInfo(): AppInfo {
@@ -118,7 +127,7 @@ function appInfo(): AppInfo {
   }
 }
 
-export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
+export function registerIpc({ openSettings, openBoard, openTab }: IpcDeps): void {
   ipcMain.handle('desktop:load', () => getDesktop())
   ipcMain.handle('desktop:save', (event, state: unknown) => replaceDesktop(state, event.sender))
   ipcMain.handle('desktop:updateConfig', (_event, id: unknown, patch: unknown) => {
@@ -195,6 +204,20 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('dailies:update', (_event, id: unknown, patch: unknown) => updateDaily(id, patch))
   ipcMain.handle('dailies:remove', (_event, ids: unknown) => removeDailies(ids))
 
+  ipcMain.handle('qotd:load', () => getQotd())
+  ipcMain.handle('qotd:answer', (_event, key: unknown, entry: unknown) => answerQotd(key, entry))
+  ipcMain.handle('qotd:skip', (_event, key: unknown) => skipQotd(key))
+  ipcMain.handle('reminders:load', () => getReminders())
+  ipcMain.handle('reminders:create', (_event, input: unknown) => createReminder(input))
+  ipcMain.handle('reminders:update', (_event, id: unknown, patch: unknown) =>
+    updateReminder(id, patch)
+  )
+  ipcMain.handle('reminders:remove', (_event, ids: unknown) => removeReminders(ids))
+  ipcMain.handle('reminders:restore', (_event, list: unknown) => restoreReminders(list))
+  ipcMain.handle('reminders:snooze', (_event, id: unknown, minutes: unknown) =>
+    snoozeReminder(id, minutes)
+  )
+  ipcMain.handle('reminders:dismiss', (_event, id: unknown) => dismissReminder(id))
   ipcMain.handle('notes:load', () => getNotes())
   ipcMain.handle('notes:create', (_event, input: unknown) => createNote(input))
   ipcMain.handle('notes:createMany', (_event, inputs: unknown) => createNotes(inputs))
@@ -236,7 +259,6 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('focus:cancel', () => cancelFocus())
   ipcMain.handle('focus:setPreset', (_event, preset: unknown) => setFocusPreset(preset))
   ipcMain.handle('focus:setTask', (_event, taskId: unknown) => setFocusTask(taskId))
-  ipcMain.handle('focus:setLockdown', (_event, on: unknown) => setLockdown(on))
   ipcMain.handle('ai:brainDump', (_event, text: unknown) => splitBrainDump(text))
   ipcMain.handle('ai:proposePersonality', (_event, messages: unknown) =>
     ai.proposePersonality(messages)
@@ -259,6 +281,7 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   ipcMain.handle('popover:shortcutWorks', () => dipShortcutWorks())
 
   ipcMain.on('app:openSettings', () => openSettings())
+  ipcMain.on('app:openTab', (_event, tab: unknown) => openTab(tab))
   ipcMain.handle('app:info', () => appInfo())
   ipcMain.handle('app:setOpenAtLogin', (_event, open: unknown) => {
     if (typeof open === 'boolean') app.setLoginItemSettings({ openAtLogin: open })
@@ -292,9 +315,6 @@ export function registerIpc({ openSettings, openBoard }: IpcDeps): void {
   })
   ipcMain.handle('widgetWindows:close', (_event, id: unknown) => {
     if (typeof id === 'string') closeWidget(id)
-  })
-  ipcMain.handle('widgetWindows:setAllVisible', (_event, visible: unknown) => {
-    if (typeof visible === 'boolean') setAllVisible(visible)
   })
   ipcMain.on('widgetWindows:setSizeLimits', (event, min: unknown, max: unknown) => {
     setSizeLimits(event.sender, isSize(min) ? min : undefined, isSize(max) ? max : undefined)

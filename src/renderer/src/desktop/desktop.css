@@ -84,6 +84,14 @@
   padding: 6px;
   display: flex;
   flex-direction: column;
+  /* With many widgets the list is taller than the window: it scrolls inside. */
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.menu > * {
+  flex-shrink: 0;
 }
 
 .menu-label {

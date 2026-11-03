@@ -8,8 +8,10 @@ import { initDipTray } from './dipTray'
 import { createAppWindow } from './appWindow'
 import { initDailies } from './dailies'
 import { initNotes } from './notes'
+import { initQotd } from './qotd'
+import { initReminders } from './reminders'
 import { initDesktop } from './desktop'
-import { initFocus, setLockdown } from './focus'
+import { initFocus } from './focus'
 import { initCalendar } from './calendar'
 import { initNextAction } from './nextAction'
 import { cleanUpImages, registerImageScheme, serveImages } from './images'
@@ -55,8 +57,6 @@ function createWindow(): BrowserWindow {
   })
   win.on('closed', () => {
     if (mainWindow === win) mainWindow = null
-    // Lockdown lives in this window: closing it ends Lockdown (and shows the widgets again).
-    setLockdown(false)
   })
   return win
 }
@@ -75,6 +75,12 @@ function openSettings(): void {
   const send = (): void => win.webContents.send('app:openSettings')
   if (win.webContents.isLoading()) win.webContents.once('did-finish-load', send)
   else send()
+}
+
+// The main window, on that tab. The tab is checked by the settings (an unknown one is ignored).
+function openTab(tab: unknown): void {
+  showMainWindow()
+  changeSettings({ ui: { tab } }).catch((err) => console.error('[settings] could not save', err))
 }
 
 app.whenReady().then(async () => {
@@ -122,6 +128,17 @@ app.whenReady().then(async () => {
     console.error('[startup] could not load notes', err)
   }
   try {
+    await initQotd()
+  } catch (err) {
+    console.error('[startup] could not load the questions of the day', err)
+  }
+  try {
+    // Rings them even with no window open (clicking the notice opens Recordatorios).
+    await initReminders({ openTab })
+  } catch (err) {
+    console.error('[startup] could not load reminders', err)
+  }
+  try {
     await initNextAction()
   } catch (err) {
     console.error('[startup] could not load Next Action', err)
@@ -132,7 +149,7 @@ app.whenReady().then(async () => {
     console.error('[startup] could not start the calendar', err)
   }
   try {
-    await initFocus({ showMainWindow })
+    await initFocus()
   } catch (err) {
     console.error('[startup] could not load Focus', err)
   }
@@ -154,7 +171,8 @@ app.whenReady().then(async () => {
       changeSettings({ ui: { tab: 'home' } }).catch((err) =>
         console.error('[settings] could not save', err)
       )
-    }
+    },
+    openTab
   })
   createWindow()
   initWidgetWindows()

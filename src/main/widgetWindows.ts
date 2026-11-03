@@ -39,7 +39,6 @@ const focusOnShow = new Set<string>()
 const pendingBounds = new Map<string, WidgetRect>()
 let boundsTimer: NodeJS.Timeout | null = null
 let quitting = false
-let hiddenForLockdown = false
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
@@ -183,7 +182,6 @@ function createWidgetWindow(id: string, entry: DetachedWidget): BrowserWindow {
     if (current) applyWindowState(win, current, isLocked(id), true, editingBack.has(id))
     // The shadow follows what is drawn, so work it out again once the card is there.
     setTimeout(() => refreshShadow(win), 300)
-    if (hiddenForLockdown) return
     // Just detached (or "Editar"): bring it forward. Restored at launch: don't steal focus.
     if (focusOnShow.delete(id)) {
       // Asked for from the quick pickup, a panel that doesn't make Nuggit the active app.
@@ -374,15 +372,6 @@ export function focusWidget(id: string, showBoard: () => void): void {
 export function closeWidget(id: string): void {
   if (getDesktop()?.detached?.[id]) setDetached({ [id]: null })
   else setWidgetHidden(id, true)
-}
-
-// Lockdown hides every detached widget, and shows them again when it ends.
-export function setAllVisible(visible: boolean): void {
-  hiddenForLockdown = !visible
-  for (const win of windows.values()) {
-    if (visible) win.showInactive()
-    else win.hide()
-  }
 }
 
 export function setSizeLimits(

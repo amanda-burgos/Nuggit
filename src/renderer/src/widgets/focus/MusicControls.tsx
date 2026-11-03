@@ -5,7 +5,7 @@ import { useSettings } from '../../store/useSettings'
 const POLL_MS = 4000
 const log = (err: unknown): void => console.error('[music]', err)
 
-// SPEC 9.19: ⏯ ⏭ and the song playing, in Focus and in Lockdown. Only when music is
+// SPEC 9.19: ⏯ ⏭ and the song playing, in Focus. Only when music is
 // turned on in Ajustes → Música. Without Spotify open, a kind note instead.
 export function MusicControls(): React.JSX.Element | null {
   const { settings } = useSettings()

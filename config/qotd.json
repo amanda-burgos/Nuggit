@@ -1,0 +1,537 @@
+{
+  "questions": [
+    {
+      "kind": "divertida",
+      "text": "Si tu vida tuviera una canción de fondo hoy, ¿cuál sería?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Qué superpoder inútil te gustaría tener?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si fueras un snack, ¿cuál serías y por qué?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Qué nombre le pondrías a tu mascota imaginaria?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si pudieras hablar con un animal por un día, ¿cuál escogerías?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Cuál es la cosa más random que sabes hacer?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si abrieras un restaurante, ¿cómo se llamaría y qué venderías?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Qué personaje de película o serie sería tu mejor amigo?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si tu día de hoy fuera un clima, ¿cuál sería?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Qué emoji te describe hoy?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si pudieras inventar una materia en la escuela, ¿cuál sería?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Cuál sería el título de la película de tu semana?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si pudieras vivir dentro de un videojuego, ¿cuál escogerías?"
+    },
+    {
+      "kind": "divertida",
+      "text": "¿Qué comida podrías comer todos los días sin aburrirte?"
+    },
+    {
+      "kind": "divertida",
+      "text": "Si tuvieras un robot ayudante, ¿qué sería lo primero que le pedirías?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué te hizo sonreír esta semana?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿En qué momento del día tienes más energía?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué cosa pequeña te pone de buen humor?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué te gustaría aprender aunque no sirva para nada?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Dónde te concentras mejor: en silencio, con música o con ruido?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué hobby te gustaría tener más tiempo para hacer?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué es algo que haces mejor de lo que crees?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Cuál es tu forma favorita de descansar?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué lugar te hace sentir en calma?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué te gustaba mucho de chiquito y todavía te gusta?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué consejo le darías a tu yo de hace un año?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué te motiva más: empezar algo nuevo o terminar algo pendiente?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Quién es alguien que te inspira y por qué?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué te gustaría que la gente supiera de ti?"
+    },
+    {
+      "kind": "conocerte",
+      "text": "¿Qué es algo que te da mucha curiosidad?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué es una cosa chiquita que puedes hacer hoy para que mañana sea más fácil?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué terminaste últimamente que te hizo sentir orgulloso u orgullosa?"
+    },
+    {
+      "kind": "pensar",
+      "text": "Si hoy solo pudieras hacer una cosa, ¿cuál sería?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué te está costando empezar y cuál sería el primer pasito?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿De qué estás agradecido o agradecida hoy?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué podrías dejar de hacer para tener más tiempo libre?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué te gustaría recordar de este mes?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué hábito chiquito te gustaría empezar?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué te preocupa hoy que mañana probablemente no importe tanto?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué te ayudó la última vez que te sentiste agobiado o agobiada?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué meta te gustaría lograr antes de que acabe el año?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué fue lo mejor de ayer?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿A quién le podrías mandar un mensaje bonito hoy?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué harías hoy si no tuvieras miedo a equivocarte?"
+    },
+    {
+      "kind": "pensar",
+      "text": "¿Qué parte de tu rutina disfrutas más?"
+    }
+  ],
+  "prefieres": [
+    [
+      "la playa",
+      "la montaña",
+      "la ciudad",
+      "el campo",
+      "el bosque"
+    ],
+    [
+      "pizza",
+      "tacos",
+      "sushi",
+      "hamburguesa",
+      "pasta"
+    ],
+    [
+      "helado",
+      "pastel",
+      "galletas",
+      "chocolate"
+    ],
+    [
+      "leer un libro",
+      "ver una serie",
+      "jugar videojuegos",
+      "salir con amigos",
+      "dormir una siesta"
+    ],
+    [
+      "volar",
+      "ser invisible",
+      "leer mentes",
+      "teletransportarte",
+      "hablar con animales"
+    ],
+    [
+      "viajar al pasado",
+      "viajar al futuro"
+    ],
+    [
+      "tener un perro",
+      "tener un gato",
+      "tener un pez",
+      "tener un conejo"
+    ],
+    [
+      "levantarte temprano",
+      "desvelarte"
+    ],
+    [
+      "un día de calor",
+      "un día de frío",
+      "un día de lluvia"
+    ],
+    [
+      "cantar en público",
+      "bailar en público",
+      "contar un chiste en público"
+    ],
+    [
+      "hablar todos los idiomas",
+      "tocar todos los instrumentos",
+      "saber cocinar de todo"
+    ],
+    [
+      "un día sin internet",
+      "un día sin música",
+      "un día sin celular"
+    ],
+    [
+      "estudiar en la mañana",
+      "estudiar en la noche"
+    ],
+    [
+      "trabajar en equipo",
+      "trabajar solo o sola"
+    ]
+  ],
+  "templates": [
+    {
+      "kind": "imagina",
+      "text": "¿Cuál es {x} y por qué?",
+      "fill": [
+        "tu olor favorito",
+        "tu sonido favorito",
+        "tu snack para estudiar",
+        "tu canción para concentrarte",
+        "tu lugar favorito de tu casa",
+        "tu momento favorito del día",
+        "tu película para un día lluvioso",
+        "tu palabra favorita",
+        "tu color de hoy",
+        "tu app favorita (además de Nuggit 😉)"
+      ]
+    },
+    {
+      "kind": "imagina",
+      "text": "Si pudieras {x}, ¿qué harías?",
+      "fill": [
+        "tener un día libre mañana",
+        "teletransportarte a cualquier lugar ahora mismo",
+        "aprender algo en un segundo",
+        "pausar el tiempo una hora",
+        "cambiar una regla de tu escuela o trabajo",
+        "cenar con cualquier persona del mundo",
+        "vivir un día como tu personaje favorito",
+        "regalarle algo a alguien sin que sepa que fuiste tú"
+      ]
+    }
+  ],
+  "topics": [
+    {
+      "id": "matematicas",
+      "icon": "🔢",
+      "label": "Matemáticas",
+      "questions": [
+        "Si tuvieras que explicarle qué es una fracción a un niño de 6 años, ¿cómo lo harías?",
+        "¿Dónde usaste matemáticas hoy sin darte cuenta?",
+        "¿Por qué crees que cualquier número multiplicado por cero da cero?",
+        "Si pudieras inventar un número nuevo, ¿cómo se llamaría y qué haría?",
+        "¿Qué tema de matemáticas te costó al principio y ahora te sale?",
+        "¿Cuántas veces crees que se dobla una hoja de papel antes de que ya no se pueda? ¿Por qué?",
+        "¿Qué es más grande: el número de granos de arena en una playa o el de estrellas en el cielo?",
+        "Si un problema te sale mal, ¿qué es lo primero que revisas?",
+        "¿Para qué crees que sirve el número pi en la vida real?",
+        "Inventa un problema de matemáticas sobre tu comida favorita.",
+        "¿Prefieres álgebra, geometría o estadística? ¿Por qué?",
+        "¿Cómo calcularías cuántos minutos has vivido?"
+      ]
+    },
+    {
+      "id": "historia",
+      "icon": "🏛️",
+      "label": "Historia",
+      "questions": [
+        "Si pudieras ver en vivo un momento de la historia, ¿cuál sería?",
+        "¿Qué personaje histórico invitarías a cenar y qué le preguntarías?",
+        "¿Qué invento cambió más la historia: la imprenta, la electricidad o internet?",
+        "¿Cómo crees que era un día normal de un niño hace 500 años?",
+        "¿Qué época de la historia te da más curiosidad y por qué?",
+        "Si fueras un explorador hace 300 años, ¿a dónde irías?",
+        "¿Qué crees que estudiarán de nuestra época dentro de 200 años?",
+        "¿Qué civilización antigua te parece más impresionante?",
+        "¿Qué hubiera pasado si nunca se hubiera inventado la rueda?",
+        "¿Qué momento de la historia de tu país te gustaría entender mejor?",
+        "Si escribieras la historia de tu familia, ¿con qué empezarías?",
+        "¿Qué personaje histórico crees que está sobrevalorado o subestimado?"
+      ]
+    },
+    {
+      "id": "ciencia",
+      "icon": "🔬",
+      "label": "Ciencia",
+      "questions": [
+        "¿Por qué crees que el cielo es azul y no de otro color?",
+        "Si pudieras hacer cualquier experimento sin peligro, ¿cuál harías?",
+        "¿Qué pregunta de la ciencia te gustaría que alguien respondiera ya?",
+        "¿Qué animal tiene el superpoder más impresionante?",
+        "¿Cómo le explicarías la gravedad a alguien que nunca ha oído de ella?",
+        "¿Qué pasaría si los humanos pudiéramos hacer fotosíntesis?",
+        "¿Qué descubrimiento científico te parece el más importante?",
+        "¿Por qué crees que dormimos?",
+        "Si pudieras encogerte y viajar dentro del cuerpo humano, ¿a dónde irías primero?",
+        "¿Qué cosa de la naturaleza todavía te parece magia?",
+        "¿Cómo sería el mundo si el agua no existiera en forma de hielo?",
+        "¿Qué científico o científica te gustaría conocer?"
+      ]
+    },
+    {
+      "id": "espacio",
+      "icon": "🚀",
+      "label": "Espacio",
+      "questions": [
+        "¿Te irías a vivir a Marte si pudieras regresar cuando quisieras?",
+        "¿Crees que hay vida en otros planetas? ¿Cómo sería?",
+        "¿Qué llevarías en tu mochila para un viaje de un año al espacio?",
+        "Si pudieras ponerle nombre a una estrella, ¿cómo se llamaría?",
+        "¿Qué planeta te parece más interesante y por qué?",
+        "¿Qué es lo que más extrañarías de la Tierra estando en el espacio?",
+        "¿Cómo crees que se ve un amanecer desde la Luna?",
+        "¿Qué le dirías a un extraterrestre para explicarle cómo son los humanos?",
+        "¿Qué crees que hay dentro de un agujero negro?",
+        "Si pudieras viajar a la velocidad de la luz, ¿a dónde irías?"
+      ]
+    },
+    {
+      "id": "idiomas",
+      "icon": "🌎",
+      "label": "Idiomas",
+      "questions": [
+        "¿Qué palabra en otro idioma te gusta cómo suena?",
+        "¿Qué idioma te gustaría hablar perfecto mañana?",
+        "¿Cuál es tu palabra favorita en inglés y por qué?",
+        "¿Qué palabra en español es difícil de traducir a otro idioma?",
+        "Si inventaras un idioma, ¿cómo se diría \"hola\"?",
+        "¿Qué frase o dicho te gusta mucho?",
+        "¿Qué serie o canción te ha enseñado palabras en otro idioma?",
+        "¿Pensar en otro idioma te cambia la forma de pensar? ¿Por qué?",
+        "Describe tu día de hoy en tres palabras en inglés.",
+        "¿Qué país te gustaría visitar para practicar un idioma?"
+      ]
+    },
+    {
+      "id": "libros",
+      "icon": "📚",
+      "label": "Libros y escritura",
+      "questions": [
+        "¿Qué libro le recomendarías a alguien que dice que no le gusta leer?",
+        "Si pudieras meterte en un libro, ¿en cuál sería?",
+        "¿Qué personaje de un libro se parece a ti?",
+        "Escribe la primera frase de un cuento que te gustaría leer.",
+        "¿Qué final de libro o historia cambiarías?",
+        "¿Prefieres leer en papel, en pantalla o escuchar audiolibros?",
+        "¿Qué tema te gustaría que tuviera un libro que todavía no existe?",
+        "¿Qué libro te hizo pensar diferente?",
+        "Si escribieras tu autobiografía, ¿cómo se llamaría?",
+        "¿Qué villano de una historia te cae bien?"
+      ]
+    },
+    {
+      "id": "arte",
+      "icon": "🎨",
+      "label": "Arte y diseño",
+      "questions": [
+        "Si tu estado de ánimo de hoy fuera una pintura, ¿cómo se vería?",
+        "¿Qué color usarías para describir esta semana?",
+        "¿Qué obra de arte, dibujo o diseño te encanta?",
+        "Si pudieras decorar una pared enorme de tu ciudad, ¿qué pintarías?",
+        "¿Qué cosa de tu cuarto rediseñarías?",
+        "¿Te gusta más dibujar, pintar, hacer fotos o diseñar en la compu?",
+        "¿Qué objeto de todos los días te parece muy bien diseñado?",
+        "¿Qué artista te gustaría conocer?",
+        "Si hicieras un logo para ti, ¿cómo sería?",
+        "¿Qué te inspira cuando quieres crear algo?"
+      ]
+    },
+    {
+      "id": "musica",
+      "icon": "🎵",
+      "label": "Música",
+      "questions": [
+        "¿Qué canción pondrías para que todos bailen?",
+        "¿Qué instrumento te gustaría tocar?",
+        "¿Qué canción te recuerda a un momento especial?",
+        "Si formaras una banda, ¿cómo se llamaría?",
+        "¿Qué canción escuchas cuando necesitas ánimo?",
+        "¿Qué género de música nunca pensaste que te gustaría?",
+        "¿Con qué canción describirías a tu mejor amigo o amiga?",
+        "¿Prefieres conciertos en vivo o escuchar música solo o sola?",
+        "¿Qué artista te gustaría ver en concierto?",
+        "¿Te concentras mejor con música con letra o sin letra?"
+      ]
+    },
+    {
+      "id": "deportes",
+      "icon": "⚽",
+      "label": "Deportes",
+      "questions": [
+        "¿Qué deporte te gustaría dominar sin practicar?",
+        "¿Cuál es el mejor momento deportivo que has visto?",
+        "Si inventaras un deporte, ¿cómo se jugaría?",
+        "¿Prefieres deportes en equipo o individuales?",
+        "¿Qué deportista admiras y por qué?",
+        "¿Qué te enseñó un deporte que sirve fuera de la cancha?",
+        "¿Qué deporte raro te gustaría probar?",
+        "¿Te gusta más jugar o ver deportes?",
+        "¿Qué haces para moverte cuando llevas mucho rato sentado o sentada?",
+        "Si fueras a los Juegos Olímpicos, ¿en qué competirías?"
+      ]
+    },
+    {
+      "id": "tecnologia",
+      "icon": "💻",
+      "label": "Tecnología",
+      "questions": [
+        "¿Qué app o invento te gustaría que existiera?",
+        "¿Cómo crees que serán los celulares en 20 años?",
+        "¿Qué tecnología te parece magia aunque sepas cómo funciona?",
+        "Si pudieras programar un robot, ¿qué haría?",
+        "¿La inteligencia artificial te da más emoción o más miedo? ¿Por qué?",
+        "¿Qué aparato de tu casa no podrías vivir sin él?",
+        "¿Qué problema de tu día resolverías con tecnología?",
+        "¿Qué videojuego o app te gustaría haber creado?",
+        "¿Cuánto tiempo crees que podrías estar sin internet?",
+        "¿Qué le enseñarías a alguien que nunca ha usado una compu?"
+      ]
+    },
+    {
+      "id": "videojuegos",
+      "icon": "🎮",
+      "label": "Videojuegos",
+      "questions": [
+        "¿Qué videojuego te gustaría que fuera real?",
+        "¿Cuál es el mejor jefe final que has peleado?",
+        "Si fueras un personaje de videojuego, ¿cuál sería tu habilidad especial?",
+        "¿Qué juego jugarías con tu familia?",
+        "¿Qué videojuego te enseñó algo?",
+        "¿Prefieres juegos de historia, de competir o de construir?",
+        "¿Qué mundo de videojuego te gustaría explorar en persona?",
+        "Si diseñaras un nivel, ¿cómo sería?",
+        "¿Qué juego viejo volverías a jugar ahora mismo?",
+        "¿Qué personaje de videojuego te cae mejor?"
+      ]
+    },
+    {
+      "id": "animales",
+      "icon": "🐾",
+      "label": "Animales y naturaleza",
+      "questions": [
+        "Si fueras un animal, ¿cuál serías?",
+        "¿Qué animal te gustaría tener de mascota aunque no se pueda?",
+        "¿Qué animal crees que es el más inteligente?",
+        "¿Qué lugar natural del mundo te gustaría conocer?",
+        "¿Qué harías para cuidar más el planeta esta semana?",
+        "¿Qué animal te da miedo y por qué?",
+        "Si pudieras hablar con tu mascota (o una que conoces), ¿qué le preguntarías?",
+        "¿Qué planta te gustaría cuidar?",
+        "¿Qué animal extinto te gustaría ver vivo?",
+        "¿Prefieres el mar, la selva o el desierto?"
+      ]
+    },
+    {
+      "id": "cine",
+      "icon": "🎬",
+      "label": "Cine y series",
+      "questions": [
+        "¿Qué película podrías ver mil veces?",
+        "¿Qué serie le recomendarías a todo el mundo?",
+        "Si hicieran una película de tu vida, ¿quién te interpretaría?",
+        "¿Qué personaje de serie sería tu mejor amigo o amiga?",
+        "¿Qué final de película cambiarías?",
+        "¿Qué película te hizo llorar o reír mucho?",
+        "¿Prefieres películas de miedo, comedias o de aventuras?",
+        "¿Qué universo de película te gustaría visitar?",
+        "Si dirigieras una película, ¿de qué sería?",
+        "¿Qué caricatura de chiquito o chiquita todavía te gusta?"
+      ]
+    }
+  ],
+  "customTemplates": [
+    "¿Qué es lo que más te gusta de {x}?",
+    "¿Cómo empezó tu interés por {x}?",
+    "Si tuvieras que enseñarle algo de {x} a alguien en 2 minutos, ¿qué le enseñarías?",
+    "¿Qué te gustaría aprender de {x} este mes?",
+    "¿Quién es tu persona favorita del mundo de {x} y por qué?",
+    "¿Qué dato curioso de {x} casi nadie sabe?",
+    "¿Cómo crees que será {x} dentro de 20 años?",
+    "¿Qué pregunta sobre {x} te gustaría que alguien te contestara?",
+    "¿Qué le recomendarías a alguien que quiere empezar con {x}?",
+    "¿Qué es lo más difícil de {x}?",
+    "¿Qué recuerdo bonito tienes relacionado con {x}?",
+    "Si pudieras cambiar una cosa de {x}, ¿cuál sería?"
+  ]
+}

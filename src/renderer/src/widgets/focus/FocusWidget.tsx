@@ -23,7 +23,7 @@ const same = (a: FocusPreset, b: FocusPreset): boolean =>
 const log = (err: unknown): void => console.error('[focus]', err)
 
 // SPEC 9.8: a timer (25/5, 15/5 or your own) with the task you're on. Pause, cancel and
-// change the times at any moment. From here you go into Lockdown (9.9).
+// change the times at any moment.
 export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Element {
   const focus = useFocus()
   const left = useTimeLeft(focus)
@@ -121,13 +121,6 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
             ✅ Hecho
           </button>
         )}
-        <button
-          className="button-ghost"
-          title="Pantalla de concentración"
-          onClick={() => window.api.focus.setLockdown(true).catch(log)}
-        >
-          🔒 Lockdown
-        </button>
         {rounds > 0 && <small className="focus-muted">✓ {rounds} hoy</small>}
       </div>
     </div>

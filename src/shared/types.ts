@@ -100,6 +100,8 @@ export type AppTab =
   | 'focus'
   | 'calendar'
   | 'music'
+  | 'qotd'
+  | 'reminders'
   | 'help'
   | 'settings'
 
@@ -162,6 +164,14 @@ export interface Settings {
   ui: UISettings
   appearance: AppearanceSettings
   onboarding: OnboardingSettings
+  qotdTopics: string[] // Fase 11: the topics you like, each with its own question of the day
+  qotdCustomTopics: QotdCustomTopic[] // topics you wrote yourself
+}
+
+// A Pregunta del día topic you wrote ("K-pop"); its id starts with "mi-".
+export interface QotdCustomTopic {
+  id: string
+  label: string
 }
 
 // Fase 10: the welcome tour and "Qué hay de nuevo".
@@ -310,6 +320,8 @@ export interface SettingsPatch {
   dipPersonality?: string | null // null or '' restores the original Dip
   calendar?: Partial<CalendarSettings>
   onboarding?: Partial<OnboardingSettings>
+  qotdTopics?: string[]
+  qotdCustomTopics?: QotdCustomTopic[]
   // themeColor: null = back to light/dark
   appearance?: Partial<Omit<AppearanceSettings, 'themeColor'>> & { themeColor?: string | null }
   music?: {
@@ -479,7 +491,7 @@ export interface MusicStatus {
   duration?: number | null // seconds
 }
 
-// --- Focus (SPEC 9.8) and Lockdown (9.9) ---
+// --- Focus (SPEC 9.8) ---
 
 export interface FocusPreset {
   focusMin: number
@@ -498,7 +510,6 @@ export interface FocusState {
   taskId: string | null // the task chosen; null = Next Action's
   rounds: number // focus rounds finished on roundsDay
   roundsDay: string // YYYY-MM-DD
-  lockdown: boolean
 }
 
 // --- Quick Notes (SPEC 9.7) and Brain Dump (9.6) ---
@@ -508,6 +519,43 @@ export interface Note {
   text: string
   createdAt: string
   updatedAt: string
+}
+
+// Fase 11: what you did with a question of the day (qotd.json, by card: "AAAA-MM-DD" for
+// the general one, "AAAA-MM-DD:tema" for a topic's).
+export interface QotdDay {
+  skip: number // how many times "Otra" was pressed
+  question?: string // the question you answered (kept, so old answers keep their question)
+  kind?: string
+  answer?: string
+  answeredAt?: string
+}
+
+export type QotdState = Record<string, QotdDay>
+
+// --- Recordatorios (Fase 12): a system notice at a time, once or repeating ---
+
+export type ReminderRepeat = { kind: 'once' } | DailyRepeat
+
+export interface Reminder {
+  id: string
+  title: string
+  date: string // YYYY-MM-DD: the day (once) or the first day (repeating)
+  time: string // HH:MM
+  repeat: ReminderRepeat
+  // Local "YYYY-MM-DDTHH:MM": every time at or before it already rang (or was skipped).
+  after: string
+  snoozeUntil?: string // ISO: "Posponer" rings it again then
+  rangAt?: string // ISO: when it last rang (for "Posponer" right after)
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ReminderInput {
+  title?: string
+  date?: string
+  time?: string
+  repeat?: ReminderRepeat
 }
 
 // What Dip proposes from a brain dump, to review before saving.
@@ -659,6 +707,29 @@ export interface NuggitApi {
     remove(ids: string[]): Promise<void>
     onChange(listener: (dailies: Daily[]) => void): () => void
   }
+  qotd: {
+    load(): Promise<QotdState>
+    // Saves (or, with an empty answer, clears) the answer to that card's question.
+    answer(key: string, entry: { question: string; kind: string; answer: string }): Promise<void>
+    // "Otra": the next question for that card (not once it has an answer).
+    skip(key: string): Promise<void>
+    onChange(listener: (state: QotdState) => void): () => void
+  }
+  reminders: {
+    load(): Promise<Reminder[]>
+    // null if it couldn't be made (a missing title, day or time, or too many).
+    create(
+      input: ReminderInput & { title: string; date: string; time: string }
+    ): Promise<Reminder | null>
+    // Changing the day, time or repeat starts it over: it rings at its new time.
+    update(id: string, patch: ReminderInput): Promise<void>
+    // Returns what was removed, to put back with restore() (Deshacer).
+    remove(ids: string[]): Promise<Reminder[]>
+    restore(reminders: Reminder[]): Promise<void>
+    snooze(id: string, minutes: number): Promise<void>
+    dismiss(id: string): Promise<void> // "Listo": hides "Posponer" after it rang
+    onChange(listener: (reminders: Reminder[]) => void): () => void
+  }
   notes: {
     load(): Promise<Note[]>
     create(input?: { text?: string }): Promise<Note>
@@ -743,8 +814,6 @@ export interface NuggitApi {
     // Works while running too: the current phase gets the new length.
     setPreset(preset: FocusPreset): Promise<void>
     setTask(taskId: string | null): Promise<void>
-    // Lockdown: only the task, the timer and the next step; detached widgets hide.
-    setLockdown(on: boolean): Promise<void>
     onChange(listener: (state: FocusState) => void): () => void
   }
   popover: {
@@ -757,6 +826,8 @@ export interface NuggitApi {
     // Brings up the main window with Settings open (works from detached widgets too).
     openSettings(): void
     onOpenSettings(listener: () => void): () => void
+    // Brings up the main window on that tab (e.g. Dip, from "Platicar con Dip").
+    openTab(tab: AppTab): void
     info(): Promise<AppInfo>
     // "Abrir Nuggit al iniciar la Mac".
     setOpenAtLogin(open: boolean): Promise<AppInfo>
@@ -778,8 +849,6 @@ export interface NuggitApi {
     // finishEditBack (or a click elsewhere) sends it back to the bottom.
     editBack(id: string): Promise<void>
     finishEditBack(id: string): Promise<void>
-    // Hides or shows every detached widget (for Lockdown).
-    setAllVisible(visible: boolean): Promise<void>
     // Size limits for the calling detached window.
     setSizeLimits(min?: { w: number; h: number }, max?: { w: number; h: number }): void
   }

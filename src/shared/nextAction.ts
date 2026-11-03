@@ -83,7 +83,7 @@ export function pickNextActions(
   return actions.slice(0, limit)
 }
 
-// What Focus and Lockdown show (SPEC 9.8, 9.9): the chosen task while it is pending,
+// What Focus shows (SPEC 9.8): the chosen task while it is pending,
 // otherwise the first Next Action.
 export function focusAction(
   taskId: string | null,

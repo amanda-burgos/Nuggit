@@ -9,6 +9,8 @@ import type {
   NextActionState,
   Note,
   NuggitApi,
+  QotdState,
+  Reminder,
   SavedDesktop,
   Settings,
   Task
@@ -101,6 +103,30 @@ const api: NuggitApi = {
       return () => ipcRenderer.removeListener('dailies:changed', handler)
     }
   },
+  qotd: {
+    load: () => ipcRenderer.invoke('qotd:load'),
+    answer: (key, entry) => ipcRenderer.invoke('qotd:answer', key, entry),
+    skip: (key) => ipcRenderer.invoke('qotd:skip', key),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, state: QotdState): void => listener(state)
+      ipcRenderer.on('qotd:changed', handler)
+      return () => ipcRenderer.removeListener('qotd:changed', handler)
+    }
+  },
+  reminders: {
+    load: () => ipcRenderer.invoke('reminders:load'),
+    create: (input) => ipcRenderer.invoke('reminders:create', input),
+    update: (id, patch) => ipcRenderer.invoke('reminders:update', id, patch),
+    remove: (ids) => ipcRenderer.invoke('reminders:remove', ids),
+    restore: (list) => ipcRenderer.invoke('reminders:restore', list),
+    snooze: (id, minutes) => ipcRenderer.invoke('reminders:snooze', id, minutes),
+    dismiss: (id) => ipcRenderer.invoke('reminders:dismiss', id),
+    onChange: (listener) => {
+      const handler = (_event: IpcRendererEvent, list: Reminder[]): void => listener(list)
+      ipcRenderer.on('reminders:changed', handler)
+      return () => ipcRenderer.removeListener('reminders:changed', handler)
+    }
+  },
   notes: {
     load: () => ipcRenderer.invoke('notes:load'),
     create: (input) => ipcRenderer.invoke('notes:create', input),
@@ -176,7 +202,6 @@ const api: NuggitApi = {
     cancel: () => ipcRenderer.invoke('focus:cancel'),
     setPreset: (preset) => ipcRenderer.invoke('focus:setPreset', preset),
     setTask: (taskId) => ipcRenderer.invoke('focus:setTask', taskId),
-    setLockdown: (on) => ipcRenderer.invoke('focus:setLockdown', on),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: FocusState): void => listener(state)
       ipcRenderer.on('focus:changed', handler)
@@ -201,6 +226,7 @@ const api: NuggitApi = {
   },
   app: {
     openSettings: () => ipcRenderer.send('app:openSettings'),
+    openTab: (tab) => ipcRenderer.send('app:openTab', tab),
     info: () => ipcRenderer.invoke('app:info'),
     setOpenAtLogin: (open) => ipcRenderer.invoke('app:setOpenAtLogin', open),
     onOpenSettings: (listener) => {
@@ -218,7 +244,6 @@ const api: NuggitApi = {
     close: (id) => ipcRenderer.invoke('widgetWindows:close', id),
     editBack: (id) => ipcRenderer.invoke('widgetWindows:editBack', id),
     finishEditBack: (id) => ipcRenderer.invoke('widgetWindows:finishEditBack', id),
-    setAllVisible: (visible) => ipcRenderer.invoke('widgetWindows:setAllVisible', visible),
     setSizeLimits: (min, max) => ipcRenderer.send('widgetWindows:setSizeLimits', min, max)
   }
 }

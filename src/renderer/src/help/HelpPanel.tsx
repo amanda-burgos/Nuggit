@@ -57,7 +57,7 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
         <input
           type="search"
           className="help-search"
-          placeholder="Busca: fondo, Lockdown, despegar, Ollama…"
+          placeholder="Busca: fondo, Focus, despegar, Ollama…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

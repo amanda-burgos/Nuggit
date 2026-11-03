@@ -5,7 +5,7 @@ import { useNextAction } from '../../store/useNextAction'
 import { useTasks } from '../../store/useTasks'
 import { useToday } from '../../store/useToday'
 
-// The task Focus and Lockdown are about (the chosen one, or Next Action's) and the pending
+// The task Focus is about (the chosen one, or Next Action's) and the pending
 // tasks to pick from.
 export function useFocusTask(focus: FocusState | null): {
   action: NextAction | undefined
