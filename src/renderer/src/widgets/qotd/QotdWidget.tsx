@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import {
+  GENERAL_TOPIC,
   QOTD_KINDS,
   allTopics,
   customTopicId,
@@ -57,11 +58,17 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
     )
   }
 
+  const generalOn = qotdTopics.includes(GENERAL_TOPIC)
+  const setup = !settings.qotdSetup
+  // At least one stays on (after the first time): with none, the tab would be empty.
   const toggle = (id: string): void => {
-    const chosen = qotdTopics.includes(id)
-      ? qotdTopics.filter((t) => t !== id)
-      : [...qotdTopics, id]
-    update({ qotdTopics: chosen })
+    const on = qotdTopics.includes(id)
+    if (on && !setup && qotdTopics.length === 1) return
+    update({
+      qotdTopics: on ? qotdTopics.filter((t) => t !== id) : [...qotdTopics, id],
+      // Saved as "not done yet", so it isn't taken for someone who chose topics before.
+      ...(setup && { qotdSetup: false })
+    })
   }
 
   // A topic you write: it's turned on right away. If it already exists (even as one of the
@@ -73,7 +80,9 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
     const same = topics.find((t) => normalizeTopic(t.label) === normalizeTopic(label))
     setNewTopic('')
     if (same) {
-      if (!qotdTopics.includes(same.id)) update({ qotdTopics: [...qotdTopics, same.id] })
+      if (!qotdTopics.includes(same.id)) {
+        update({ qotdTopics: [...qotdTopics, same.id], ...(setup && { qotdSetup: false }) })
+      }
       return
     }
     const id = customTopicId(
@@ -82,7 +91,8 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
     )
     update({
       qotdCustomTopics: [...qotdCustomTopics, { id, label }],
-      qotdTopics: [...qotdTopics, id]
+      qotdTopics: [...qotdTopics, id],
+      ...(setup && { qotdSetup: false })
     })
   }
 
@@ -94,34 +104,67 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
 
   return (
     <div className="qotd is-full">
-      <div className="qotd-topics-bar">
-        <span className="qotd-hint">
-          {mine.length
-            ? t(
-                'Contesta las que quieras: ninguna es obligatoria.',
-                'Answer whichever you want: none of them are required.'
-              )
-            : t(
-                'Escoge temas que te gustan y cada uno tendrá su propia pregunta del día.',
-                'Pick topics you like and each one gets its own question of the day.'
-              )}
-        </span>
-        <button className="button-ghost" onClick={() => setPicking((p) => !p)}>
-          {picking ? t('Listo', 'Done') : t('✏️ Mis temas', '✏️ My topics')}
-        </button>
-      </div>
-      {picking && (
+      {!setup && (
+        <div className="qotd-topics-bar">
+          <span className="qotd-hint">
+            {t(
+              'Contesta las que quieras: ninguna es obligatoria.',
+              'Answer whichever you want: none of them are required.'
+            )}
+          </span>
+          <button className="button-ghost" onClick={() => setPicking((p) => !p)}>
+            {picking ? t('Listo', 'Done') : t('✏️ Mis temas', '✏️ My topics')}
+          </button>
+        </div>
+      )}
+      {setup && (
+        <div className="qotd-setup">
+          <h2>
+            {t(
+              '¿De qué quieres tus preguntas del día?',
+              'What do you want your daily questions about?'
+            )}
+          </h2>
+          <p>
+            {t(
+              'Escoge al menos 1. Cada tema tendrá su propia pregunta cada día, y lo puedes cambiar cuando quieras en ✏️ Mis temas.',
+              'Pick at least 1. Each topic gets its own question every day, and you can change them anytime in ✏️ My topics.'
+            )}
+          </p>
+        </div>
+      )}
+      {(picking || setup) && (
         <div
           className="qotd-topic-picker"
           role="group"
           aria-label={t('Temas que te gustan', 'Topics you like')}
         >
+          <span className={`qotd-topic-chip is-general${generalOn ? ' is-on' : ''}`}>
+            <button
+              aria-pressed={generalOn}
+              disabled={generalOn && !setup && qotdTopics.length === 1}
+              title={
+                generalOn && !setup && qotdTopics.length === 1
+                  ? t('Deja al menos 1 tema', 'Keep at least 1 topic')
+                  : undefined
+              }
+              onClick={() => toggle(GENERAL_TOPIC)}
+            >
+              {t('🎲 Al azar (de todo un poco)', '🎲 Random (a bit of everything)')}
+            </button>
+          </span>
           {topics.map((topic) => {
             const on = qotdTopics.includes(topic.id)
+            const last = on && !setup && qotdTopics.length === 1
             const yours = qotdCustomTopics.some((c) => c.id === topic.id)
             return (
               <span key={topic.id} className={`qotd-topic-chip${on ? ' is-on' : ''}`}>
-                <button aria-pressed={on} onClick={() => toggle(topic.id)}>
+                <button
+                  aria-pressed={on}
+                  disabled={last}
+                  title={last ? t('Deja al menos 1 tema', 'Keep at least 1 topic') : undefined}
+                  onClick={() => toggle(topic.id)}
+                >
                   {topic.icon} {topic.label}
                 </button>
                 {yours && (
@@ -154,13 +197,30 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
           </form>
         </div>
       )}
-      <div className="qotd-cards">
-        <Card state={state} date={today} />
-        {mine.map((t) => (
-          <Card key={t.id} state={state} date={today} topic={t} />
-        ))}
-      </div>
-      <History state={state} today={today} topics={topics} />
+      {setup ? (
+        <div className="qotd-setup-done">
+          <button
+            className="button-primary"
+            disabled={qotdTopics.length === 0}
+            onClick={() => update({ qotdSetup: true })}
+          >
+            {qotdTopics.length === 0
+              ? t('Escoge al menos 1', 'Pick at least 1')
+              : t(
+                  `¡Listo! Ver mis preguntas (${qotdTopics.length})`,
+                  `Done! See my questions (${qotdTopics.length})`
+                )}
+          </button>
+        </div>
+      ) : (
+        <div className="qotd-cards">
+          {generalOn && <Card state={state} date={today} />}
+          {mine.map((t) => (
+            <Card key={t.id} state={state} date={today} topic={t} />
+          ))}
+        </div>
+      )}
+      {!setup && <History state={state} today={today} topics={topics} />}
     </div>
   )
 }

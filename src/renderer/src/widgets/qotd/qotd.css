@@ -205,3 +205,27 @@
   white-space: pre-wrap;
   color: var(--color-text-muted);
 }
+
+/* First time: "choose at least 1". */
+.qotd-setup h2 {
+  margin: 0 0 6px;
+  font-size: 1.4rem;
+}
+
+.qotd-setup p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.qotd-setup-done {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.qotd-topic-chip.is-general {
+  border-style: dashed;
+}
+
+.qotd-topic-chip button:disabled {
+  cursor: not-allowed;
+}

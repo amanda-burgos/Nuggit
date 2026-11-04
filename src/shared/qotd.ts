@@ -238,3 +238,6 @@ export function qotdForDip(question: string, answer?: string, topic?: string): s
         `${title}: "${question}"\nI don't know what to answer yet, want to talk about it?`
       )
 }
+
+// The general (random) question, as a topic you can turn on and off in Mis temas.
+export const GENERAL_TOPIC = 'general'

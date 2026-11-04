@@ -292,6 +292,16 @@ function cleanCustomTopics(value: unknown): Settings['qotdCustomTopics'] | null 
   return topics.slice(0, 20)
 }
 
+// QOTD: the general (random) question became a topic you can turn off ('general'). Someone
+// who had already picked topics keeps the general one too and skips "choose at least 1".
+function loadQotdTopics(data: Record<string, unknown>): Pick<Settings, 'qotdTopics' | 'qotdSetup'> {
+  const topics = cleanTopics(data.qotdTopics) ?? []
+  if (typeof data.qotdSetup === 'boolean') return { qotdTopics: topics, qotdSetup: data.qotdSetup }
+  if (topics.length)
+    return { qotdTopics: ['general', ...topics.filter((t) => t !== 'general')], qotdSetup: true }
+  return { qotdTopics: topics }
+}
+
 // Topic ids for the question of the day (the renderer ignores ones it doesn't know).
 function cleanTopics(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null
@@ -314,7 +324,7 @@ export async function loadSettings(): Promise<Settings> {
       ...DEFAULT_SETTINGS.onboarding,
       ...(isObject(data.onboarding) ? data.onboarding : {})
     },
-    qotdTopics: cleanTopics(data.qotdTopics) ?? [],
+    ...loadQotdTopics(data),
     qotdCustomTopics: cleanCustomTopics(data.qotdCustomTopics) ?? [],
     ...(isLang(data.language) && { language: data.language }),
     ui: {
@@ -475,6 +485,7 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
   if (isObject(patch)) {
     const topics = cleanTopics(patch.qotdTopics)
     if (topics) current.qotdTopics = topics
+    if (typeof patch.qotdSetup === 'boolean') current.qotdSetup = patch.qotdSetup
     const custom = cleanCustomTopics(patch.qotdCustomTopics)
     if (custom) current.qotdCustomTopics = custom
     if (isLang(patch.language)) current.language = patch.language

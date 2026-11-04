@@ -727,6 +727,7 @@ Cómo quedó (Fase 11):
 - **Temas propios:** no hay preguntas escritas para ellos, así que salen de `customTemplates` ("¿Qué es lo que más te gusta de {x}?"…) y funcionan sin IA. Un emoji al principio es su ícono (si no, ⭐). Van en `settings.qotdCustomTopics` con id `mi-…`. Cada uno empieza 5 preguntas más adelante que el anterior, para que dos temas tuyos no pregunten lo mismo el mismo día.
 - **Temas:** sus preguntas están en `topics` de `config/qotd.json`. Cada tema da una pregunta al día recorriendo sus preguntas en un orden revuelto fijo (no se repite hasta usarlas todas); cada tema empieza en un lugar distinto. Los temas escogidos van en `settings.qotdTopics`.
 - **Se guarda** en `qotd.json` por cuadrito (`2026-10-31` la general, `2026-10-31:historia` la de un tema): `skip`, y al contestar la pregunta, su tipo y tu respuesta (así las respuestas viejas conservan su pregunta aunque cambie el banco). Respuesta vacía = se borra.
+- **Primera vez:** la pestaña pide "¿De qué quieres tus preguntas del día? Escoge al menos 1", con la general como un tema más (🎲 Al azar, id `general` en `qotdTopics`). "¡Listo!" guarda `qotdSetup`. Después se prende y apaga en ✏️ Mis temas, pero siempre queda al menos 1. A quien ya tenía temas se le agrega `general` y no se le pregunta. El widget sigue pudiendo mostrar la general desde su ⚙︎.
 - **Platicar con Dip** manda un mensaje normal al chat de Dip ("Pregunta del día: … Mi respuesta: …") y abre la pestaña Dip con `app.openTab`, también desde un widget despegado.
 
 ### Fase 12 — Recordatorios

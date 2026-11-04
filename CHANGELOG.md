@@ -13,6 +13,7 @@ Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versi
 ### Cambió
 
 - La pestaña **Pregunta** ahora se llama **QOTD** (la pregunta del día).
+- **QOTD a tu gusto:** la primera vez escoges de qué quieres tus preguntas (al menos 1). La pregunta al azar ahora es un tema más: si no la quieres, apágala en ✏️ Mis temas.
 - **Pestaña Música más bonita 🎵:** la portada en grande, el fondo toma los colores de la canción, unas barritas que bailan mientras suena, y tus playlists siempre a la vista como tarjetas para ponerlas con un clic.
 
 ## [Español o English] - 2026-11-04

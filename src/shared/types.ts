@@ -181,7 +181,8 @@ export interface Settings {
   ui: UISettings
   appearance: AppearanceSettings
   onboarding: OnboardingSettings
-  qotdTopics: string[] // Fase 11: the topics you like, each with its own question of the day
+  qotdTopics: string[] // Fase 11: the topics you like, each with its own question of the day ('general' = the random one)
+  qotdSetup?: boolean // QOTD's first-time "choose at least 1" is done
   qotdCustomTopics: QotdCustomTopic[] // topics you wrote yourself
   language?: Lang // Fase 14: the app's language; unset = not chosen yet (asked on first open)
 }
@@ -339,6 +340,7 @@ export interface SettingsPatch {
   calendar?: Partial<CalendarSettings>
   onboarding?: Partial<OnboardingSettings>
   qotdTopics?: string[]
+  qotdSetup?: boolean
   qotdCustomTopics?: QotdCustomTopic[]
   language?: Lang
   // themeColor: null = back to light/dark
