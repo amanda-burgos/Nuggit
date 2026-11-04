@@ -36,6 +36,7 @@ import {
 } from './desktop'
 import { forgetImages, pickImages } from './images'
 import { listMacFonts } from './fonts'
+import { dismissUpdate, openUpdatePage, pendingUpdate } from './updates'
 import * as ai from './ai'
 import { splitBrainDump } from './ai/brainDump'
 import { dailyQuestions, proposeDailies } from './ai/dailies'
@@ -170,6 +171,9 @@ export function registerIpc({ openSettings, openBoard, openTab }: IpcDeps): void
       setWidgetTextScale(id, clean)
     }
   })
+  ipcMain.handle('updates:pending', () => pendingUpdate())
+  ipcMain.handle('updates:dismiss', () => dismissUpdate())
+  ipcMain.handle('updates:open', () => openUpdatePage())
   ipcMain.handle('fonts:list', () => listMacFonts())
   ipcMain.handle('images:pick', (event, multiple: unknown) => pickImages(event.sender, multiple))
   ipcMain.handle('images:forget', (_event, names: unknown) => forgetImages(names))

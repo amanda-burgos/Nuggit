@@ -719,7 +719,7 @@ Cómo quedó (Fase 10):
 - **💬 Platicar con Dip:** abre Dip con la pregunta (y tu respuesta, si hay) para conversar.
 - **Temas que te gustan** (✏️ Mis temas: Matemáticas, Historia, Ciencia, Espacio, Idiomas, Libros, Arte, Música, Deportes, Tecnología, Videojuegos, Animales, Cine): cada tema que escojas tiene **su propio cuadrito** con su pregunta del día, y contestas las que quieras.
 - **Escribe tu propio tema** ("K-pop", "🧪 Química") con "+ Agregar" en Mis temas; se borra con ×. Si ya existe (aunque sea con o sin acentos), solo lo prende.
-- Widget y pestaña 💭 **Pregunta** (sin atajo). El widget muestra un cuadrito: la general o el tema que escojas en su ⚙︎.
+- Widget y pestaña 💭 **QOTD** (sin atajo; antes "Pregunta"). El widget muestra un cuadrito: la general o el tema que escojas en su ⚙︎.
 - **Listo cuando:** abres Nuggit, ves la pregunta de hoy, la contestas o platicas con Dip, y mañana sale otra.
 
 Cómo quedó (Fase 11):
@@ -771,6 +771,18 @@ Cómo quedó (Fase 14):
 - **Contenido:** `config/help.en.json` y `config/qotd.en.json` con los mismos ids que los de español (los temas guardados sirven en los dos). La Pregunta del día ya contestada guarda el texto en el idioma en que se contestó.
 - **IA:** en inglés, `askAgent` le agrega al prompt una nota corta (Dip contesta en el idioma en que le escriben, por defecto inglés; los demás escriben en inglés). En español el prompt queda idéntico.
 - **Queda en español:** el contenido del CHANGELOG (📣 Novedades) y los prompts internos de la IA. "Ya terminé X" para que Dip marque una tarea solo lo reconoce en español.
+
+### Fase 15 — Aviso de "nueva versión disponible"
+- Al abrir Nuggit (y cada pocas horas) revisa el último Release de github.com/amanda-burgos/Nuggit con la API de GitHub.
+- Si su versión es mayor que la de `package.json`, sale un aviso con la versión nueva, **Descargar** (abre la página del Release en el navegador) y **Ahora no**.
+- Sin internet no hace nada. En español e inglés.
+- **Listo cuando:** publico un Release con versión más alta y, al abrir Nuggit, sale el aviso; Descargar abre el Release.
+
+Cómo quedó (Fase 15):
+- **`src/main/updates.ts`:** pide `releases/latest` con `net.fetch` (10 s máximo) 5 s después de abrir, cada 4 h y 30 s después de que la Mac despierta. Sin internet, sin Releases (404) o con cualquier error: nada. Solo cuenta un Release cuyo link sea de ese repo. Las versiones se comparan en `src/shared/updates.ts` (`v1.2.0` = `1.2.0`; `1.10.0` > `1.9.0`).
+- **El aviso** (`help/UpdateNotice.tsx`) es una tarjeta abajo a la derecha de la ventana principal (no sale durante el tour). "Ahora no" lo esconde para esa versión hasta que Nuggit se vuelva a abrir; "Descargar" abre el Release y también lo esconde.
+- **Para publicar una versión:** sube `version` en `package.json` (ej. 1.1.0), haz el `.dmg` (`npm run build:mac`), y en GitHub → Releases → "Draft a new release" con el tag `v1.1.0`, adjunta el `.dmg` y publícalo (no como pre-release ni borrador: esos no cuentan).
+- **Para probarlo sin publicar:** mientras se desarrolla, `NUGGIT_UPDATE_REPO=electron/electron` lo revisa contra otro repo que sí tiene Releases. En la app empaquetada se ignora.
 
 ### Después del MVP (ideas)
 School, Recordatorios con Dip ("recuérdame a las 5…"), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.

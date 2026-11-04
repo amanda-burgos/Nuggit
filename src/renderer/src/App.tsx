@@ -8,6 +8,7 @@ import { RELEASES } from './help/news'
 import { LanguagePicker } from './help/LanguagePicker'
 import { Tour } from './help/Tour'
 import { NewsPanel } from './help/NewsPanel'
+import { UpdateNotice } from './help/UpdateNotice'
 import { WhatsNew } from './help/WhatsNew'
 import { SettingsPanel } from './settings/SettingsPanel'
 import { FullPanel } from './shell/FullPanel'
@@ -138,6 +139,7 @@ function App(): React.JSX.Element {
         {tab === 'settings' && <SettingsPanel settings={settings} update={update} />}
       </main>
       {touring && <Tour onDone={finishTour} />}
+      {!touring && <UpdateNotice />}
       {newsOpen && <NewsPanel onClose={() => setNewsOpen(false)} />}
       {news && !touring && (
         <WhatsNew

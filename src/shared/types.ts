@@ -1,4 +1,5 @@
 import type { Lang } from './i18n'
+import type { UpdateInfo } from './updates'
 import type { SystemVoice } from './voices'
 
 // Types shared between the main process, preload and renderer.
@@ -856,6 +857,13 @@ export interface NuggitApi {
     info(): Promise<AppInfo>
     // "Abrir Nuggit al iniciar la Mac".
     setOpenAtLogin(open: boolean): Promise<AppInfo>
+  }
+  // Fase 15: a newer Nuggit Release on GitHub.
+  updates: {
+    pending(): Promise<UpdateInfo | null>
+    dismiss(): Promise<void> // "Ahora no": not again for this version until Nuggit restarts
+    open(): Promise<void> // "Descargar": the Release page in the browser
+    onAvailable(listener: (update: UpdateInfo) => void): () => void
   }
   // Fase 13: the font families installed on this Mac (empty if they can't be read).
   fonts: {

@@ -15,6 +15,7 @@ import type {
   Settings,
   Task
 } from '../shared/types'
+import type { UpdateInfo } from '../shared/updates'
 
 // Safe API exposed to the renderer. All disk access goes through the main process.
 const api: NuggitApi = {
@@ -235,6 +236,16 @@ const api: NuggitApi = {
       const handler = (): void => listener()
       ipcRenderer.on('app:openSettings', handler)
       return () => ipcRenderer.removeListener('app:openSettings', handler)
+    }
+  },
+  updates: {
+    pending: () => ipcRenderer.invoke('updates:pending'),
+    dismiss: () => ipcRenderer.invoke('updates:dismiss'),
+    open: () => ipcRenderer.invoke('updates:open'),
+    onAvailable: (listener) => {
+      const handler = (_event: IpcRendererEvent, update: UpdateInfo): void => listener(update)
+      ipcRenderer.on('updates:available', handler)
+      return () => ipcRenderer.removeListener('updates:available', handler)
     }
   },
   fonts: {

@@ -89,7 +89,7 @@ export const TABS: TabInfo[] = [
   {
     key: 'qotd',
     get label() {
-      return t('Pregunta', 'Question')
+      return 'QOTD'
     },
     icon: '💭',
     shortcut: '',

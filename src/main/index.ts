@@ -10,6 +10,7 @@ import { initDailies } from './dailies'
 import { initNotes } from './notes'
 import { initQotd } from './qotd'
 import { initReminders } from './reminders'
+import { initUpdates } from './updates'
 import { initDesktop } from './desktop'
 import { initFocus } from './focus'
 import { initCalendar } from './calendar'
@@ -140,6 +141,7 @@ app.whenReady().then(async () => {
   } catch (err) {
     console.error('[startup] could not load reminders', err)
   }
+  initUpdates() // Fase 15: "nueva versión disponible"
   try {
     await initNextAction()
   } catch (err) {

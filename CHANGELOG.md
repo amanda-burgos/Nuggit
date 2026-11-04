@@ -4,6 +4,16 @@ Lo nuevo, lo arreglado y lo que cambió, por fecha y en palabras simples. Se ve 
 
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
+## [Aviso de versión nueva] - 2026-11-04
+
+### Nuevo
+
+- **¿Hay una versión nueva? 🎁:** cuando salga una versión más nueva de Nuggit, te sale un aviso con un botón **Descargar** que abre la página para bajarla. Bájala y reemplaza la app: tus tareas, notas y ajustes no se pierden. Si no es buen momento, "Ahora no" (Fase 15).
+
+### Cambió
+
+- La pestaña **Pregunta** ahora se llama **QOTD** (la pregunta del día).
+
 ## [Español o English] - 2026-11-04
 
 ### Nuevo
