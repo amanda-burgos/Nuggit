@@ -462,3 +462,10 @@ html.is-detached-window body {
   font-weight: 600;
   color: var(--color-text);
 }
+
+/* A widget's own text size (its ⚙︎): the body is zoomed, the header stays as it is.
+   The ⚙︎ panel itself is not zoomed, so its controls keep their size. */
+/* The clock already fits its box (container units), so it uses the variable itself. */
+.widget.has-text-scale .widget-body > :not(.widget-settings, .clock) {
+  zoom: var(--widget-text-scale, 1);
+}

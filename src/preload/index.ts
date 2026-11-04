@@ -26,6 +26,7 @@ const api: NuggitApi = {
     setBackground: (id, background) => ipcRenderer.invoke('desktop:setBackground', id, background),
     setRadius: (id, radius) => ipcRenderer.invoke('desktop:setRadius', id, radius),
     setFont: (id, font) => ipcRenderer.invoke('desktop:setFont', id, font),
+    setTextScale: (id, scale) => ipcRenderer.invoke('desktop:setTextScale', id, scale),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: SavedDesktop): void => listener(state)
       ipcRenderer.on('desktop:changed', handler)

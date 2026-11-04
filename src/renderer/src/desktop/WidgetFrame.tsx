@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
-import { WIDGET_RADIUS_MAX, WIDGET_RADIUS_MIN } from '../../../shared/types'
+import {
+  WIDGET_RADIUS_MAX,
+  WIDGET_RADIUS_MIN,
+  WIDGET_TEXT_MAX,
+  WIDGET_TEXT_MIN
+} from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
 import { backgroundVars, widgetFontVars } from '../theme/appearance'
 import { useAppearance } from '../theme/appearanceContext'
@@ -82,6 +87,11 @@ export function WidgetFrame({
       .setRadius(instance.id, next)
       .catch((err) => console.error('Could not change corners', err))
   }
+  const setTextScale = (next: number | null): void => {
+    window.api.desktop
+      .setTextScale(instance.id, next)
+      .catch((err) => console.error('Could not change text size', err))
+  }
   const generalRadius = appearance?.widgetRadius ?? 18
   const setBackground = (next: typeof instance.background | null): void => {
     window.api.desktop
@@ -91,13 +101,14 @@ export function WidgetFrame({
 
   return (
     <section
-      className={`widget${locked ? ' is-locked' : ''}`}
+      className={`widget${locked ? ' is-locked' : ''}${instance.textScale ? ' has-text-scale' : ''}`}
       aria-label={def.name}
       style={
         {
           ...backgroundVars(background),
           ...(instance.radius !== undefined && { '--widget-radius': `${instance.radius}px` }),
-          ...widgetFontVars(instance.font)
+          ...widgetFontVars(instance.font),
+          ...(instance.textScale && { '--widget-text-scale': String(instance.textScale) })
         } as React.CSSProperties
       }
     >
@@ -227,6 +238,32 @@ export function WidgetFrame({
                       .catch((err) => console.error('Could not change font', err))
                   }
                 />
+              </div>
+              <div className="widget-settings-field">
+                <span>
+                  {t('Tamaño de la letra', 'Text size')}:{' '}
+                  {Math.round((instance.textScale ?? 1) * 100)}%
+                </span>
+                <div className="widget-settings-row">
+                  <input
+                    type="range"
+                    aria-label={t('Tamaño de la letra de este widget', "This widget's text size")}
+                    min={WIDGET_TEXT_MIN}
+                    max={WIDGET_TEXT_MAX}
+                    step={0.05}
+                    value={instance.textScale ?? 1}
+                    onChange={(e) => setTextScale(Number(e.target.value))}
+                  />
+                  {instance.textScale !== undefined && (
+                    <button
+                      type="button"
+                      className="bg-choice is-text"
+                      onClick={() => setTextScale(null)}
+                    >
+                      {t('Normal', 'Normal')}
+                    </button>
+                  )}
+                </div>
               </div>
               {onSetShadow && (
                 <label>

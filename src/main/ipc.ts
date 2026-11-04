@@ -23,12 +23,14 @@ import {
   synthesize
 } from './voice'
 import type { AppInfo, DetachedWindowOptions, WidgetRect } from '../shared/types'
+import { WIDGET_TEXT_MAX, WIDGET_TEXT_MIN } from '../shared/types'
 import {
   getDesktop,
   replaceDesktop,
   setWidgetBackground,
   setWidgetRadius,
   setWidgetFont,
+  setWidgetTextScale,
   setWidgetLocked,
   updateWidgetConfig
 } from './desktop'
@@ -157,6 +159,15 @@ export function registerIpc({ openSettings, openBoard, openTab }: IpcDeps): void
     else {
       const clean = cleanFont(font)
       if (clean) setWidgetFont(id, clean)
+    }
+  })
+  ipcMain.handle('desktop:setTextScale', (_event, id: unknown, scale: unknown) => {
+    if (typeof id !== 'string') return
+    if (scale === null) setWidgetTextScale(id, null)
+    else if (typeof scale === 'number' && Number.isFinite(scale)) {
+      const clean =
+        Math.round(Math.min(WIDGET_TEXT_MAX, Math.max(WIDGET_TEXT_MIN, scale)) * 100) / 100
+      setWidgetTextScale(id, clean)
     }
   })
   ipcMain.handle('fonts:list', () => listMacFonts())

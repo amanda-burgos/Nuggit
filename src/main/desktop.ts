@@ -113,6 +113,20 @@ export function setWidgetFont(id: string, font: string | null): void {
   })
 }
 
+// A widget's own text size (null = normal).
+export function setWidgetTextScale(id: string, scale: number | null): void {
+  if (!state || !state.widgets.some((w) => w.id === id)) return
+  commit({
+    ...state,
+    widgets: state.widgets.map((w) => {
+      if (w.id !== id) return w
+      const next = { ...w }
+      delete next.textScale
+      return scale === null || scale === 1 ? next : { ...next, textScale: scale }
+    })
+  })
+}
+
 export function setWidgetHidden(id: string, hidden: boolean): void {
   updateWidget(id, { hidden })
 }

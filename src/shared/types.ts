@@ -20,6 +20,7 @@ export interface WidgetInstance {
   background?: Background // its own background, over the general one (Fase 9); unset = general
   radius?: number // its own corner roundness in px, over the general one; unset = general
   font?: string // Fase 13: its own font (a FontPreset id or "mac:<family>"); unset = general
+  textScale?: number // its own text size, WIDGET_TEXT_MIN–MAX (1 = normal); unset = normal
 }
 
 // A background (board or widgets, Fase 9). Images are copies kept in Nuggit's data folder,
@@ -38,6 +39,9 @@ export const WIDGET_RADIUS_MAX = 32
 export const DEFAULT_FONT = 'system'
 export const FONT_SCALE_MIN = 0.85
 export const FONT_SCALE_MAX = 1.3
+// A widget's own text size (its ⚙︎), over the app's: big enough for a wall clock.
+export const WIDGET_TEXT_MIN = 0.7
+export const WIDGET_TEXT_MAX = 2.5
 
 // Ajustes → Apariencia (Fase 9).
 export interface AppearanceSettings {
@@ -635,6 +639,8 @@ export interface NuggitApi {
     setRadius(id: string, radius: number | null): Promise<void>
     // Fase 13: a widget's own font; null = back to the general one.
     setFont(id: string, font: string | null): Promise<void>
+    // A widget's own text size (1 = normal); null = back to normal.
+    setTextScale(id: string, scale: number | null): Promise<void>
     // Called whenever another window (or the main process) changes the desktop.
     onChange(listener: (state: SavedDesktop) => void): () => void
   }

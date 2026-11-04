@@ -10,7 +10,9 @@
 }
 
 .clock-time {
-  font-size: clamp(1.25rem, min(20cqw, 42cqh), 6rem);
+  /* --widget-text-scale (the widget's ⚙︎) makes it bigger, up to what fits in the box. */
+  --s: var(--widget-text-scale, 1);
+  font-size: clamp(1.25rem, min(20cqw * var(--s), 36cqw, 42cqh * var(--s), 62cqh), 16rem);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
@@ -23,7 +25,11 @@
 }
 
 .clock-date {
-  font-size: clamp(0.75rem, min(6cqw, 12cqh), 1.25rem);
+  font-size: clamp(
+    0.75rem,
+    min(6cqw * var(--widget-text-scale, 1), 7cqw, 12cqh * var(--widget-text-scale, 1), 18cqh),
+    3rem
+  );
   color: var(--color-text-muted);
 }
 

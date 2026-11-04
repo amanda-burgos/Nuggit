@@ -16,7 +16,11 @@ Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versi
 
 - **Escoge tu letra 🔤:** en Ajustes → Apariencia → Letra eliges la fuente de Nuggit entre varias incluidas (redonda, de libro, escrita a mano, para dislexia, para leer más fácil…) o cualquiera de las que tienes en tu Mac. Los títulos pueden llevar otra (Fase 13).
 - **Tamaño de la letra:** más chica o más grande (85 % a 130 %), y si quieres, que se ajuste sola al tamaño de la ventana.
-- **Letra por widget:** cada widget puede tener la suya desde su ⚙︎.
+- **Letra por widget:** cada widget puede tener la suya desde su ⚙︎, y también su propio **tamaño de letra** (hasta 250 %), perfecto para un reloj grande.
+
+### Cambió
+
+- **El reloj crece más:** en un cuadro grande la hora ahora se ve mucho más grande.
 
 ## [Recordatorios] - 2026-11-02
 

@@ -756,6 +756,7 @@ Cómo quedó (Fase 13):
 - **Se guarda** en `appearance.font`, `headingFont` (sin poner = igual que el texto), `fontScale` (85–130 %) y `fontAuto`. Se aplica con las variables `--font-sans` y `--font-heading` y el `font-size` de `<html>` (todo el CSS usa rem).
 - **Ajustar al tamaño de la ventana** (prendido por defecto): solo en la ventana principal, la base va de 13 px a 17 px según el ancho (~16 px a 1280 px), por el tamaño elegido. Los widgets despegados y las ventanitas de la barra de menú usan el tamaño normal.
 - **Por widget:** `font` en el widget (`desktop:setFont`), desde su ⚙︎; cambia su texto y su título.
+- **Tamaño de la letra por widget** (⚙︎, 70–250 %, "Normal" lo regresa): `textScale` en el widget (`desktop:setTextScale`). Se aplica con `zoom` al contenido (no al encabezado ni al panel ⚙︎). El reloj ya se ajusta a su cuadro, así que usa `--widget-text-scale` en su fórmula (hasta lo que cabe) y su tope subió para que llene cuadros grandes.
 
 ### Fase 14 — Idioma (español / inglés)
 - La primera vez que se abre Nuggit, **antes del tour**, se escoge el idioma: Español o English.
