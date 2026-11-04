@@ -37,7 +37,7 @@
   border-radius: 999px;
   padding: 7px 14px;
   font-size: 0.9rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .button-primary {
@@ -111,7 +111,7 @@
   border: none;
   border-radius: var(--radius-sm);
   padding: 8px 10px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .menu-item:hover,
@@ -226,12 +226,12 @@
   align-items: center;
   gap: 8px;
   padding: 8px 8px 6px 14px;
-  cursor: grab;
+  cursor: var(--cur-grab, grab);
   user-select: none;
 }
 
 .board-item.is-active .widget-header {
-  cursor: grabbing;
+  cursor: var(--cur-grabbing, grabbing);
 }
 
 .widget-title {
@@ -266,7 +266,7 @@
   border-radius: var(--radius-sm);
   background: none;
   color: var(--color-text-muted);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-size: 1rem;
   line-height: 1;
 }
@@ -290,7 +290,7 @@
   bottom: 0;
   width: 18px;
   height: 18px;
-  cursor: nwse-resize;
+  cursor: var(--cur-resize, nwse-resize);
   touch-action: none;
 }
 
@@ -313,7 +313,7 @@
 /* --- Fixed ("Fijar"): no grabbing, only the lock shows on hover --- */
 
 .widget.is-locked .widget-header {
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .widget-lock {
@@ -368,7 +368,7 @@ html.is-detached-window body {
 /* Drag the header to move the window; buttons stay clickable. */
 .detached .widget-header {
   -webkit-app-region: drag;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .detached .widget-actions {
@@ -399,7 +399,7 @@ html.is-detached-window body {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .widget-settings-general input {

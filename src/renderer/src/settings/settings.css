@@ -47,7 +47,7 @@
 
 .settings-section button:disabled {
   opacity: 0.55;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .settings-row {
@@ -97,7 +97,7 @@
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .settings-check input {
@@ -118,7 +118,7 @@
 }
 
 .settings-guide summary {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-weight: 600;
 }
 
@@ -153,7 +153,7 @@
   padding: 10px 12px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .provider-option.is-checked {
@@ -277,7 +277,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .settings-choices input {
@@ -421,7 +421,7 @@
 }
 
 .voice-group summary {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   padding: 6px 4px 2px;
   font-size: 0.78rem;
   text-transform: uppercase;
@@ -447,7 +447,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-size: 0.88rem;
 }
 
@@ -496,7 +496,7 @@
   padding: 4px 12px;
   font: inherit;
   font-size: 0.85rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .settings-tab.is-active {
@@ -517,7 +517,7 @@
   padding: 0 0 6px;
   font-size: 0.78rem;
   color: var(--color-accent);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .settings-shortcuts {
@@ -575,7 +575,7 @@
   border-radius: 50%;
   border: 2px solid var(--color-surface);
   box-shadow: 0 0 0 1px var(--color-border);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition: transform 120ms ease;
 }
 
@@ -596,7 +596,7 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 /* Tema "Mi color": the color well right after its option. */
@@ -616,5 +616,5 @@
   border: 1px solid var(--color-border);
   border-radius: 6px;
   background: none;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }

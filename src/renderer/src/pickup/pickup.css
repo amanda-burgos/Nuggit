@@ -60,7 +60,7 @@
   text-align: left;
   padding: 6px 8px;
   border-radius: var(--radius-sm);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .pickup-row:hover,
@@ -71,7 +71,7 @@
 .pickup-row.is-open-widget {
   padding: 0;
   gap: 2px;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .pickup-row.is-open-widget:hover {
@@ -122,12 +122,12 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .pickup-settings label.is-disabled {
   opacity: 0.5;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .pickup-settings input {
@@ -167,7 +167,7 @@
   padding: 3px 10px;
   font: inherit;
   font-size: 0.8rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .pickup-action:hover {

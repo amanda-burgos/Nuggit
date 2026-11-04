@@ -36,7 +36,7 @@
   padding: 3px 10px;
   font-size: 0.8rem;
   color: var(--color-text-muted);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .next-action-chip:hover {

@@ -52,6 +52,8 @@ export function useSettings(): SettingsStore {
       const { voiceURI, ...voiceRest } = voicePatch ?? {}
       const voice = { ...prev.voice, ...voiceRest }
       const { themeColor, headingFont, ...appearanceRest } = appearancePatch ?? {}
+      // Fase 16: `mouse` always comes whole (the dress-up's Guardar), so the spread replaces
+      // it; `mouseFavorites` (the whole list) comes in `rest`.
       const appearance = { ...prev.appearance, ...appearanceRest }
       if (themeColor !== undefined) appearance.themeColor = themeColor ?? undefined
       if (headingFont !== undefined) appearance.headingFont = headingFont ?? undefined

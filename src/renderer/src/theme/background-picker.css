@@ -13,7 +13,7 @@
   color: var(--color-text-muted);
   font: inherit;
   font-size: 0.8rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition:
     transform 120ms ease,
     box-shadow 120ms ease;
@@ -50,7 +50,7 @@
   position: absolute;
   inset: 0;
   opacity: 0;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 /* With a picture chosen, a small round preview next to the label. */

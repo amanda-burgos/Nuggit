@@ -118,7 +118,7 @@
   font-weight: 600;
   color: #fff;
   background: #d1383d;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .call-notice {

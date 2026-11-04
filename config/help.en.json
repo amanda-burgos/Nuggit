@@ -170,6 +170,13 @@
       "settingsTab": "appearance"
     },
     {
+      "id": "mouse-dressup",
+      "icon": "🖱️",
+      "title": "Mouse dress-up",
+      "text": "Dress up your cursor like a game: arrow, pencil, star, kitty, cat paw or Dip's bubble, small, medium or large, in your colors (fill, border, details and even a gradient). Add a trail of sparkles, little stars, hearts, paws, bubbles, a comet or a rainbow (or mix 2). Try it in the preview, save your combos in ⭐ Favorites or let 🎲 Surprise me pick. It only shows inside Nuggit's windows.",
+      "settingsTab": "appearance"
+    },
+    {
       "id": "widget-own",
       "icon": "⚙︎",
       "title": "One specific widget",

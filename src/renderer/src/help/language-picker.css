@@ -61,7 +61,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-surface-muted);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition:
     transform 120ms ease,
     box-shadow 120ms ease;

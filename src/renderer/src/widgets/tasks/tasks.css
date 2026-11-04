@@ -27,7 +27,7 @@
 
 .tasks button:disabled {
   opacity: 0.5;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 /* --- Quick add, always on top while the list scrolls --- */
@@ -68,7 +68,7 @@
   background: none;
   border: none;
   padding: 4px 2px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-size: 0.78rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -102,7 +102,7 @@
   background: none;
   border: none;
   color: var(--color-accent);
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   padding: 4px 2px;
   font-size: 0.85rem;
   text-align: left;
@@ -135,7 +135,7 @@
   color: transparent;
   font-size: 1rem;
   font-weight: 700;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   transition:
     background 120ms ease,
     color 120ms ease;
@@ -167,7 +167,7 @@
   border: none;
   padding: 4px 0;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .task-title {
@@ -251,7 +251,7 @@
   border: none;
   padding: 4px 0;
   text-align: left;
-  cursor: text;
+  cursor: var(--cur-text, text);
   overflow-wrap: anywhere;
 }
 
@@ -379,7 +379,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .tasks-settings input {
@@ -406,7 +406,7 @@
   background: none;
   border-radius: 999px;
   padding: 6px 14px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-size: 0.88rem;
 }
 

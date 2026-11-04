@@ -39,7 +39,7 @@
   padding: 5px 12px;
   font: inherit;
   font-size: 0.85rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .help-chip:hover {
@@ -129,7 +129,7 @@
 }
 
 .help-faq summary {
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   font-weight: 600;
 }
 

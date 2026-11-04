@@ -115,7 +115,7 @@
   border-radius: 999px;
   padding: 3px 10px;
   font-size: 0.82rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .focus-chip.is-active {

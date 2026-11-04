@@ -51,7 +51,7 @@ const SECTIONS: Array<{
     id: 'appearance',
     tab: 'appearance',
     keywords:
-      'apariencia tema claro oscuro sistema mi color colores fondo transparencia letra fuente fuentes tipografía font tamaño texto títulos dislexia appearance theme light dark system my color colors background transparency font fonts typography size text titles dyslexia',
+      'apariencia tema claro oscuro sistema mi color colores fondo transparencia letra fuente fuentes tipografía font tamaño texto títulos dislexia appearance theme light dark system my color colors background transparency font fonts typography size text titles dyslexia mouse cursor estela trail ratón puntero vestidor dress-up brillitos sparkles',
     Component: AppearanceSettings
   },
   {

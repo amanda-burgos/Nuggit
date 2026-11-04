@@ -30,7 +30,7 @@
 
 .tenders button:disabled {
   opacity: 0.55;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .tenders-start,

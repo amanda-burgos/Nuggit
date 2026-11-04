@@ -107,7 +107,7 @@
   width: 30px;
   height: 30px;
   opacity: 0.45;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .brain-dump-urgent.is-active {

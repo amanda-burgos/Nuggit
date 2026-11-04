@@ -101,7 +101,7 @@
   background: var(--color-accent);
   color: var(--color-on-accent);
   font-size: 1.1rem;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .music-footer {
@@ -180,7 +180,7 @@
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .music-list-play:hover {

@@ -71,7 +71,7 @@
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .calendar-grid .calendar-day {
@@ -269,7 +269,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .calendar-item.is-done .calendar-check {

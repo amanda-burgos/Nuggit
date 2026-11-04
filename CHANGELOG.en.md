@@ -4,6 +4,14 @@ What's new, what got fixed and what changed, by date and in plain words. You can
 
 Format: `## [Title] - YYYY-MM-DD` (or `## [1.0.0] - YYYY-MM-DD` for a version), and below it `### New`, `### Changed` or `### Fixed` with one `- ` line per change. Newest goes on top. This is the English copy of CHANGELOG.md: same entries, same order, same dates.
 
+## [Mouse dress-up] - 2026-11-04
+
+### New
+
+- **Mouse dress-up 🖱️:** in Settings → Appearance you can now dress up your cursor like in a game. Pick the shape (arrow, pencil, paper plane, star, heart, kitty, cat paw, lightning or Dip's bubble), the size and your colors, even a gradient.
+- **Trails ✨:** sparkles, little stars, little hearts, kitty paws, dots, bubbles, a comet or a rainbow behind the mouse. Mix 2 at once, each with its own colors, and choose how long it is and whether it fades fast or slow.
+- **Try it on first:** move the mouse in the preview and see how it looks. Nothing changes until you hit Save. Keep your combos in ⭐ Favorites or let 🎲 Surprise me choose for you. It shows in every Nuggit window.
+
 ## [Windows and Linux] - 2026-11-04
 
 ### Changed

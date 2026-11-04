@@ -169,6 +169,13 @@
       "settingsTab": "appearance"
     },
     {
+      "id": "mouse-dressup",
+      "icon": "🖱️",
+      "title": "Vestidor del mouse",
+      "text": "Viste tu cursor como un juego: flecha, lápiz, estrella, gatito, pata de gato o la burbuja de Dip, en chico, mediano o grande, con tus colores (relleno, borde, detalles y hasta degradado). Agrega una estela de brillitos, estrellitas, corazoncitos, patitas, burbujitas, cometa o arcoíris (o mezcla 2). Pruébalo en la vista previa, guarda tus combinaciones en ⭐ Favoritos o deja que 🎲 Sorpréndeme escoja. Solo se ve dentro de las ventanas de Nuggit.",
+      "settingsTab": "appearance"
+    },
+    {
       "id": "widget-own",
       "icon": "⚙︎",
       "title": "Un widget en particular",

@@ -44,6 +44,72 @@ export const FONT_SCALE_MAX = 1.3
 export const WIDGET_TEXT_MIN = 0.7
 export const WIDGET_TEXT_MAX = 2.5
 
+// Fase 16: Vestidor del mouse. The cursor inside Nuggit's windows and an optional trail.
+export const MOUSE_SHAPES = [
+  'arrow',
+  'arrow-round',
+  'pencil',
+  'plane',
+  'star',
+  'heart',
+  'dip',
+  'kitty',
+  'paw',
+  'bolt'
+] as const
+export type MouseShape = 'system' | (typeof MOUSE_SHAPES)[number] // 'system' = the computer's own
+export type MouseSize = 'small' | 'medium' | 'large'
+export const MOUSE_SIZE_PX: Record<MouseSize, number> = { small: 24, medium: 32, large: 48 }
+export const TRAIL_STYLES = [
+  'sparkles',
+  'stars',
+  'hearts',
+  'paws',
+  'dots',
+  'bubbles',
+  'comet',
+  'rainbow'
+] as const
+export type TrailStyle = (typeof TRAIL_STYLES)[number]
+export type TrailColorMode = 'one' | 'alternate' | 'rainbow'
+export const TRAIL_MAX_STYLES = 2
+export const TRAIL_MAX_COLORS = 4
+export const TRAIL_LENGTH_MIN = 1
+export const TRAIL_LENGTH_MAX = 10
+export const MOUSE_FAVORITES_MAX = 30
+export const MOUSE_NAME_MAX = 40
+
+export interface TrailLayer {
+  style: TrailStyle
+  mode: TrailColorMode // one color, several alternating, or rainbow
+  colors: string[] // #rrggbb, 1–TRAIL_MAX_COLORS ('one' uses the first)
+}
+
+export interface MouseStyle {
+  shape: MouseShape
+  size: MouseSize
+  colors: {
+    fill: string // #rrggbb
+    fill2?: string // a second fill color: a gradient; unset = solid
+    border: string
+    details: string // the paw's beans, Dip's bolt, the kitty's face…
+  }
+  trail: {
+    on: boolean
+    styles: TrailLayer[] // up to TRAIL_MAX_STYLES at once
+    length: number // TRAIL_LENGTH_MIN–MAX
+    fade: 'fast' | 'slow'
+  }
+  typingPause: boolean // no trail while typing in a text field
+  focusPause: boolean // no trail during a Focus round
+}
+
+export interface MouseFavorite {
+  id: string
+  name: string // ≤ MOUSE_NAME_MAX
+  style: MouseStyle
+}
+
 // Ajustes → Apariencia (Fase 9).
 export interface AppearanceSettings {
   accent: string // a preset name ("lavender"…) or a #rrggbb color
@@ -59,6 +125,7 @@ export interface AppearanceSettings {
   headingFont?: string // the titles' font; unset = same as the text
   fontScale: number // FONT_SCALE_MIN–MAX: how big the text is
   fontAuto: boolean // the main window's text follows its size (smaller window, smaller text)
+  mouse: MouseStyle // Fase 16: the cursor and its trail; default = the system cursor, no trail
 }
 
 // A widget popped out of the board into its own window on the computer's desktop.
@@ -186,6 +253,7 @@ export interface Settings {
   qotdSetup?: boolean // QOTD's first-time "choose at least 1" is done
   qotdCustomTopics: QotdCustomTopic[] // topics you wrote yourself
   language?: Lang // Fase 14: the app's language; unset = not chosen yet (asked on first open)
+  mouseFavorites: MouseFavorite[] // Fase 16: saved cursor + trail combos (up to MOUSE_FAVORITES_MAX)
 }
 
 // A Pregunta del día topic you wrote ("K-pop"); its id starts with "mi-".
@@ -344,6 +412,7 @@ export interface SettingsPatch {
   qotdSetup?: boolean
   qotdCustomTopics?: QotdCustomTopic[]
   language?: Lang
+  mouseFavorites?: MouseFavorite[] // replaces the whole list
   // themeColor: null = back to light/dark
   appearance?: Partial<Omit<AppearanceSettings, 'themeColor' | 'headingFont'>> & {
     themeColor?: string | null

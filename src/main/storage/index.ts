@@ -16,6 +16,7 @@ import {
   WIDGET_RADIUS_MIN
 } from '../../shared/types'
 import { spotifyUri } from '../../shared/music'
+import { cleanMouse, cleanMouseFavorites, defaultMouse } from '../../shared/mouse'
 import { isLang } from '../../shared/i18n'
 import { readJson, writeJson } from './jsonStore'
 
@@ -39,12 +40,14 @@ const DEFAULT_SETTINGS: Settings = {
     widgetRadius: 18,
     font: DEFAULT_FONT,
     fontScale: 1,
-    fontAuto: true
+    fontAuto: true,
+    mouse: defaultMouse()
   },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} },
   onboarding: { tourDone: false, whatsNew: true },
   qotdTopics: [],
-  qotdCustomTopics: []
+  qotdCustomTopics: [],
+  mouseFavorites: []
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -74,7 +77,7 @@ function clampScale(value: unknown): number | null {
 }
 
 function loadAppearance(saved: unknown): Settings['appearance'] {
-  if (!isObject(saved)) return { ...DEFAULT_SETTINGS.appearance }
+  if (!isObject(saved)) return { ...DEFAULT_SETTINGS.appearance, mouse: defaultMouse() }
   const { widgetCorners, ...rest } = saved
   const appearance = { ...DEFAULT_SETTINGS.appearance, ...rest } as Settings['appearance']
   const radius = clampRadius(saved.widgetRadius) ?? OLD_CORNERS[widgetCorners as string] ?? null
@@ -88,6 +91,7 @@ function loadAppearance(saved: unknown): Settings['appearance'] {
   else delete appearance.headingFont
   appearance.fontScale = clampScale(saved.fontScale) ?? 1
   if (typeof appearance.fontAuto !== 'boolean') appearance.fontAuto = true
+  appearance.mouse = cleanMouse(saved.mouse)
   return appearance
 }
 
@@ -337,6 +341,7 @@ export async function loadSettings(): Promise<Settings> {
     },
     ...loadQotdTopics(data),
     qotdCustomTopics: cleanCustomTopics(data.qotdCustomTopics) ?? [],
+    mouseFavorites: cleanMouseFavorites(data.mouseFavorites) ?? [],
     ...(isLang(data.language) && { language: data.language }),
     ui: {
       ...DEFAULT_SETTINGS.ui,
@@ -400,7 +405,8 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       font,
       headingFont,
       fontScale,
-      fontAuto
+      fontAuto,
+      mouse
     } = patch.appearance
     if (typeof accent === 'string' && (ACCENTS.includes(accent) || HEX.test(accent))) {
       current.appearance.accent = accent
@@ -430,6 +436,8 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     const scale = clampScale(fontScale)
     if (scale !== null) current.appearance.fontScale = scale
     if (typeof fontAuto === 'boolean') current.appearance.fontAuto = fontAuto
+    // Fase 16: the whole style at once (from the dress-up's "Guardar").
+    if (isObject(mouse)) current.appearance.mouse = cleanMouse(mouse)
   }
   if (isObject(patch) && isObject(patch.music)) {
     const { enabled, onBreak, focusPlaylist, breakPlaylist } = patch.music
@@ -500,6 +508,8 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     const custom = cleanCustomTopics(patch.qotdCustomTopics)
     if (custom) current.qotdCustomTopics = custom
     if (isLang(patch.language)) current.language = patch.language
+    const favorites = cleanMouseFavorites(patch.mouseFavorites)
+    if (favorites) current.mouseFavorites = favorites
   }
   if (isObject(patch) && isObject(patch.onboarding)) {
     const { tourDone, whatsNew, lastSeenVersion, lastSeenNews } = patch.onboarding

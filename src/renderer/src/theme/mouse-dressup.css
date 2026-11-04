@@ -1,0 +1,523 @@
+/* Fase 16: 🖱️ Vestidor del mouse (Ajustes → Apariencia). */
+.mouse-dressup-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 13, 30, 0.45);
+  animation: nuggit-fade-up 160ms ease-out;
+}
+
+.mouse-dressup {
+  width: min(1120px, 100%);
+  height: min(780px, calc(100vh - 32px));
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  color: var(--color-text);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-popover);
+  overflow: hidden;
+}
+
+.mouse-dressup-header,
+.mouse-dressup-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+}
+
+.mouse-dressup-header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mouse-dressup-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-family: var(--font-heading);
+}
+
+.mouse-dressup-header-actions,
+.mouse-dressup-footer-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.mouse-dressup-footer {
+  border-top: 1px solid var(--color-border);
+}
+
+.mouse-dressup-footer small {
+  flex: 1;
+  min-width: 200px;
+  color: var(--color-text-muted);
+}
+
+.mouse-dressup-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) 1fr;
+}
+
+.mouse-dressup-options {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--color-border);
+}
+
+.mouse-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 10px 12px 0;
+}
+
+.mouse-tab {
+  flex: 1;
+  padding: 8px 6px;
+  border: none;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: var(--cur-pointer, pointer);
+  border-bottom: 2px solid transparent;
+}
+
+.mouse-tab.is-active {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+  background: var(--color-surface-muted);
+}
+
+.mouse-tab-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+
+.mouse-hint,
+.mouse-empty {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.mouse-hint.is-warning {
+  color: var(--color-text);
+}
+
+.mouse-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.mouse-shape-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 8px;
+}
+
+.mouse-shape,
+.mouse-trail-choice,
+.mouse-part {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: center;
+  cursor: var(--cur-pointer, pointer);
+  transition: transform 120ms ease;
+}
+
+.mouse-shape:hover,
+.mouse-trail-choice:hover {
+  transform: translateY(-1px);
+}
+
+.mouse-shape.is-active,
+.mouse-trail-choice.is-active,
+.mouse-part.is-active {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.mouse-segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.mouse-segmented legend {
+  width: 100%;
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mouse-segmented label {
+  padding: 6px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: 0.85rem;
+  cursor: var(--cur-pointer, pointer);
+}
+
+.mouse-segmented label.is-active {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
+.mouse-segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mouse-segmented:disabled {
+  opacity: 0.5;
+}
+
+.mouse-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mouse-part {
+  flex-direction: row;
+  padding: 6px 10px;
+}
+
+.mouse-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mouse-swatch {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  padding: 0;
+  cursor: var(--cur-pointer, pointer);
+}
+
+.mouse-swatch.is-active {
+  box-shadow:
+    0 0 0 2px var(--color-bg),
+    0 0 0 4px var(--color-accent);
+}
+
+.mouse-swatch.is-wheel {
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  overflow: hidden;
+}
+
+.mouse-swatch.is-wheel input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mouse-rainbow-bar,
+.mouse-rainbow-dot {
+  background: linear-gradient(90deg, #ff5e5e, #ffb347, #ffe066, #5ee07a, #5eb8ff, #a78bfa, #ff7ac6);
+}
+
+.mouse-rainbow-bar {
+  height: 14px;
+  border-radius: 999px;
+}
+
+.mouse-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.mouse-chip {
+  position: relative;
+  display: inline-flex;
+}
+
+.mouse-chip > button:first-child {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
+  cursor: var(--cur-pointer, pointer);
+}
+
+.mouse-chip.is-active > button:first-child {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.mouse-chip-remove {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: 0.7rem;
+  line-height: 16px;
+  cursor: var(--cur-pointer, pointer);
+}
+
+.mouse-chip-add {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  border: 2px dashed var(--color-border);
+  background: none;
+  color: var(--color-text);
+  cursor: var(--cur-pointer, pointer);
+}
+
+.mouse-trail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.mouse-trail-choice {
+  position: relative;
+  flex-direction: row;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.mouse-trail-badge {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: 0.7rem;
+  line-height: 18px;
+}
+
+.mouse-layer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.mouse-layer-colors {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.mouse-layer-colors span {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+}
+
+.mouse-fav-add {
+  display: flex;
+  gap: 8px;
+}
+
+.mouse-fav-add input {
+  flex: 1;
+  min-width: 0;
+}
+
+.mouse-fav-title {
+  margin: 4px 0 0;
+  font-size: 0.9rem;
+}
+
+.mouse-fav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mouse-fav-list li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.mouse-fav-list li.is-active {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.mouse-fav-list li > input {
+  flex: 1;
+}
+
+.mouse-fav-load {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: var(--cur-pointer, pointer);
+}
+
+.mouse-fav-load span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The try-on area. Its children take the draft cursor from it (inline styles). */
+.mouse-preview {
+  position: relative;
+  min-height: 260px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 20%, var(--color-accent-soft), transparent 55%),
+    radial-gradient(circle at 80% 80%, var(--color-surface-muted), transparent 60%),
+    var(--color-surface);
+}
+
+.mouse-preview * {
+  cursor: inherit;
+}
+
+.mouse-preview-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.mouse-preview-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+.mouse-preview-samples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.mouse-preview-samples > input {
+  width: 180px;
+}
+
+.mouse-preview-widget {
+  position: relative;
+  padding: 18px 26px;
+  border-radius: var(--widget-radius, 18px);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: 0.85rem;
+  user-select: none;
+}
+
+.mouse-preview-resize {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  border-right: 3px solid var(--color-border);
+  border-bottom: 3px solid var(--color-border);
+  border-bottom-right-radius: var(--widget-radius, 18px);
+}
+
+/* The card in Ajustes → Apariencia. */
+.mouse-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mouse-card-summary {
+  flex: 1;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mouse-card-summary small {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 760px) {
+  .mouse-dressup-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr minmax(220px, 40%);
+  }
+
+  .mouse-dressup-options {
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+}

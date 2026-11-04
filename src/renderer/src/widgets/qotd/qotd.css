@@ -69,7 +69,7 @@
   color: inherit;
   font: inherit;
   padding: 5px 12px;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 .qotd-topic-chip.is-on {

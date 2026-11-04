@@ -6,6 +6,14 @@ Cada cambio va también en inglés en CHANGELOG.en.md, en el mismo orden y con l
 
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
+## [Vestidor del mouse] - 2026-11-04
+
+### Nuevo
+
+- **Vestidor del mouse 🖱️:** en Ajustes → Apariencia ahora puedes vestir tu cursor como en un juego. Escoge la forma (flecha, lápiz, avión de papel, estrella, corazón, gatito, pata de gato, rayo o la burbuja de Dip), el tamaño y tus colores, hasta con degradado.
+- **Estelas ✨:** brillitos, estrellitas, corazoncitos, patitas de gato, puntitos, burbujitas, cometa o arcoíris detrás del mouse. Mezcla 2 a la vez, cada una con sus colores, y elige qué tan larga es y si se borra rápido o lento.
+- **Pruébatelo antes:** mueve el mouse en la vista previa y mira cómo queda. Solo cambia cuando le das Guardar. Guarda tus combinaciones en ⭐ Favoritos o deja que 🎲 Sorpréndeme escoja por ti. Se ve en todas las ventanas de Nuggit.
+
 ## [Windows y Linux] - 2026-11-04
 
 ### Cambió

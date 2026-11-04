@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { ThemePreference } from '../../../shared/types'
 import {
   DEFAULT_FONT,
@@ -9,6 +10,9 @@ import {
 import { ACCENT_PRESETS, isDarkColor } from '../theme/appearance'
 import { BackgroundPicker } from '../theme/BackgroundPicker'
 import { FontPicker, FontSelect } from '../theme/FontPicker'
+import { MouseDressUp, MouseIcon } from '../theme/MouseDressUp'
+import { shapeName, trailName } from '../theme/mouseNames'
+import { defaultMouse } from '../../../shared/mouse'
 import type { SectionProps } from './shared'
 import { t } from '../../../shared/i18n'
 
@@ -26,6 +30,7 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
   // Light/dark follows the chosen color, so menus and native controls match it too.
   const chooseThemeColor = (color: string): void =>
     update({ theme: isDarkColor(color) ? 'dark' : 'light', appearance: { themeColor: color } })
+  const [dressing, setDressing] = useState(false)
 
   return (
     <section className="settings-section">
@@ -187,6 +192,11 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
         </small>
       </div>
 
+      <MouseCard settings={settings} update={update} onOpen={() => setDressing(true)} />
+      {dressing && (
+        <MouseDressUp settings={settings} update={update} onClose={() => setDressing(false)} />
+      )}
+
       <div className="settings-field">
         <span>{t('Fondo del tablero (Inicio)', 'Board background (Home)')}</span>
         <BackgroundPicker
@@ -312,5 +322,48 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
         </label>
       </div>
     </section>
+  )
+}
+
+// Fase 16: 🖱️ Vestidor del mouse, the card that opens the dress-up.
+function MouseCard({
+  settings,
+  update,
+  onOpen
+}: SectionProps & { onOpen(): void }): React.JSX.Element {
+  const { mouse } = settings.appearance
+  const dressed = mouse.shape !== 'system' || mouse.trail.on
+  const trail = mouse.trail.on
+    ? mouse.trail.styles.map((l) => trailName(l.style)).join(' + ')
+    : t('sin estela', 'no trail')
+  return (
+    <div className="settings-subsection">
+      <h4>🖱️ {t('Vestidor del mouse', 'Mouse dress-up')}</h4>
+      <div className="mouse-card">
+        <MouseIcon mouse={mouse} size={40} />
+        <div className="mouse-card-summary">
+          <strong>{shapeName(mouse.shape)}</strong>
+          <small>{trail}</small>
+        </div>
+        <button type="button" className="button-primary" onClick={onOpen}>
+          {t('Abrir el vestidor', 'Open the dress-up')}
+        </button>
+        {dressed && (
+          <button
+            type="button"
+            className="bg-choice is-text"
+            onClick={() => update({ appearance: { mouse: defaultMouse() } })}
+          >
+            {t('Volver al mouse normal', 'Back to the normal mouse')}
+          </button>
+        )}
+      </div>
+      <small>
+        {t(
+          'Viste tu cursor como un juego: forma, colores y una estela de brillitos, estrellitas o patitas. Solo se ve dentro de Nuggit.',
+          'Dress up your cursor like a game: shape, colors and a trail of sparkles, stars or paws. It only shows inside Nuggit.'
+        )}
+      </small>
+    </div>
   )
 }

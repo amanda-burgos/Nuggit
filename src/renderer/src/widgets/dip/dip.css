@@ -89,7 +89,7 @@
 
 .dip-input button:disabled {
   opacity: 0.55;
-  cursor: default;
+  cursor: var(--cur-default, default);
 }
 
 .dip-input .icon-button {

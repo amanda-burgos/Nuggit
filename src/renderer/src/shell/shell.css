@@ -25,7 +25,7 @@
   background: none;
   color: inherit;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
 }
 
 /* The logo is a button to Inicio. */
@@ -57,7 +57,7 @@
   border-radius: var(--radius-sm);
   padding: 8px 10px;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cur-pointer, pointer);
   color: var(--color-text-muted);
   white-space: nowrap;
 }
