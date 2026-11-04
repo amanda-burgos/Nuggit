@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { t } from '../../../shared/i18n'
 import type { DipAction, Task } from '../../../shared/types'
 import { dipInstructions } from '../dip'
 import type { CheckResult } from '../runAgent'
@@ -116,15 +117,22 @@ function checkReply(raw: string, ctx: ActionsContext): CheckResult<ActionsReply>
   if (!found.ok) return found
   // "ya terminé mate": if Dip forgot to propose it, propose completing that task anyway.
   const action = found.value ?? finishedTask(ctx.userText, ctx.tasks)
-  const reply = text(parsed.value.reply, 4000) || (action ? '¿Lo hago?' : '')
+  const reply = text(parsed.value.reply, 4000) || (action ? t('¿Lo hago?', 'Should I do it?') : '')
   if (!reply) return fail('"reply" está vacío: contéstale algo a la persona.')
   return { ok: true, value: { text: reply, ...(action ? { action } : {}) } }
 }
 
 export const actions = defineAgent({
   name: 'actions',
-  label: 'Acciones de Dip',
-  purpose: 'El chat de Dip que propone crear, completar o cambiar tareas.',
+  get label() {
+    return t('Acciones de Dip', "Dip's actions")
+  },
+  get purpose() {
+    return t(
+      'El chat de Dip que propone crear, completar o cambiar tareas.',
+      "Dip's chat that suggests creating, completing or changing tasks."
+    )
+  },
   tools: ['create', 'complete', 'update'],
   tasks: {
     reply: {

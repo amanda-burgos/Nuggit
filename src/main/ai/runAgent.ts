@@ -1,4 +1,5 @@
 import type { AIBackend, AIMessage } from '../../shared/types'
+import { t } from '../../shared/i18n'
 import { AIError, type AIProvider, CANCELLED, type ChatUsage } from './provider'
 
 // SPEC 8.1, self-correction: one loop for every agent. It calls the model, checks the
@@ -53,8 +54,16 @@ export interface RunAgentResult<T> {
   attempts: number // on that provider
 }
 
-export const NO_AI = 'No hay ninguna IA disponible ahora. Revisa Ajustes → IA de Dip.'
-export const TANGLED = 'Dip se enredó con la respuesta. ¿Lo intentas otra vez?'
+export const NO_AI = (): string =>
+  t(
+    'No hay ninguna IA disponible ahora. Revisa Ajustes → IA de Dip.',
+    "No AI is available right now. Check Settings → Dip's AI."
+  )
+export const TANGLED = (): string =>
+  t(
+    'Dip se enredó con la respuesta. ¿Lo intentas otra vez?',
+    'Dip got tangled up with the answer. Try again?'
+  )
 
 export function correctionMessage(error: string, json: boolean): string {
   return json
@@ -79,7 +88,7 @@ export async function runAgent<T>(opts: RunAgentOptions<T>): Promise<RunAgentRes
   for (const { backend, model, provider } of opts.candidates) {
     let messages = opts.messages
     for (let attempt = 1; attempt <= opts.maxRetries + 1; attempt++) {
-      if (opts.signal?.aborted) throw new AIError(CANCELLED)
+      if (opts.signal?.aborted) throw new AIError(CANCELLED())
       let raw: string
       let usage: ChatUsage = { model, tokensIn: null, tokensOut: null }
       const started = Date.now()
@@ -108,7 +117,7 @@ export async function runAgent<T>(opts: RunAgentOptions<T>): Promise<RunAgentRes
           error: redact(describe(err)),
           ...metrics()
         })
-        if (opts.signal?.aborted) throw new AIError(CANCELLED)
+        if (opts.signal?.aborted) throw new AIError(CANCELLED())
         errors.push(err)
         break
       }
@@ -133,7 +142,7 @@ export async function runAgent<T>(opts: RunAgentOptions<T>): Promise<RunAgentRes
         ...metrics()
       })
       if (attempt > opts.maxRetries) {
-        errors.push(new AIError(TANGLED))
+        errors.push(new AIError(TANGLED()))
         break
       }
       messages = [
@@ -144,7 +153,7 @@ export async function runAgent<T>(opts: RunAgentOptions<T>): Promise<RunAgentRes
     }
   }
   // The first error is the most useful: it is about the provider Dip wanted to use.
-  throw errors[0] ?? new AIError(NO_AI)
+  throw errors[0] ?? new AIError(NO_AI())
 }
 
 function describe(err: unknown): string {

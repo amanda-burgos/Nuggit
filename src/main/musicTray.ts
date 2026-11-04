@@ -1,6 +1,7 @@
 import { nativeImage, Tray } from 'electron'
 import type { PickupTrayMode } from '../shared/types'
 import { createTrayPopover, type TrayPopover } from './trayPopover'
+import { onLangChange, t } from '../shared/i18n'
 
 // SPEC 9.19, "Música sin Focus": its own menu bar icon opens a small floating player with
 // the same controls as the Música widget. It can also live inside Nuggit's menu, or hide.
@@ -67,7 +68,7 @@ export function onMusicTrayModeChange(listener: (mode: PickupTrayMode) => void):
 export function setMusicTrayMode(next: PickupTrayMode): void {
   if (next === 'icon' && !tray) {
     tray = new Tray(noteIcon())
-    tray.setToolTip('Música')
+    tray.setToolTip(t('Música', 'Music'))
     tray.on('click', toggle)
     tray.on('right-click', toggle)
   } else if (next !== 'icon' && tray) {
@@ -83,7 +84,8 @@ export function initMusicTray(initial: PickupTrayMode): void {
   popover = createTrayPopover({
     size: { width: 320, height: 380 },
     view: 'music',
-    title: 'Música'
+    title: () => t('Música', 'Music')
   })
   setMusicTrayMode(initial)
+  onLangChange(() => tray?.setToolTip(t('Música', 'Music')))
 }

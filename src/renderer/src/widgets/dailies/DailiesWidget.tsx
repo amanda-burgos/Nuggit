@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { Daily, Task } from '../../../../shared/types'
 import { describeRepeat, isDueOn, streakOf } from '../../../../shared/dailies'
 import { useAIStatus } from '../../store/useAIStatus'
@@ -58,7 +59,15 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
   }
 
   const remove = (daily: Daily): void => {
-    if (!window.confirm(`¿Borrar el daily "${daily.title}"? Deja de repetirse.`)) return
+    if (
+      !window.confirm(
+        t(
+          `¿Borrar el daily "${daily.title}"? Deja de repetirse.`,
+          `Delete the daily "${daily.title}"? It will stop repeating.`
+        )
+      )
+    )
+      return
     window.api.dailies.remove([daily.id]).catch((err) => console.error(err))
   }
 
@@ -73,7 +82,9 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
               setUndo({
                 ids: saved.map((d) => d.id),
                 label:
-                  saved.length === 1 ? '1 daily guardado ✓' : `${saved.length} dailies guardados ✓`
+                  saved.length === 1
+                    ? t('1 daily guardado ✓', '1 daily saved ✓')
+                    : t(`${saved.length} dailies guardados ✓`, `${saved.length} dailies saved ✓`)
               })
             }
           }}
@@ -87,20 +98,23 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
 
   return (
     <div className={`dailies is-${size}`}>
-      <section className="dailies-today" aria-label="Hoy">
+      <section className="dailies-today" aria-label={t('Hoy', 'Today')}>
         <h3>
-          Hoy
+          {t('Hoy', 'Today')}
           {todays.length > 0 && (
             <span className="dailies-count">
-              {doneToday} de {todays.length}
+              {t(`${doneToday} de ${todays.length}`, `${doneToday} of ${todays.length}`)}
             </span>
           )}
         </h3>
         {todays.length === 0 ? (
           <p className="daily-hint">
             {dailies.length === 0
-              ? 'Todavía no tienes dailies. Agrega lo que repites (bañarte, gimnasio, tarea…).'
-              : 'Hoy no toca ningún daily 🌤️'}
+              ? t(
+                  'Todavía no tienes dailies. Agrega lo que repites (bañarte, gimnasio, tarea…).',
+                  'No dailies yet. Add the things you repeat (shower, gym, homework…).'
+                )
+              : t('Hoy no toca ningún daily 🌤️', 'No dailies today 🌤️')}
           </p>
         ) : (
           <ul className="daily-list">
@@ -113,7 +127,7 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
                     className="daily-check"
                     role="checkbox"
                     aria-checked={done}
-                    aria-label={`${daily.title}: ${done ? 'hecho' : 'pendiente'}`}
+                    aria-label={`${daily.title}: ${done ? t('hecho', 'done') : t('pendiente', 'not done')}`}
                     onClick={() => toggle(task)}
                   >
                     {done ? '✓' : ''}
@@ -128,7 +142,7 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
                   </span>
                   {/* Only good news: a streak shows from 2 in a row, and simply goes away. */}
                   {streak >= 2 && (
-                    <span className="daily-streak" title="Veces seguidas">
+                    <span className="daily-streak" title={t('Veces seguidas', 'Times in a row')}>
                       🔥 {streak}
                     </span>
                   )}
@@ -152,29 +166,31 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
       {mode.kind === 'list' && (
         <div className="dailies-actions">
           <button className="button-primary" onClick={() => setMode({ kind: 'new' })}>
-            + Nuevo daily
+            {t('+ Nuevo daily', '+ New daily')}
           </button>
           <button
             className="button-ghost"
             disabled={!aiStatus?.active}
             title={
-              aiStatus?.active ? 'Dip te ayuda a armar tu rutina' : 'Conecta una IA en Ajustes'
+              aiStatus?.active
+                ? t('Dip te ayuda a armar tu rutina', 'Dip helps you build your routine')
+                : t('Conecta una IA en Ajustes', 'Connect an AI in Settings')
             }
             onClick={() => setMode({ kind: 'plan' })}
           >
-            ✨ Planear con Dip
+            {t('✨ Planear con Dip', '✨ Plan with Dip')}
           </button>
         </div>
       )}
 
       {dailies.length > 0 && (
-        <section className="dailies-all" aria-label="Todos los dailies">
+        <section className="dailies-all" aria-label={t('Todos los dailies', 'All dailies')}>
           <button
             className="dailies-all-toggle"
             aria-expanded={showAll}
             onClick={() => setShowAll((v) => !v)}
           >
-            {showAll ? '▾' : '▸'} Todos ({dailies.length})
+            {showAll ? '▾' : '▸'} {t('Todos', 'All')} ({dailies.length})
           </button>
           {showAll && (
             <ul className="daily-list">
@@ -199,17 +215,21 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
                         <small>
                           {describeRepeat(d.repeat)}
                           {d.time ? ` · ${d.time}` : ''}
-                          {isDueOn(d.repeat, today) ? ' · toca hoy' : ''}
+                          {isDueOn(d.repeat, today) ? t(' · toca hoy', ' · due today') : ''}
                         </small>
                       </span>
                       <button
                         className="icon-button"
-                        title="Editar"
+                        title={t('Editar', 'Edit')}
                         onClick={() => setMode({ kind: 'edit', id: d.id })}
                       >
                         ✏️
                       </button>
-                      <button className="icon-button" title="Borrar" onClick={() => remove(d)}>
+                      <button
+                        className="icon-button"
+                        title={t('Borrar', 'Delete')}
+                        onClick={() => remove(d)}
+                      >
                         ×
                       </button>
                     </li>
@@ -230,7 +250,7 @@ export function DailiesWidget({ size }: WidgetProps<DailiesConfig>): React.JSX.E
               setUndo(null)
             }}
           >
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}

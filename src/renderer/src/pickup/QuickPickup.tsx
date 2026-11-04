@@ -5,6 +5,7 @@ import { getWidgetDefinition, widgetRegistry } from '../widgets/registry'
 import type { AnyWidgetDefinition } from '../widgets/types'
 import '../popover/popover.css'
 import './pickup.css'
+import { t } from '../../../shared/i18n'
 
 const close = (): void => window.api.popover.hide()
 const report = (err: unknown): void => console.error('Quick pickup', err)
@@ -77,7 +78,7 @@ export function QuickPickup(): React.JSX.Element {
         <span className="popover-title">
           <span aria-hidden>🧩</span> Widgets
         </span>
-        <button className="icon-button" title="Cerrar (Esc)" onClick={close}>
+        <button className="icon-button" title={t('Cerrar (Esc)', 'Close (Esc)')} onClick={close}>
           ×
         </button>
       </header>
@@ -86,8 +87,8 @@ export function QuickPickup(): React.JSX.Element {
           ref={searchRef}
           className="pickup-search"
           type="search"
-          placeholder="Buscar un widget…"
-          aria-label="Buscar un widget"
+          placeholder={t('Buscar un widget…', 'Search for a widget…')}
+          aria-label={t('Buscar un widget', 'Search for a widget')}
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -99,7 +100,7 @@ export function QuickPickup(): React.JSX.Element {
         <div className="pickup-lists">
           {open.length > 0 && (
             <section>
-              <h3>Abiertos</h3>
+              <h3>{t('Abiertos', 'Open')}</h3>
               <ul>
                 {open.map(({ instance, def }) => (
                   <OpenItem
@@ -119,7 +120,7 @@ export function QuickPickup(): React.JSX.Element {
 
           {addable.length > 0 && (
             <section>
-              <h3>Añadir al escritorio</h3>
+              <h3>{t('Añadir al escritorio', 'Add to the desktop')}</h3>
               <ul>
                 {addable.map((def) => (
                   <li key={def.type}>
@@ -137,7 +138,9 @@ export function QuickPickup(): React.JSX.Element {
           )}
 
           {open.length === 0 && addable.length === 0 && (
-            <p className="pickup-empty">No hay ningún widget que se llame así.</p>
+            <p className="pickup-empty">
+              {t('No hay ningún widget que se llame así.', "There's no widget with that name.")}
+            </p>
           )}
         </div>
       </div>
@@ -159,7 +162,11 @@ function OpenItem({
   onToggleSettings(): void
 }): React.JSX.Element {
   const entry = desktop.detached?.[instance.id]
-  const where = entry ? 'En el escritorio' : instance.hidden ? 'Oculto' : 'En el tablero'
+  const where = entry
+    ? t('En el escritorio', 'On the desktop')
+    : instance.hidden
+      ? t('Oculto', 'Hidden')
+      : t('En el tablero', 'On the board')
   const onTop = entry?.alwaysOnTop ?? false
   const allSpaces = entry?.allSpaces ?? true // on every desktop unless turned off
   const pinBack = entry?.pinBack ?? false
@@ -176,7 +183,11 @@ function OpenItem({
       <div className="pickup-row is-open-widget">
         <button
           className="pickup-main"
-          title={pinBack ? 'Editar (lo sube un momento)' : 'Traer al frente'}
+          title={
+            pinBack
+              ? t('Editar (lo sube un momento)', 'Edit (brings it up for a moment)')
+              : t('Traer al frente', 'Bring to front')
+          }
           onClick={() => window.api.widgetWindows.focus(instance.id).catch(report)}
         >
           <span className="pickup-icon" aria-hidden>
@@ -186,15 +197,18 @@ function OpenItem({
             {def.name}
             <small>
               {where}
-              {onTop && (allSpaces ? ' · Al frente, en todos los escritorios' : ' · Al frente')}
-              {pinBack && ' · Al fondo'}
+              {onTop &&
+                (allSpaces
+                  ? t(' · Al frente, en todos los escritorios', ' · On top, on every desktop')
+                  : t(' · Al frente', ' · On top'))}
+              {pinBack && t(' · Al fondo', ' · At the back')}
               {instance.locked && ' · 🔒'}
             </small>
           </span>
         </button>
         <button
           className={`icon-button${showSettings ? ' is-active' : ''}`}
-          title="Más opciones"
+          title={t('Más opciones', 'More options')}
           aria-pressed={showSettings}
           onClick={onToggleSettings}
         >
@@ -203,7 +217,11 @@ function OpenItem({
         {!instance.hidden && (
           <button
             className="icon-button"
-            title={entry ? 'Cerrar (vuelve al tablero de Nuggit)' : 'Cerrar (lo oculta)'}
+            title={
+              entry
+                ? t('Cerrar (vuelve al tablero de Nuggit)', "Close (goes back to Nuggit's board)")
+                : t('Cerrar (lo oculta)', 'Close (hides it)')
+            }
             onClick={() => window.api.widgetWindows.close(instance.id).catch(report)}
           >
             ×
@@ -217,13 +235,16 @@ function OpenItem({
             {/* At the back it takes no clicks: these are the way to reach it. */}
             <button
               className="pickup-action"
-              title="Lo sube un momento para moverlo o cambiarlo; al terminar vuelve al fondo"
+              title={t(
+                'Lo sube un momento para moverlo o cambiarlo; al terminar vuelve al fondo',
+                'Brings it up for a moment to move or change it; when done it goes back'
+              )}
               onClick={() => window.api.widgetWindows.editBack(instance.id).catch(report)}
             >
-              ✏️ Editar
+              {t('✏️ Editar', '✏️ Edit')}
             </button>
             <button className="pickup-action" onClick={() => setOptions({ pinBack: false })}>
-              Quitar del fondo
+              {t('Quitar del fondo', 'Take off the back')}
             </button>
           </>
         ) : (
@@ -232,10 +253,16 @@ function OpenItem({
             aria-pressed={onTop}
             title={
               onTop
-                ? 'Quitar: deja de estar siempre al frente'
+                ? t('Quitar: deja de estar siempre al frente', 'Remove: stops always being on top')
                 : entry
-                  ? 'Siempre encima de las demás ventanas, en todos los escritorios'
-                  : 'Lo saca al escritorio y lo deja siempre encima, en todos los escritorios'
+                  ? t(
+                      'Siempre encima de las demás ventanas, en todos los escritorios',
+                      'Always above other windows, on every desktop'
+                    )
+                  : t(
+                      'Lo saca al escritorio y lo deja siempre encima, en todos los escritorios',
+                      'Pops it out to the desktop and keeps it on top, on every desktop'
+                    )
             }
             onClick={() => setOptions({ alwaysOnTop: !onTop })}
           >
@@ -254,10 +281,12 @@ function OpenItem({
               onChange={(e) => setOptions({ allSpaces: e.target.checked })}
             />
             <span>
-              En todos los escritorios
+              {t('En todos los escritorios', 'On every desktop')}
               <small>
-                Con Pin on top: sigue ahí al cambiar de escritorio y encima de apps en pantalla
-                completa.
+                {t(
+                  'Con Pin on top: sigue ahí al cambiar de escritorio y encima de apps en pantalla completa.',
+                  'With Pin on top: stays there when you switch desktops and above full-screen apps.'
+                )}
               </small>
             </span>
           </label>
@@ -268,10 +297,12 @@ function OpenItem({
               onChange={(e) => setOptions({ pinBack: e.target.checked })}
             />
             <span>
-              Pin on back: siempre al fondo
+              {t('Pin on back: siempre al fondo', 'Pin on back: always at the back')}
               <small>
-                Detrás de todas las ventanas y de los archivos del Escritorio. Ahí no recibe clics:
-                usa ✏️ Editar para moverlo o cambiarlo.
+                {t(
+                  'Detrás de todas las ventanas y de los archivos del Escritorio. Ahí no recibe clics: usa ✏️ Editar para moverlo o cambiarlo.',
+                  "Behind every window and the files on your Desktop. There it doesn't get clicks: use ✏️ Edit to move or change it."
+                )}
               </small>
             </span>
           </label>

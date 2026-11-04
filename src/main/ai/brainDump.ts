@@ -1,4 +1,5 @@
 import type { BrainDumpResult } from '../../shared/types'
+import { t } from '../../shared/i18n'
 import { loadSettings } from '../storage'
 import { brainDump } from './agents'
 import { text } from './agents/types'
@@ -12,7 +13,11 @@ const MAX_TEXT = 6000
 
 export async function splitBrainDump(input: unknown): Promise<BrainDumpResult> {
   const dump = text(input, MAX_TEXT)
-  if (!dump) return { ok: false, error: 'Escribe primero lo que tienes en la cabeza.' }
+  if (!dump)
+    return {
+      ok: false,
+      error: t('Escribe primero lo que tienes en la cabeza.', "First write what's on your mind.")
+    }
   try {
     const settings = await loadSettings()
     const { value } = await askAgent(brainDump, 'split', { personality: settings.dipPersonality }, [

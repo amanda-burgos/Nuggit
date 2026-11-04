@@ -1,6 +1,7 @@
 import type { AIMessage, AIModelOption } from '../../shared/types'
 import { ollamaUrl } from './config'
 import { AIError, type AIProvider, type ChatOptions, withSignal } from './provider'
+import { t } from '../../shared/i18n'
 
 // Ollama runs models on this computer: no account, no key, nothing leaves the Mac.
 // It listens on ollamaUrl() (config/ai.defaults.json or NUGGIT_OLLAMA_URL) once it is open.
@@ -17,16 +18,27 @@ function friendlyError(err: unknown): AIError {
   const text = err instanceof Error ? `${err.name} ${err.message} ${String(err.cause)}` : ''
   if (/timeout|abort/i.test(text)) {
     return new AIError(
-      'Ollama tardó demasiado en contestar. Intenta otra vez o usa un modelo más pequeño.'
+      t(
+        'Ollama tardó demasiado en contestar. Intenta otra vez o usa un modelo más pequeño.',
+        'Ollama took too long to answer. Try again or use a smaller model.'
+      )
     )
   }
   if (/fetch failed|econnrefused|network/i.test(text)) {
     return new AIError(
-      'Ollama no está abierto. Ábrelo (o instálalo desde ollama.com) y vuelve a intentar.'
+      t(
+        'Ollama no está abierto. Ábrelo (o instálalo desde ollama.com) y vuelve a intentar.',
+        "Ollama isn't open. Open it (or install it from ollama.com) and try again."
+      )
     )
   }
   console.error('[ai] unexpected Ollama error', err)
-  return new AIError('Algo salió mal al hablar con Ollama. Intenta otra vez.')
+  return new AIError(
+    t(
+      'Algo salió mal al hablar con Ollama. Intenta otra vez.',
+      'Something went wrong talking to Ollama. Try again.'
+    )
+  )
 }
 
 async function request<T>(
@@ -71,7 +83,10 @@ export function createOllamaProvider(getModel: () => Promise<string | undefined>
     const [first] = await listOllamaModels()
     if (!first) {
       throw new AIError(
-        `Ollama está abierto pero no tiene modelos. Baja uno en la Terminal con: ollama pull ${SUGGESTED_OLLAMA_MODEL}`
+        t(
+          `Ollama está abierto pero no tiene modelos. Baja uno en la Terminal con: ollama pull ${SUGGESTED_OLLAMA_MODEL}`,
+          `Ollama is open but has no models. Download one in Terminal with: ollama pull ${SUGGESTED_OLLAMA_MODEL}`
+        )
       )
     }
     return first.id
@@ -106,12 +121,21 @@ export function createOllamaProvider(getModel: () => Promise<string | undefined>
           tokensOut: data.eval_count ?? null
         })
         const text = data.message?.content?.trim()
-        if (!text) throw new AIError('Ollama no contestó nada. Intenta decirlo de otra forma.')
+        if (!text)
+          throw new AIError(
+            t(
+              'Ollama no contestó nada. Intenta decirlo de otra forma.',
+              "Ollama didn't answer anything. Try saying it another way."
+            )
+          )
         return text
       } catch (err) {
         if ((err as { status?: number }).status === 404) {
           throw new AIError(
-            `El modelo "${model}" no está instalado. Instálalo en la Terminal con: ollama pull ${model}`
+            t(
+              `El modelo "${model}" no está instalado. Instálalo en la Terminal con: ollama pull ${model}`,
+              `The model "${model}" isn't installed. Install it in Terminal with: ollama pull ${model}`
+            )
           )
         }
         throw friendlyError(err)

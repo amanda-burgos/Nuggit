@@ -1,16 +1,17 @@
 import { useRef, useState } from 'react'
 import type { SettingsPatch, SettingsTab } from '../../../shared/types'
-import { DISCORD_INVITE, HELP, normalize } from '../../../shared/help'
+import { DISCORD_INVITE, helpContent, normalize } from '../../../shared/help'
+import { t } from '../../../shared/i18n'
 import { RichText } from './RichText'
 
 export type HelpSection = 'guides' | 'customize' | 'faq' | 'shortcuts' | 'news'
 
-const SECTIONS: Array<{ key: HelpSection; label: string }> = [
-  { key: 'guides', label: '📖 Cómo se usa' },
-  { key: 'customize', label: '🎨 Dónde personalizar' },
-  { key: 'faq', label: '❓ Preguntas' },
-  { key: 'shortcuts', label: '⌨️ Atajos' },
-  { key: 'news', label: '🆕 Novedades' }
+const sections = (): Array<{ key: HelpSection; label: string }> => [
+  { key: 'guides', label: t('📖 Cómo se usa', '📖 How it works') },
+  { key: 'customize', label: t('🎨 Dónde personalizar', '🎨 Where to customize') },
+  { key: 'faq', label: t('❓ Preguntas', '❓ Questions') },
+  { key: 'shortcuts', label: t('⌨️ Atajos', '⌨️ Shortcuts') },
+  { key: 'news', label: t('🆕 Novedades', "🆕 What's new") }
 ]
 
 interface Props {
@@ -34,9 +35,10 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
   const goTo = (key: HelpSection): void =>
     refs.current[key]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
-  const guides = HELP.guides.filter((g) => matches(query, g.title, g.text, ...g.keywords))
-  const customize = HELP.customize.filter((c) => matches(query, c.title, c.text))
-  const faq = HELP.faq.filter((f) => matches(query, f.q, f.a, ...f.keywords))
+  const help = helpContent()
+  const guides = help.guides.filter((g) => matches(query, g.title, g.text, ...g.keywords))
+  const customize = help.customize.filter((c) => matches(query, c.title, c.text))
+  const faq = help.faq.filter((f) => matches(query, f.q, f.a, ...f.keywords))
   const searching = query.trim() !== ''
   const nothing = searching && !guides.length && !customize.length && !faq.length
 
@@ -47,23 +49,26 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
     <div className="panel">
       <header className="panel-header help-header">
         <h1>
-          <span aria-hidden>❓</span> Ayuda
+          <span aria-hidden>❓</span> {t('Ayuda', 'Help')}
         </h1>
         <button className="button-primary" onClick={onStartTour}>
-          👋 Ver el tour otra vez
+          {t('👋 Ver el tour otra vez', '👋 See the tour again')}
         </button>
       </header>
       <div className="panel-body help-body">
         <input
           type="search"
           className="help-search"
-          placeholder="Busca: fondo, Focus, despegar, Ollama…"
+          placeholder={t(
+            'Busca: fondo, Focus, despegar, Ollama…',
+            'Search: background, Focus, pop out, Ollama…'
+          )}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         {!searching && (
-          <nav className="help-nav" aria-label="Secciones de Ayuda">
-            {SECTIONS.map((s) => (
+          <nav className="help-nav" aria-label={t('Secciones de Ayuda', 'Help sections')}>
+            {sections().map((s) => (
               <button key={s.key} className="help-chip" onClick={() => goTo(s.key)}>
                 {s.label}
               </button>
@@ -73,14 +78,16 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
 
         {nothing && (
           <p className="help-empty">
-            No encontré nada con eso. Prueba otra palabra, o pregúntale a Dip: también sabe cómo se
-            usa Nuggit.
+            {t(
+              'No encontré nada con eso. Prueba otra palabra, o pregúntale a Dip: también sabe cómo se usa Nuggit.',
+              "Couldn't find anything for that. Try another word, or ask Dip: it knows how Nuggit works too."
+            )}
           </p>
         )}
 
         {guides.length > 0 && (
           <section ref={(el) => void (refs.current.guides = el)} className="help-section">
-            <h2>📖 Cómo se usa</h2>
+            <h2>{t('📖 Cómo se usa', '📖 How it works')}</h2>
             <div className="help-cards">
               {guides.map((g) => (
                 <article key={g.id} className="help-card">
@@ -98,7 +105,7 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
 
         {customize.length > 0 && (
           <section ref={(el) => void (refs.current.customize = el)} className="help-section">
-            <h2>🎨 Dónde personalizar</h2>
+            <h2>{t('🎨 Dónde personalizar', '🎨 Where to customize')}</h2>
             <div className="help-list">
               {customize.map((c) => (
                 <div key={c.id} className="help-row">
@@ -111,7 +118,7 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
                   </div>
                   {c.settingsTab && (
                     <button className="button-ghost" onClick={() => openSettings(c.settingsTab!)}>
-                      Abrir →
+                      {t('Abrir →', 'Open →')}
                     </button>
                   )}
                 </div>
@@ -122,7 +129,7 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
 
         {faq.length > 0 && (
           <section ref={(el) => void (refs.current.faq = el)} className="help-section">
-            <h2>❓ Preguntas frecuentes</h2>
+            <h2>{t('❓ Preguntas frecuentes', '❓ FAQ')}</h2>
             {faq.map((f) => (
               <details key={f.id} className="help-faq" open={searching}>
                 <summary>{f.q}</summary>
@@ -137,10 +144,10 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
         {!searching && (
           <>
             <section ref={(el) => void (refs.current.shortcuts = el)} className="help-section">
-              <h2>⌨️ Atajos de teclado</h2>
+              <h2>{t('⌨️ Atajos de teclado', '⌨️ Keyboard shortcuts')}</h2>
               <table className="help-shortcuts">
                 <tbody>
-                  {HELP.shortcuts.map((s) => (
+                  {help.shortcuts.map((s) => (
                     <tr key={s.keys}>
                       <td>
                         <kbd>{s.keys}</kbd>
@@ -153,14 +160,16 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
             </section>
 
             <section ref={(el) => void (refs.current.news = el)} className="help-section">
-              <h2>🆕 Novedades</h2>
+              <h2>{t('🆕 Novedades', "🆕 What's new")}</h2>
               <p className="help-empty">
-                Todos los cambios de Nuggit, con su fecha, están en 📣 Novedades (abajo en la barra
-                de la izquierda).
+                {t(
+                  'Todos los cambios de Nuggit, con su fecha, están en 📣 Novedades (abajo en la barra de la izquierda).',
+                  "Every change to Nuggit, with its date, is in 📣 What's new (at the bottom of the left sidebar)."
+                )}
               </p>
               <div className="help-news-actions">
                 <button className="button-ghost" onClick={onOpenNews}>
-                  📣 Ver novedades
+                  {t('📣 Ver novedades', "📣 See what's new")}
                 </button>
                 {DISCORD_INVITE && (
                   <a
@@ -169,7 +178,7 @@ export function HelpPanel({ update, onStartTour, onOpenNews }: Props): React.JSX
                     target="_blank"
                     rel="noreferrer"
                   >
-                    💬 Únete al Discord de Nuggit
+                    {t('💬 Únete al Discord de Nuggit', "💬 Join Nuggit's Discord")}
                   </a>
                 )}
               </div>

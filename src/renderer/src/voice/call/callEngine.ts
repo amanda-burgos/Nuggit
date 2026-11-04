@@ -3,6 +3,7 @@ import { guessLang, speak, stopSpeaking } from '../speech'
 import { yesOrNo } from './confirm'
 import { rmsOf, Vad } from './vad'
 import { downsample, encodeWav } from './wav'
+import { t } from '../../../../shared/i18n'
 
 // SPEC 9.10, call mode: a hands-free conversation with Dip. The loop: listen → notice when
 // the person stops talking → turn it into text → Dip answers (short, spoken) → say it out
@@ -112,7 +113,7 @@ export class CallEngine {
     processor.onaudioprocess = (e) => this.onFrame(e.inputBuffer.getChannelData(0))
     this.context = context
     this.processor = processor
-    await this.say('¡Hola! Te escucho.')
+    await this.say(t('¡Hola! Te escucho.', "Hi! I'm listening."))
   }
 
   private onFrame(data: Float32Array): void {
@@ -171,8 +172,8 @@ export class CallEngine {
     const heard = await window.api.voice.transcribe(wav, this.language()).catch(() => null)
     if (this.closed) return
     if (!heard?.ok) {
-      this.set({ error: heard?.error ?? 'No pude entenderte.' })
-      return this.say('Perdón, no te entendí.')
+      this.set({ error: heard?.error ?? t('No pude entenderte.', "I couldn't understand you.") })
+      return this.say(t('Perdón, no te entendí.', "Sorry, I didn't catch that."))
     }
     if (!heard.text) return this.set({ phase: 'listening' })
     this.set({ heard: heard.text })
@@ -184,10 +185,14 @@ export class CallEngine {
     if (last?.action && last.actionState === 'pending' && answer) {
       if (answer === 'yes') {
         const done = await window.api.dipChat.applyAction(last.id)
-        return this.say(done.ok ? 'Listo, ya está.' : (done.error ?? 'No pude hacerlo.'))
+        return this.say(
+          done.ok
+            ? t('Listo, ya está.', 'Done, all set.')
+            : (done.error ?? t('No pude hacerlo.', "I couldn't do it."))
+        )
       }
       await window.api.dipChat.cancelAction(last.id)
-      return this.say('Va, no lo hago.')
+      return this.say(t('Va, no lo hago.', "Okay, I won't."))
     }
 
     const reply = await window.api.dipChat.send(heard.text, { voice: true })

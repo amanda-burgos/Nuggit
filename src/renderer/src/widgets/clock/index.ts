@@ -1,9 +1,12 @@
+import { t } from '../../../../shared/i18n'
 import type { WidgetDefinition } from '../types'
 import { ClockSettings, ClockWidget, type ClockConfig } from './ClockWidget'
 
 export const clockWidget: WidgetDefinition<ClockConfig> = {
   type: 'clock',
-  name: 'Reloj',
+  get name() {
+    return t('Reloj', 'Clock')
+  },
   icon: '🕒',
   defaultSize: { w: 360, h: 192 },
   minSize: { w: 180, h: 110 },

@@ -5,6 +5,7 @@ import { useSettings } from '../store/useSettings'
 import { DipIcon } from '../theme/DipIcon'
 import { DipWidget } from '../widgets/dip/DipWidget'
 import './popover.css'
+import { t } from '../../../shared/i18n'
 
 const close = (): void => window.api.popover.hide()
 
@@ -29,7 +30,7 @@ export function DipPopover(): React.JSX.Element {
         <span className="popover-title">
           <DipIcon /> Dip
         </span>
-        <button className="icon-button" title="Cerrar (Esc)" onClick={close}>
+        <button className="icon-button" title={t('Cerrar (Esc)', 'Close (Esc)')} onClick={close}>
           ×
         </button>
       </header>

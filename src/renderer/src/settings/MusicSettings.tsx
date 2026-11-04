@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { MusicStatus } from '../../../shared/types'
 import { spotifyUri } from '../../../shared/music'
 import type { SectionProps } from './shared'
+import { t } from '../../../shared/i18n'
 
 const log = (err: unknown): void => console.error('[music settings]', err)
 
@@ -23,24 +24,31 @@ export function MusicSettings({ settings, update }: SectionProps): React.JSX.Ele
 
   return (
     <section className="settings-section">
-      <h3>🎵 Música en Focus</h3>
+      <h3>🎵 {t('Música en Focus', 'Music in Focus')}</h3>
       <p className="settings-hint">
-        Nuggit pone tu playlist de Spotify cuando empiezas a concentrarte, la pausa (o cambia) en el
-        descanso y la para al terminar. Usa la app de Spotify de tu Mac: no hace falta iniciar
-        sesión aquí ni tener Premium.
+        {t(
+          'Nuggit pone tu playlist de Spotify cuando empiezas a concentrarte, la pausa (o cambia) en el descanso y la para al terminar. Usa la app de Spotify de tu Mac: no hace falta iniciar sesión aquí ni tener Premium.',
+          "Nuggit plays your Spotify playlist when you start focusing, pauses (or switches) it on your break and stops it when you're done. It uses the Spotify app on your Mac: no need to sign in here or have Premium."
+        )}
       </p>
 
       <div className={`ai-state${status?.app === 'ready' ? ' is-on' : ''}`}>
         <span className="ai-dot" aria-hidden />
         {!status
-          ? 'Buscando Spotify…'
+          ? t('Buscando Spotify…', 'Looking for Spotify…')
           : status.app === 'not-installed'
-            ? 'Spotify no está instalado en esta Mac'
+            ? t('Spotify no está instalado en esta Mac', "Spotify isn't installed on this Mac")
             : status.app === 'closed'
-              ? 'Spotify está cerrado (ábrelo antes de concentrarte)'
+              ? t(
+                  'Spotify está cerrado (ábrelo antes de concentrarte)',
+                  'Spotify is closed (open it before you focus)'
+                )
               : status.app === 'denied'
-                ? 'Falta permiso: Ajustes del Sistema → Privacidad → Automatización → Spotify'
-                : 'Spotify está abierto y listo'}
+                ? t(
+                    'Falta permiso: Ajustes del Sistema → Privacidad → Automatización → Spotify',
+                    'Permission needed: System Settings → Privacy → Automation → Spotify'
+                  )
+                : t('Spotify está abierto y listo', 'Spotify is open and ready')}
       </div>
 
       <label className="settings-check">
@@ -50,19 +58,24 @@ export function MusicSettings({ settings, update }: SectionProps): React.JSX.Ele
           onChange={(e) => update({ music: { enabled: e.target.checked } })}
         />
         <span>
-          Poner música durante Focus
-          <small>La primera vez, macOS pregunta si Nuggit puede controlar Spotify.</small>
+          {t('Poner música durante Focus', 'Play music during Focus')}
+          <small>
+            {t(
+              'La primera vez, macOS pregunta si Nuggit puede controlar Spotify.',
+              'The first time, macOS asks if Nuggit can control Spotify.'
+            )}
+          </small>
         </span>
       </label>
 
       <PlaylistField
-        label="Playlist para concentrarte"
+        label={t('Playlist para concentrarte', 'Playlist for focusing')}
         value={music.focusPlaylist}
         onSave={(link) => update({ music: { focusPlaylist: link } })}
       />
 
       <fieldset className="settings-choices">
-        <legend>En el descanso</legend>
+        <legend>{t('En el descanso', 'On the break')}</legend>
         <label>
           <input
             type="radio"
@@ -70,7 +83,7 @@ export function MusicSettings({ settings, update }: SectionProps): React.JSX.Ele
             checked={music.onBreak === 'pause'}
             onChange={() => update({ music: { onBreak: 'pause' } })}
           />
-          Pausar la música
+          {t('Pausar la música', 'Pause the music')}
         </label>
         <label>
           <input
@@ -79,19 +92,22 @@ export function MusicSettings({ settings, update }: SectionProps): React.JSX.Ele
             checked={music.onBreak === 'playlist'}
             onChange={() => update({ music: { onBreak: 'playlist' } })}
           />
-          Poner otra playlist
+          {t('Poner otra playlist', 'Play another playlist')}
         </label>
       </fieldset>
       {music.onBreak === 'playlist' && (
         <PlaylistField
-          label="Playlist para el descanso"
+          label={t('Playlist para el descanso', 'Playlist for the break')}
           value={music.breakPlaylist}
           onSave={(link) => update({ music: { breakPlaylist: link } })}
         />
       )}
 
       <small className="settings-hint">
-        Para copiar el link: en Spotify, en la playlist toca ··· → Compartir → Copiar enlace.
+        {t(
+          'Para copiar el link: en Spotify, en la playlist toca ··· → Compartir → Copiar enlace.',
+          'To copy the link: in Spotify, on the playlist tap ··· → Share → Copy link.'
+        )}
       </small>
     </section>
   )
@@ -120,8 +136,8 @@ function PlaylistField({
     const result = await window.api.music.play(input).catch(() => null)
     setMessage(
       result?.ok
-        ? { ok: true, text: '¡Sonando! 🎶' }
-        : { ok: false, text: result?.error ?? 'No pude ponerla.' }
+        ? { ok: true, text: t('¡Sonando! 🎶', 'Playing! 🎶') }
+        : { ok: false, text: result?.error ?? t('No pude ponerla.', "I couldn't play it.") }
     )
   }
 
@@ -149,11 +165,13 @@ function PlaylistField({
           disabled={!input.trim() || !valid}
           onClick={test}
         >
-          ▶ Probar
+          ▶ {t('Probar', 'Test')}
         </button>
       </div>
       {!valid && (
-        <small className="settings-status is-error">Ese no parece un link de Spotify.</small>
+        <small className="settings-status is-error">
+          {t('Ese no parece un link de Spotify.', "That doesn't look like a Spotify link.")}
+        </small>
       )}
       {message && (
         <small className={`settings-status is-${message.ok ? 'ok' : 'error'}`}>

@@ -1,3 +1,4 @@
+import { locale, t } from '../../../../shared/i18n'
 import type { Priority, Task } from '../../../../shared/types'
 
 export type GroupKey = 'doing' | 'overdue' | 'today' | 'upcoming' | 'someday' | 'done'
@@ -8,22 +9,22 @@ export interface TaskGroup {
   tasks: Task[]
 }
 
-const GROUP_LABELS: Record<GroupKey, string> = {
-  doing: 'En curso',
-  overdue: 'Pendientes de antes',
-  today: 'Hoy',
-  upcoming: 'Próximas',
-  someday: 'Sin fecha',
-  done: 'Hechas'
-}
+const groupLabels = (): Record<GroupKey, string> => ({
+  doing: t('En curso', 'In progress'),
+  overdue: t('Pendientes de antes', 'Left over'),
+  today: t('Hoy', 'Today'),
+  upcoming: t('Próximas', 'Coming up'),
+  someday: t('Sin fecha', 'No date'),
+  done: t('Hechas', 'Done')
+})
 
 const GROUP_ORDER: GroupKey[] = ['doing', 'overdue', 'today', 'upcoming', 'someday', 'done']
 
-export const PRIORITY_LABELS: Record<Priority, string> = {
-  high: 'Alta',
-  medium: 'Normal',
-  low: 'Baja'
-}
+export const priorityLabels = (): Record<Priority, string> => ({
+  high: t('Alta', 'High'),
+  medium: t('Normal', 'Normal'),
+  low: t('Baja', 'Low')
+})
 
 const PRIORITY_RANK: Record<Priority, number> = { high: 0, medium: 1, low: 2 }
 
@@ -64,7 +65,7 @@ export function groupTasks(tasks: Task[], today: string): TaskGroup[] {
     list.sort((a, b) =>
       key === 'done' ? (b.completedAt ?? '').localeCompare(a.completedAt ?? '') : compareTasks(a, b)
     )
-    return { key, label: GROUP_LABELS[key], tasks: list }
+    return { key, label: groupLabels()[key], tasks: list }
   })
 }
 
@@ -76,11 +77,11 @@ export function subtasksOf(tasks: Task[], parentId: string): Task[] {
 export function formatDue(dueDate: string, today: string): string {
   const day = new Date(`${dueDate}T00:00:00`)
   const diff = Math.round((day.getTime() - new Date(`${today}T00:00:00`).getTime()) / 86400000)
-  if (diff === 0) return 'Hoy'
-  if (diff === 1) return 'Mañana'
-  if (diff === -1) return 'Ayer'
+  if (diff === 0) return t('Hoy', 'Today')
+  if (diff === 1) return t('Mañana', 'Tomorrow')
+  if (diff === -1) return t('Ayer', 'Yesterday')
   const sameYear = dueDate.slice(0, 4) === today.slice(0, 4)
-  return day.toLocaleDateString('es', {
+  return day.toLocaleDateString(locale(), {
     day: 'numeric',
     month: 'short',
     year: sameYear ? undefined : 'numeric'

@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { Task } from '../../../../shared/types'
 import type { TasksStore } from '../../store/useTasks'
-import { formatDue, formatMinutes, PRIORITY_LABELS } from './grouping'
+import { formatDue, formatMinutes } from './grouping'
 import { TaskEditor } from './TaskEditor'
 
 interface Props {
@@ -30,8 +31,12 @@ function CheckButton({
     <button
       className={`task-check${done ? ' is-done' : ''}${small ? ' is-small' : ''}`}
       aria-pressed={done}
-      title={done ? 'Marcar como pendiente' : 'Marcar como hecha'}
-      aria-label={`${done ? 'Desmarcar' : 'Marcar'}: ${title}`}
+      title={
+        done
+          ? t('Marcar como pendiente', 'Mark as not done')
+          : t('Marcar como hecha', 'Mark as done')
+      }
+      aria-label={`${done ? t('Desmarcar', 'Uncheck') : t('Marcar', 'Check')}: ${title}`}
       onClick={onClick}
     >
       ✓
@@ -80,7 +85,11 @@ function SubtaskRow({
           }}
         />
       ) : (
-        <button className="subtask-title" title="Cambiar nombre" onClick={() => setEditing(true)}>
+        <button
+          className="subtask-title"
+          title={t('Cambiar nombre', 'Rename')}
+          onClick={() => setEditing(true)}
+        >
           {task.title}
           {task.estimateMin ? (
             <span className="task-meta-item"> · {formatMinutes(task.estimateMin)}</span>
@@ -89,8 +98,8 @@ function SubtaskRow({
       )}
       <button
         className="icon-button subtask-remove"
-        title="Quitar paso"
-        aria-label={`Quitar paso: ${task.title}`}
+        title={t('Quitar paso', 'Remove step')}
+        aria-label={t(`Quitar paso: ${task.title}`, `Remove step: ${task.title}`)}
         onClick={() => onRemove(task)}
       >
         ×
@@ -133,16 +142,16 @@ export function TaskItem({
         <button className="task-main" aria-expanded={expanded} onClick={onToggleExpanded}>
           <span className="task-title">{task.title}</span>
           <span className="task-meta">
-            {task.status === 'doing' && <span className="task-chip is-doing">En curso</span>}
+            {task.status === 'doing' && (
+              <span className="task-chip is-doing">{t('En curso', 'In progress')}</span>
+            )}
             {task.dailyId && (
-              <span className="task-meta-item" title="Daily: se repite">
+              <span className="task-meta-item" title={t('Daily: se repite', 'Daily: repeats')}>
                 🔁
               </span>
             )}
             {task.priority === 'high' && !done && (
-              <span className="task-chip is-high">
-                Prioridad {PRIORITY_LABELS.high.toLowerCase()}
-              </span>
+              <span className="task-chip is-high">{t('Prioridad alta', 'High priority')}</span>
             )}
             {task.dueDate && (
               <span className={`task-meta-item${overdue ? ' is-overdue' : ''}`}>
@@ -155,7 +164,7 @@ export function TaskItem({
             {task.category && <span className="task-meta-item">🏷 {task.category}</span>}
             {subtasks.length > 0 && (
               <span className="task-meta-item">
-                {doneSteps}/{subtasks.length} pasos
+                {doneSteps}/{subtasks.length} {t('pasos', 'steps')}
               </span>
             )}
           </span>
@@ -193,8 +202,8 @@ export function TaskItem({
               >
                 <input
                   value={newStep}
-                  placeholder="+ Añadir un paso chiquito"
-                  aria-label="Nuevo paso"
+                  placeholder={t('+ Añadir un paso chiquito', '+ Add a tiny step')}
+                  aria-label={t('Nuevo paso', 'New step')}
                   onChange={(e) => setNewStep(e.target.value)}
                 />
               </form>
@@ -209,14 +218,14 @@ export function TaskItem({
                       })
                     }
                   >
-                    {task.status === 'doing' ? '⏸ Pausar' : '▶ Empezar'}
+                    {task.status === 'doing' ? t('⏸ Pausar', '⏸ Pause') : t('▶ Empezar', '▶ Start')}
                   </button>
                 )}
                 <button className="button-ghost" onClick={() => setEditing(true)}>
-                  ✏️ Editar
+                  {t('✏️ Editar', '✏️ Edit')}
                 </button>
                 <button className="button-ghost task-delete" onClick={() => onRemove(task)}>
-                  🗑 Borrar
+                  {t('🗑 Borrar', '🗑 Delete')}
                 </button>
               </div>
             </>

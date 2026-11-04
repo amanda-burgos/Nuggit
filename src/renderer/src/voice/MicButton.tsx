@@ -1,5 +1,6 @@
 import type { RefObject } from 'react'
 import './voice.css'
+import { t } from '../../../shared/i18n'
 
 const IS_MAC = navigator.userAgent.includes('Mac')
 
@@ -17,8 +18,8 @@ export function MicButton({
     <button
       type="button"
       className="icon-button mic-button"
-      title="Dictar (o pulsa Fn dos veces)"
-      aria-label="Dictar"
+      title={t('Dictar (o pulsa Fn dos veces)', 'Dictate (or press Fn twice)')}
+      aria-label={t('Dictar', 'Dictate')}
       disabled={disabled}
       // Keeps the cursor in the text field, where the dictated words go.
       onMouseDown={(e) => e.preventDefault()}

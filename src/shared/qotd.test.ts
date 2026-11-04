@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   customTopic,
   customTopicId,
+  findTopic,
   keyDate,
   keyTopic,
   makeQotd,
@@ -10,6 +11,7 @@ import {
   questionOfDay,
   topicQuestion
 } from './qotd'
+import { setLang } from './i18n'
 
 describe('questionOfDay', () => {
   it('gives the same question for the same day, and another with "Otra"', () => {
@@ -112,5 +114,27 @@ describe('qotdForDip', () => {
     expect(qotdForDip('¿Playa o montaña?', 'playa')).toContain('Mi respuesta: playa')
     expect(qotdForDip('¿Playa o montaña?', '  ')).not.toContain('Mi respuesta')
     expect(qotdForDip('¿Quién?', '', 'Historia')).toContain('Pregunta del día de Historia')
+  })
+})
+
+describe('in English', () => {
+  it('uses the English bank and texts, with the same topic ids', () => {
+    setLang('en')
+    try {
+      expect(questionOfDay('2026-10-31').text).not.toMatch(/[¿áéíóúñ]/)
+      const qotd = makeQotd({
+        questions: [],
+        prefieres: [['go to the beach', 'go to the mountains']],
+        templates: []
+      })
+      expect(qotd('2026-10-31').text).toBe(
+        'Would you rather go to the beach or go to the mountains?'
+      )
+      expect(customTopic({ id: 'mi-k-pop', label: 'K-pop' }).questions[0]).toContain('K-pop')
+      expect(findTopic('historia')?.label).toBe('History')
+      expect(qotdForDip('Beach or mountains?', 'beach')).toContain('My answer: beach')
+    } finally {
+      setLang('es')
+    }
   })
 })

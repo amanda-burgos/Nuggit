@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useSettings } from '../store/useSettings'
 import { MusicWidget } from '../widgets/music/MusicWidget'
 import './popover.css'
+import { t } from '../../../shared/i18n'
 
 const close = (): void => window.api.popover.hide()
 
@@ -11,7 +12,7 @@ export function MusicPopover(): React.JSX.Element {
   useSettings() // follows the app's theme
 
   useEffect(() => {
-    document.title = 'Música'
+    document.title = t('Música', 'Music')
     const onKey = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') close()
     }
@@ -22,8 +23,8 @@ export function MusicPopover(): React.JSX.Element {
   return (
     <div className="popover">
       <header className="popover-header">
-        <span className="popover-title">🎵 Música</span>
-        <button className="icon-button" title="Cerrar (Esc)" onClick={close}>
+        <span className="popover-title">{t('🎵 Música', '🎵 Music')}</span>
+        <button className="icon-button" title={t('Cerrar (Esc)', 'Close (Esc)')} onClick={close}>
           ×
         </button>
       </header>

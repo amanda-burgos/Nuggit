@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 import type { Reminder, ReminderRepeat } from '../shared/types'
 import { formatTime, keyToDate, localKey, nextOccurrence, nextRing } from '../shared/reminders'
 import { readJson, writeJson } from './storage/jsonStore'
+import { t } from '../shared/i18n'
 
 // Fase 12: reminders. They live here (reminders.json) and ring as a system notice at their
 // time, even with every window closed: Nuggit only has to be open (in the menu bar is
@@ -127,10 +128,15 @@ function check(): void {
   if (rung.length === 1) {
     const [{ reminder, at, late }] = rung
     const time = formatTime(localKey(at).slice(11))
-    notify(`⏰ ${reminder.title}`, late ? `Era a las ${time}.` : 'Recordatorio de Nuggit')
+    notify(
+      `⏰ ${reminder.title}`,
+      late
+        ? t(`Era a las ${time}.`, `It was at ${time}.`)
+        : t('Recordatorio de Nuggit', 'Nuggit reminder')
+    )
   } else {
     notify(
-      `⏰ ${rung.length} recordatorios`,
+      t(`⏰ ${rung.length} recordatorios`, `⏰ ${rung.length} reminders`),
       rung
         .map((r) => r.reminder.title)
         .join(' · ')

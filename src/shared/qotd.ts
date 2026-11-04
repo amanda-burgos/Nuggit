@@ -1,4 +1,6 @@
 import rawQotd from '../../config/qotd.json'
+import rawQotdEn from '../../config/qotd.en.json'
+import { getLang, t, type Lang } from './i18n'
 import type { QotdCustomTopic } from './types'
 
 // Fase 11: the question of the day. A bank of questions (config/qotd.json) plus ones made
@@ -30,17 +32,45 @@ export interface QotdTopic {
   start?: number // where it starts in its questions; by default, from its id
 }
 
-const BANK: QotdBank = rawQotd
+const BANKS: Record<Lang, QotdBank> = { es: rawQotd, en: rawQotdEn }
+
+// The bank in the current language (same topic ids in both).
+const currentBank = (): QotdBank => BANKS[getLang()]
 
 // What the general question is made from.
 type GeneralBank = Omit<QotdBank, 'topics' | 'customTemplates'>
 
 export const QOTD_KINDS: Record<QotdKind, { icon: string; label: string }> = {
-  divertida: { icon: '😄', label: 'Divertida' },
-  conocerte: { icon: '🪞', label: 'Para conocerte' },
-  pensar: { icon: '💭', label: 'Para pensar' },
-  prefieres: { icon: '⚖️', label: '¿Qué prefieres?' },
-  imagina: { icon: '✨', label: 'Imagina' }
+  divertida: {
+    icon: '😄',
+    get label() {
+      return t('Divertida', 'Fun')
+    }
+  },
+  conocerte: {
+    icon: '🪞',
+    get label() {
+      return t('Para conocerte', 'About you')
+    }
+  },
+  pensar: {
+    icon: '💭',
+    get label() {
+      return t('Para pensar', 'Food for thought')
+    }
+  },
+  prefieres: {
+    icon: '⚖️',
+    get label() {
+      return t('¿Qué prefieres?', 'Would you rather?')
+    }
+  },
+  imagina: {
+    icon: '✨',
+    get label() {
+      return t('Imagina', 'Imagine')
+    }
+  }
 }
 
 const asKind = (kind: string): QotdKind => (kind in QOTD_KINDS ? (kind as QotdKind) : 'pensar')
@@ -61,17 +91,20 @@ function generatedQuestions(bank: GeneralBank): QotdQuestion[] {
         made.push({
           id: `p:${g}-${i}-${j}`,
           kind: 'prefieres',
-          text: `¿Qué prefieres: ${options[i]} o ${options[j]}?`
+          text: t(
+            `¿Qué prefieres: ${options[i]} o ${options[j]}?`,
+            `Would you rather ${options[i]} or ${options[j]}?`
+          )
         })
       }
     }
   })
-  bank.templates.forEach((t, i) =>
-    t.fill.forEach((fill, j) =>
+  bank.templates.forEach((tpl, i) =>
+    tpl.fill.forEach((fill, j) =>
       made.push({
         id: `t:${i}-${j}`,
-        kind: asKind(t.kind),
-        text: capitalize(t.text.replace('{x}', fill))
+        kind: asKind(tpl.kind),
+        text: capitalize(tpl.text.replace('{x}', fill))
       })
     )
   )
@@ -115,11 +148,18 @@ export function makeQotd(bank: GeneralBank): (date: string, skip?: number) => Qo
   }
 }
 
+// One per language, made the first time it's needed.
+const qotdByLang: Partial<Record<Lang, ReturnType<typeof makeQotd>>> = {}
+
 // The question for a date; skip = how many times "Otra" was pressed that day.
-export const questionOfDay = makeQotd(BANK)
+export function questionOfDay(date: string, skip = 0): QotdQuestion {
+  const lang = getLang()
+  const qotd = (qotdByLang[lang] ??= makeQotd(currentBank()))
+  return qotd(date, skip)
+}
 
 // The topics you can pick, in the order they show.
-export const QOTD_TOPICS: QotdTopic[] = BANK.topics
+export const qotdTopics = (): QotdTopic[] => currentBank().topics
 
 // A topic you wrote yourself ("K-pop", "🧪 Química"). There are no questions written for
 // it, so they come from templates; an emoji at the start becomes its icon.
@@ -132,14 +172,14 @@ export function customTopic(custom: QotdCustomTopic, position = 0): QotdTopic {
     id: custom.id,
     icon: emoji ? emoji[1] : '⭐',
     label,
-    questions: BANK.customTemplates.map((t) => t.replace('{x}', label)),
+    questions: currentBank().customTemplates.map((q) => q.replace('{x}', label)),
     start: position * 5
   }
 }
 
 // The built-in topics plus yours.
 export const allTopics = (custom: QotdCustomTopic[] = []): QotdTopic[] => [
-  ...QOTD_TOPICS,
+  ...qotdTopics(),
   ...custom.map((c, i) => customTopic(c, i))
 ]
 
@@ -185,8 +225,16 @@ export const keyTopic = (key: string): string | undefined => key.slice(11) || un
 // What Dip gets when you tap "Platicar con Dip".
 export function qotdForDip(question: string, answer?: string, topic?: string): string {
   const said = answer?.trim()
-  const title = topic ? `Pregunta del día de ${topic}` : 'Pregunta del día'
+  const title = topic
+    ? t(`Pregunta del día de ${topic}`, `Question of the day about ${topic}`)
+    : t('Pregunta del día', 'Question of the day')
   return said
-    ? `${title}: "${question}"\nMi respuesta: ${said}\n¿Platicamos de esto?`
-    : `${title}: "${question}"\nTodavía no sé qué contestar, ¿platicamos de esto?`
+    ? t(
+        `${title}: "${question}"\nMi respuesta: ${said}\n¿Platicamos de esto?`,
+        `${title}: "${question}"\nMy answer: ${said}\nWant to talk about it?`
+      )
+    : t(
+        `${title}: "${question}"\nTodavía no sé qué contestar, ¿platicamos de esto?`,
+        `${title}: "${question}"\nI don't know what to answer yet, want to talk about it?`
+      )
 }

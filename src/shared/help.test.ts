@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { newestDate, parseChangelog, releaseFor, unseenCount } from './changelog'
 import { helpForDip, searchHelp } from './help'
+import { setLang } from './i18n'
 
 describe('searchHelp', () => {
   it('finds the entry a question is about, accents or not', () => {
@@ -21,6 +22,19 @@ describe('helpForDip', () => {
   it('stays empty for normal chat', () => {
     expect(helpForDip('anota tarea de inglés para mañana')).toBe('')
     expect(helpForDip('estoy cansada hoy')).toBe('')
+  })
+})
+
+describe('help in English', () => {
+  it('searches the English texts and answers how-to questions', () => {
+    setLang('en')
+    try {
+      expect(searchHelp('How do I use the focus timer?')[0].title).toMatch(/Focus/)
+      expect(helpForDip('How do I connect Ollama?')).toContain('Nuggit help')
+      expect(helpForDip("I'm tired today")).toBe('')
+    } finally {
+      setLang('es')
+    }
   })
 })
 

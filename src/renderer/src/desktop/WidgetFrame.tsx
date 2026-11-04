@@ -8,6 +8,7 @@ import { BackgroundPicker } from '../theme/BackgroundPicker'
 import { FontSelect } from '../theme/FontPicker'
 import { AINotice } from './AINotice'
 import type { AnyWidgetDefinition } from '../widgets/types'
+import { t } from '../../../shared/i18n'
 
 // Actions are shown only when their handler is given: the board and a detached
 // window offer different ones.
@@ -64,7 +65,12 @@ export function WidgetFrame({
   const Settings = def.settingsComponent
 
   const confirmRemove = (): void => {
-    if (window.confirm(`¿Quitar "${def.name}" del escritorio?`)) onRemove?.()
+    if (
+      window.confirm(
+        t(`¿Quitar "${def.name}" del escritorio?`, `Remove "${def.name}" from the desktop?`)
+      )
+    )
+      onRemove?.()
   }
 
   const lock = (): void => {
@@ -108,41 +114,57 @@ export function WidgetFrame({
           {locked ? (
             <button
               className="icon-button widget-lock"
-              title="Fijado. Clic para desfijar"
+              title={t('Fijado. Clic para desfijar', 'Locked. Click to unlock')}
               onClick={() => onSetLocked(false)}
             >
               🔒
             </button>
           ) : (
             <>
-              <button className="icon-button" title="Fijar: que no se mueva" onClick={lock}>
+              <button
+                className="icon-button"
+                title={t('Fijar: que no se mueva', "Lock: so it doesn't move")}
+                onClick={lock}
+              >
                 📌
               </button>
               <button
                 className={`icon-button${showSettings ? ' is-active' : ''}`}
-                title="Ajustes del widget"
+                title={t('Ajustes del widget', 'Widget settings')}
                 aria-pressed={showSettings}
                 onClick={() => setShowSettings((v) => !v)}
               >
                 ⚙︎
               </button>
               {onDetach && (
-                <button className="icon-button" title="Despegar al escritorio" onClick={onDetach}>
+                <button
+                  className="icon-button"
+                  title={t('Despegar al escritorio', 'Pop out to the desktop')}
+                  onClick={onDetach}
+                >
                   ↗
                 </button>
               )}
               {onAttach && (
-                <button className="icon-button" title="Regresar al tablero" onClick={onAttach}>
+                <button
+                  className="icon-button"
+                  title={t('Regresar al tablero', 'Back to the board')}
+                  onClick={onAttach}
+                >
                   ↙
                 </button>
               )}
               {onHide && (
-                <button className="icon-button" title="Ocultar" onClick={onHide}>
+                <button className="icon-button" title={t('Ocultar', 'Hide')} onClick={onHide}>
                   –
                 </button>
               )}
               {onRemove && (
-                <button className="icon-button" title="Quitar" onClick={confirmRemove}>
+                <button
+                  className="icon-button"
+                  title={t('Quitar', 'Remove')}
+                  onClick={confirmRemove}
+                >
                   ×
                 </button>
               )}
@@ -156,22 +178,24 @@ export function WidgetFrame({
             {/* Top: the same general options for every widget (SPEC 9.16). */}
             <div className="widget-settings-general">
               <div className="widget-settings-field">
-                <span>Fondo</span>
+                <span>{t('Fondo', 'Background')}</span>
                 <BackgroundPicker
                   value={instance.background ?? null}
-                  generalLabel="Usar el general"
+                  generalLabel={t('Usar el general', 'Use the general one')}
                   onChange={setBackground}
                 />
               </div>
               <div className="widget-settings-field">
                 <span>
-                  Esquinas: {instance.radius ?? generalRadius} px
-                  {instance.radius === undefined ? ' (las generales)' : ''}
+                  {t('Esquinas', 'Corners')}: {instance.radius ?? generalRadius} px
+                  {instance.radius === undefined
+                    ? t(' (las generales)', ' (the general ones)')
+                    : ''}
                 </span>
                 <div className="widget-settings-row">
                   <input
                     type="range"
-                    aria-label="Esquinas de este widget"
+                    aria-label={t('Esquinas de este widget', "This widget's corners")}
                     min={WIDGET_RADIUS_MIN}
                     max={WIDGET_RADIUS_MAX}
                     step={1}
@@ -184,16 +208,19 @@ export function WidgetFrame({
                       className="bg-choice is-text"
                       onClick={() => setRadius(null)}
                     >
-                      Usar las generales
+                      {t('Usar las generales', 'Use the general ones')}
                     </button>
                   )}
                 </div>
               </div>
               <div className="widget-settings-field">
-                <span>Letra{instance.font ? '' : ' (la general)'}</span>
+                <span>
+                  {t('Letra', 'Font')}
+                  {instance.font ? '' : t(' (la general)', ' (the general one)')}
+                </span>
                 <FontSelect
                   value={instance.font ?? null}
-                  generalLabel="Usar la general"
+                  generalLabel={t('Usar la general', 'Use the general one')}
                   onChange={(font) =>
                     window.api.desktop
                       .setFont(instance.id, font)
@@ -208,7 +235,7 @@ export function WidgetFrame({
                     checked={shadow ?? false}
                     onChange={(e) => onSetShadow(e.target.checked)}
                   />
-                  <span>Sombra</span>
+                  <span>{t('Sombra', 'Shadow')}</span>
                 </label>
               )}
               {onSetPinBack && (
@@ -219,10 +246,12 @@ export function WidgetFrame({
                     onChange={(e) => onSetPinBack(e.target.checked)}
                   />
                   <span>
-                    Pin on back: siempre al fondo
+                    {t('Pin on back: siempre al fondo', 'Pin on back: always at the back')}
                     <small>
-                      Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe
-                      clics: para quitarlo, usa los widgets rápidos 🧩 de la barra de menú.
+                      {t(
+                        'Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe clics: para quitarlo, usa los widgets rápidos 🧩 de la barra de menú.',
+                        "It stays behind everything, as part of the wallpaper. There it doesn't get clicks: to remove it, use the quick widgets 🧩 in the menu bar."
+                      )}
                     </small>
                   </span>
                 </label>
@@ -249,7 +278,7 @@ export function WidgetFrame({
       {onResizePointerDown && !locked && (
         <div
           className="widget-resize-handle"
-          title="Cambiar tamaño"
+          title={t('Cambiar tamaño', 'Resize')}
           aria-hidden
           onPointerDown={onResizePointerDown}
         />

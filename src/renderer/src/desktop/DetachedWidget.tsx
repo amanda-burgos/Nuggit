@@ -3,6 +3,7 @@ import type { DetachedWindowOptions, SavedDesktop } from '../../../shared/types'
 import { getWidgetDefinition } from '../widgets/registry'
 import { WidgetFrame } from './WidgetFrame'
 import './desktop.css'
+import { t } from '../../../shared/i18n'
 
 interface Props {
   id: string
@@ -55,12 +56,17 @@ export function DetachedWidget({ id }: Props): React.JSX.Element {
     >
       {editingBack && (
         <div className="detached-editing" role="status">
-          <span>✏️ Editando · al terminar vuelve al fondo</span>
+          <span>
+            {t(
+              '✏️ Editando · al terminar vuelve al fondo',
+              '✏️ Editing · when you finish it goes back to the background'
+            )}
+          </span>
           <button
             className="button-primary"
             onClick={() => window.api.widgetWindows.finishEditBack(id).catch(report)}
           >
-            Listo
+            {t('Listo', 'Done')}
           </button>
         </div>
       )}

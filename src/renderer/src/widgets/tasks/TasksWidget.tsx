@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { Task, TaskStatus } from '../../../../shared/types'
 import { useTasks } from '../../store/useTasks'
 import { useToday } from '../../store/useToday'
@@ -15,14 +16,14 @@ export interface TasksConfig {
 }
 
 // Full size only: simple filters. The widget shows everything still to do.
-const FILTERS: Array<{ key: TasksFilter; label: string; groups: GroupKey[] }> = [
-  { key: 'today', label: 'Hoy', groups: ['doing', 'overdue', 'today'] },
+const FILTERS: Array<{ key: TasksFilter; label: () => string; groups: GroupKey[] }> = [
+  { key: 'today', label: () => t('Hoy', 'Today'), groups: ['doing', 'overdue', 'today'] },
   {
     key: 'pending',
-    label: 'Pendientes',
+    label: () => t('Pendientes', 'To do'),
     groups: ['doing', 'overdue', 'today', 'upcoming', 'someday']
   },
-  { key: 'done', label: 'Hechas', groups: ['done'] }
+  { key: 'done', label: () => t('Hechas', 'Done'), groups: ['done'] }
 ]
 
 type Undo =
@@ -34,9 +35,16 @@ const VISIBLE_PER_GROUP = 5
 const UNDO_MS = 6000
 
 function emptyText(filter: TasksFilter): string {
-  if (filter === 'today') return 'Nada para hoy. ¡Bien! 🌤️'
-  if (filter === 'done') return 'Todavía no hay tareas hechas. Ya llegarán ✨'
-  return 'Nada pendiente por aquí. Escribe arriba lo primero que se te ocurra ✨'
+  if (filter === 'today') return t('Nada para hoy. ¡Bien! 🌤️', 'Nothing for today. Nice! 🌤️')
+  if (filter === 'done')
+    return t(
+      'Todavía no hay tareas hechas. Ya llegarán ✨',
+      'No finished tasks yet. They’ll come ✨'
+    )
+  return t(
+    'Nada pendiente por aquí. Escribe arriba lo primero que se te ocurra ✨',
+    'Nothing to do here. Type the first thing that comes to mind up top ✨'
+  )
 }
 
 export function TasksWidget({
@@ -76,7 +84,10 @@ export function TasksWidget({
     setNewTitle('')
   }
 
-  const remove = (task: Task, label = task.parentId ? 'Paso borrado' : 'Tarea borrada'): void => {
+  const remove = (
+    task: Task,
+    label = task.parentId ? t('Paso borrado', 'Step deleted') : t('Tarea borrada', 'Task deleted')
+  ): void => {
     store.removeTask(task.id).then((removed) => {
       if (removed.length) setUndo({ kind: 'removed', removed, label })
     })
@@ -85,20 +96,28 @@ export function TasksWidget({
   // A finished task leaves the list right away; "Deshacer" brings it back.
   const complete = (task: Task): void => {
     store.updateTask(task.id, { status: 'done' })
-    setUndo({ kind: 'completed', id: task.id, previous: task.status, label: '¡Tarea hecha! ✅' })
+    setUndo({
+      kind: 'completed',
+      id: task.id,
+      previous: task.status,
+      label: t('¡Tarea hecha! ✅', 'Task done! ✅')
+    })
   }
 
   const removeDone = (): void => {
     const count = doneTasks.length
     if (
       !window.confirm(
-        count === 1 ? '¿Borrar la tarea hecha?' : `¿Borrar las ${count} tareas hechas?`
+        count === 1
+          ? t('¿Borrar la tarea hecha?', 'Delete the finished task?')
+          : t(`¿Borrar las ${count} tareas hechas?`, `Delete the ${count} finished tasks?`)
       )
     )
       return
     Promise.all(doneTasks.map((t) => store.removeTask(t.id))).then((lists) => {
       const removed = lists.flat()
-      if (removed.length) setUndo({ kind: 'removed', removed, label: 'Hechas borradas' })
+      if (removed.length)
+        setUndo({ kind: 'removed', removed, label: t('Hechas borradas', 'Finished tasks deleted') })
     })
   }
 
@@ -112,7 +131,11 @@ export function TasksWidget({
   return (
     <div className={`tasks${full ? ' is-full' : ''}`}>
       {full && (
-        <div className="task-filters" role="tablist" aria-label="Filtro de tareas">
+        <div
+          className="task-filters"
+          role="tablist"
+          aria-label={t('Filtro de tareas', 'Task filter')}
+        >
           {FILTERS.map((f) => (
             <button
               key={f.key}
@@ -121,12 +144,12 @@ export function TasksWidget({
               className={`task-filter${f.key === filter.key ? ' is-active' : ''}`}
               onClick={() => updateConfig({ filter: f.key })}
             >
-              {f.label}
+              {f.label()}
             </button>
           ))}
           {filter.key === 'done' && doneTasks.length > 0 && (
             <button className="button-ghost task-filters-action" onClick={removeDone}>
-              🗑 Borrar hechas
+              {t('🗑 Borrar hechas', '🗑 Delete finished')}
             </button>
           )}
         </div>
@@ -141,12 +164,12 @@ export function TasksWidget({
         >
           <input
             value={newTitle}
-            placeholder="¿Qué tienes que hacer?"
-            aria-label="Nueva tarea"
+            placeholder={t('¿Qué tienes que hacer?', 'What do you need to do?')}
+            aria-label={t('Nueva tarea', 'New task')}
             onChange={(e) => setNewTitle(e.target.value)}
           />
           <button type="submit" className="button-primary" disabled={!newTitle.trim()}>
-            Añadir
+            {t('Añadir', 'Add')}
           </button>
         </form>
       ) : null}
@@ -199,7 +222,9 @@ export function TasksWidget({
                         className="task-more"
                         onClick={() => setShowAll((s) => ({ ...s, [group.key]: !s[group.key] }))}
                       >
-                        {hiddenCount > 0 ? `Ver ${hiddenCount} más` : 'Ver menos'}
+                        {hiddenCount > 0
+                          ? t(`Ver ${hiddenCount} más`, `Show ${hiddenCount} more`)
+                          : t('Ver menos', 'Show less')}
                       </button>
                     )}
                 </>
@@ -213,7 +238,7 @@ export function TasksWidget({
         <div className="task-undo" role="status">
           <span>{undo.label}</span>
           <button className="button-ghost" onClick={undoLast}>
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}

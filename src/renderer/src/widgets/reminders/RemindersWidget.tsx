@@ -5,6 +5,7 @@ import { useNow, useReminders } from '../../store/useReminders'
 import type { WidgetProps } from '../types'
 import { ReminderEditor, type ReminderDraft } from './ReminderEditor'
 import './reminders.css'
+import { t } from '../../../../shared/i18n'
 
 export type RemindersConfig = Record<string, never>
 
@@ -82,16 +83,16 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
         <div className="reminder-text">
           <strong>{r.title}</strong>
           <span className="reminder-when">
-            {at ? describeWhen(at, now) : 'Ya sonó'}
-            {r.snoozeUntil ? ' · pospuesto' : ''}
+            {at ? describeWhen(at, now) : t('Ya sonó', 'Already rang')}
+            {r.snoozeUntil ? t(' · pospuesto', ' · snoozed') : ''}
             {full && r.repeat.kind !== 'once' ? ` · ${describeReminderRepeat(r.repeat)}` : ''}
           </span>
         </div>
         {full && (
           <button
             className="icon-button"
-            title="Editar"
-            aria-label={`Editar ${r.title}`}
+            title={t('Editar', 'Edit')}
+            aria-label={t(`Editar ${r.title}`, `Edit ${r.title}`)}
             onClick={() => setEditing(r.id)}
           >
             ✏️
@@ -99,8 +100,8 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
         )}
         <button
           className="icon-button"
-          title="Borrar"
-          aria-label={`Borrar ${r.title}`}
+          title={t('Borrar', 'Delete')}
+          aria-label={t(`Borrar ${r.title}`, `Delete ${r.title}`)}
           onClick={() => remove(r)}
         >
           ×
@@ -111,7 +112,7 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
   return (
     <div className={`reminders${full ? ' is-full' : ''}`}>
       {rangRecently.length > 0 && (
-        <section className="reminders-rang" aria-label="Acaban de sonar">
+        <section className="reminders-rang" aria-label={t('Acaban de sonar', 'Just rang')}>
           {rangRecently.map((r) => (
             <div key={r.id} className="reminder-rang">
               <span>⏰ {r.title}</span>
@@ -127,14 +128,14 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
                     className="button-ghost"
                     onClick={() => window.api.reminders.snooze(r.id, 60).catch(fail('snooze'))}
                   >
-                    +1 hora
+                    {t('+1 hora', '+1 hour')}
                   </button>
                 )}
                 <button
                   className="button-primary"
                   onClick={() => window.api.reminders.dismiss(r.id).catch(fail('dismiss'))}
                 >
-                  Listo
+                  {t('Listo', 'Done')}
                 </button>
               </div>
             </div>
@@ -142,11 +143,15 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
         </section>
       )}
 
-      <ReminderEditor compact={!full} saveLabel="+ Recordarme" onSave={create} />
+      <ReminderEditor
+        compact={!full}
+        saveLabel={t('+ Recordarme', '+ Remind me')}
+        onSave={create}
+      />
 
       {undo && (
         <div className="reminders-undo">
-          Borrado.{' '}
+          {t('Borrado.', 'Deleted.')}{' '}
           <button
             className="button-ghost"
             onClick={() => {
@@ -154,15 +159,18 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
               setUndo(null)
             }}
           >
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}
 
-      {full && <h2>Próximos</h2>}
+      {full && <h2>{t('Próximos', 'Coming up')}</h2>}
       {upcoming.length === 0 ? (
         <p className="reminder-hint">
-          Nada pendiente. Escribe qué te recuerdo y a qué hora, y te aviso.
+          {t(
+            'Nada pendiente. Escribe qué te recuerdo y a qué hora, y te aviso.',
+            "Nothing coming up. Write what to remind you of and when, and I'll let you know."
+          )}
         </p>
       ) : (
         <ul className="reminder-list">
@@ -172,15 +180,17 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
 
       {full && past.length > 0 && (
         <>
-          <h2>Ya sonaron</h2>
+          <h2>{t('Ya sonaron', 'Already rang')}</h2>
           <ul className="reminder-list is-past">{past.map((r) => row(r, null))}</ul>
         </>
       )}
 
       {full && (
         <p className="reminder-hint">
-          Suenan como aviso de la Mac aunque cierres la ventana: Nuggit solo tiene que estar abierto
-          (en la barra de menú basta).
+          {t(
+            'Suenan como aviso de la Mac aunque cierres la ventana: Nuggit solo tiene que estar abierto (en la barra de menú basta).',
+            'They ring as a Mac notification even if you close the window: Nuggit just has to be open (the menu bar is enough).'
+          )}
           {openAtLogin === false && (
             <>
               {' '}
@@ -193,7 +203,7 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
                     .catch(fail('turn on open at login'))
                 }
               >
-                Abrir Nuggit al prender la Mac
+                {t('Abrir Nuggit al prender la Mac', 'Open Nuggit when the Mac starts')}
               </button>
             </>
           )}

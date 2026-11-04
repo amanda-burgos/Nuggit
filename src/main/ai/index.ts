@@ -31,6 +31,7 @@ import * as keyStore from './keyStore'
 import { createOllamaProvider, currentOllamaModel, listOllamaModels } from './ollama'
 import { AIError, type AIProvider } from './provider'
 import { type Candidate, runAgent } from './runAgent'
+import { getLang, t } from '../../shared/i18n'
 
 // Keys and the user's own server can also come from the environment (.env), which wins.
 export const geminiKey = async (): Promise<string | null> =>
@@ -71,7 +72,9 @@ const MAX_MESSAGE_LENGTH = 4000
 const STATUS_INTERVAL_MS = 10_000
 
 export function errorMessage(err: unknown): string {
-  return err instanceof AIError ? err.message : 'Algo salió mal. Intenta otra vez.'
+  return err instanceof AIError
+    ? err.message
+    : t('Algo salió mal. Intenta otra vez.', 'Something went wrong. Try again.')
 }
 
 // --- What Dip can use right now ---
@@ -161,6 +164,17 @@ function breakFirstAnswer(provider: AIProvider): AIProvider {
   }
 }
 
+// Fase 14: the prompts are written in Spanish. When the app is in English, one short note
+// at the end says which language to write in (in Spanish nothing changes, byte for byte).
+const DIP_ENGLISH = `IMPORTANT, language: the app is set to English. Answer in the language the person writes in; if it is unclear, answer in English. Any example phrases above are in Spanish: say them in that language.`
+const WRITE_ENGLISH = `IMPORTANT, language: the app is set to English. Write everything the person will read (questions, titles, steps, notes) in English. Only the JSON keys and fixed values stay as shown.`
+
+function inLanguage(agent: string, task: string, system: string): string {
+  if (getLang() !== 'en' || (agent === 'dip' && task === 'summary')) return system
+  const note = agent === 'dip' || agent === 'actions' ? DIP_ENGLISH : WRITE_ENGLISH
+  return `${system}\n\n${note}`
+}
+
 // Runs one task of an agent (SPEC 8.1): its provider and model from the configuration, its
 // answer checked, and the errors sent back to it to fix (runAgent). Every try is logged.
 export async function askAgent<A extends AgentDefinition, K extends keyof A['tasks'] & string>(
@@ -180,7 +194,10 @@ export async function askAgent<A extends AgentDefinition, K extends keyof A['tas
     const result = await runAgent({
       agent: agent.name,
       task: taskName,
-      messages: [{ role: 'system', content: task.system(ctx) }, ...messages],
+      messages: [
+        { role: 'system', content: inLanguage(agent.name, taskName, task.system(ctx)) },
+        ...messages
+      ],
       schema: task.jsonSchema,
       check: (raw) => task.check(raw, ctx),
       candidates: list,
@@ -243,12 +260,21 @@ export async function setProvider(input: unknown): Promise<void> {
 export async function saveKey(input: unknown): Promise<AISaveKeyResult> {
   const key = typeof input === 'string' ? input.trim() : ''
   if (!/^\S{10,200}$/.test(key)) {
-    return { ok: false, error: 'Eso no parece una key de Gemini. Cópiala completa, sin espacios.' }
+    return {
+      ok: false,
+      error: t(
+        'Eso no parece una key de Gemini. Cópiala completa, sin espacios.',
+        "That doesn't look like a Gemini key. Copy the whole thing, with no spaces."
+      )
+    }
   }
   if (!keyStore.canEncrypt()) {
     return {
       ok: false,
-      error: 'Este equipo no permite guardar la key cifrada, así que no la guardé.'
+      error: t(
+        'Este equipo no permite guardar la key cifrada, así que no la guardé.',
+        "This computer can't store the key encrypted, so I didn't save it."
+      )
     }
   }
   try {
@@ -257,7 +283,10 @@ export async function saveKey(input: unknown): Promise<AISaveKeyResult> {
     return { ok: true }
   } catch (err) {
     console.error('[ai] could not save the key', err)
-    return { ok: false, error: 'No pude guardar la key. Intenta otra vez.' }
+    return {
+      ok: false,
+      error: t('No pude guardar la key. Intenta otra vez.', "I couldn't save the key. Try again.")
+    }
   }
 }
 
@@ -270,11 +299,18 @@ export async function removeKey(): Promise<void> {
 
 export async function saveServerKey(input: unknown): Promise<AISaveKeyResult> {
   const key = typeof input === 'string' ? input.trim() : ''
-  if (!/^\S{1,500}$/.test(key)) return { ok: false, error: 'Pega la key completa, sin espacios.' }
+  if (!/^\S{1,500}$/.test(key))
+    return {
+      ok: false,
+      error: t('Pega la key completa, sin espacios.', 'Paste the whole key, with no spaces.')
+    }
   if (!keyStore.canEncrypt()) {
     return {
       ok: false,
-      error: 'Este equipo no permite guardar la key cifrada, así que no la guardé.'
+      error: t(
+        'Este equipo no permite guardar la key cifrada, así que no la guardé.',
+        "This computer can't store the key encrypted, so I didn't save it."
+      )
     }
   }
   try {
@@ -283,7 +319,10 @@ export async function saveServerKey(input: unknown): Promise<AISaveKeyResult> {
     return { ok: true }
   } catch (err) {
     console.error('[ai] could not save the server key', err)
-    return { ok: false, error: 'No pude guardar la key. Intenta otra vez.' }
+    return {
+      ok: false,
+      error: t('No pude guardar la key. Intenta otra vez.', "I couldn't save the key. Try again.")
+    }
   }
 }
 
@@ -312,7 +351,9 @@ export async function testConnection(): Promise<AITestResult> {
   }
   return {
     ok: false,
-    error: errorMessage(firstError ?? new AIError('No hay ninguna IA disponible.'))
+    error: errorMessage(
+      firstError ?? new AIError(t('No hay ninguna IA disponible.', 'No AI is available.'))
+    )
   }
 }
 
@@ -335,7 +376,11 @@ function cleanMessages(input: unknown): AIMessage[] | null {
 // Chat with Dip. Dip's instructions and (with permission) the pending tasks are added here.
 export async function chat(input: unknown): Promise<AIChatResult> {
   const messages = cleanMessages(input)
-  if (!messages) return { ok: false, error: 'No hay nada que preguntar todavía.' }
+  if (!messages)
+    return {
+      ok: false,
+      error: t('No hay nada que preguntar todavía.', "There's nothing to ask yet.")
+    }
   try {
     const settings = await loadSettings()
     const tasks = settings.ai.shareTasksWithAI ? getTasks() : null
@@ -355,7 +400,11 @@ export async function chat(input: unknown): Promise<AIChatResult> {
 // interface shows the proposal and saves it only if the user approves.
 export async function proposePersonality(input: unknown): Promise<AIPersonalityResult> {
   const messages = cleanMessages(input)
-  if (!messages) return { ok: false, error: 'Cuéntale a Dip cómo quieres que sea.' }
+  if (!messages)
+    return {
+      ok: false,
+      error: t('Cuéntale a Dip cómo quieres que sea.', 'Tell Dip how you want it to be.')
+    }
   try {
     const settings = await loadSettings()
     const { value } = await askAgent(

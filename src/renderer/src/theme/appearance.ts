@@ -1,16 +1,53 @@
 import type { AppearanceSettings, Background } from '../../../shared/types'
 import { fontStack } from './fonts'
+import { t } from '../../../shared/i18n'
 
 // Fase 9: Ajustes → Apariencia applied as CSS variables, so every window (the board,
 // detached widgets, the menu bar windows) looks the same and follows light/dark.
 
 export const ACCENT_PRESETS: Record<string, { name: string; light: string; dark: string }> = {
-  lavender: { name: 'Lavanda', light: '#8b72dd', dark: '#a994ec' },
-  blue: { name: 'Azul', light: '#4f7cf0', dark: '#7fa2ff' },
-  mint: { name: 'Menta', light: '#23977f', dark: '#5fd3b7' },
-  peach: { name: 'Durazno', light: '#e5763f', dark: '#ffab85' },
-  rose: { name: 'Rosa', light: '#d9508f', dark: '#ff8dbf' },
-  sun: { name: 'Sol', light: '#c18a0c', dark: '#f5c84c' }
+  lavender: {
+    get name() {
+      return t('Lavanda', 'Lavender')
+    },
+    light: '#8b72dd',
+    dark: '#a994ec'
+  },
+  blue: {
+    get name() {
+      return t('Azul', 'Blue')
+    },
+    light: '#4f7cf0',
+    dark: '#7fa2ff'
+  },
+  mint: {
+    get name() {
+      return t('Menta', 'Mint')
+    },
+    light: '#23977f',
+    dark: '#5fd3b7'
+  },
+  peach: {
+    get name() {
+      return t('Durazno', 'Peach')
+    },
+    light: '#e5763f',
+    dark: '#ffab85'
+  },
+  rose: {
+    get name() {
+      return t('Rosa', 'Pink')
+    },
+    light: '#d9508f',
+    dark: '#ff8dbf'
+  },
+  sun: {
+    get name() {
+      return t('Sol', 'Sun')
+    },
+    light: '#c18a0c',
+    dark: '#f5c84c'
+  }
 }
 
 export const imageUrl = (name: string): string => `nuggit-img://image/${encodeURIComponent(name)}`

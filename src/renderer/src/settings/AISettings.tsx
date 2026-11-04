@@ -4,6 +4,7 @@ import { useAIStatus } from '../store/useAIStatus'
 import { AgentsInfo } from './AgentsInfo'
 import { CustomServerSettings } from './CustomServerSettings'
 import { StatusMessage, type SectionProps, type Status } from './shared'
+import { t } from '../../../shared/i18n'
 
 const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest'
 const SUGGESTED_OLLAMA_MODEL = 'llama3.2'
@@ -16,46 +17,70 @@ type Busy = 'save' | 'test' | 'remove' | 'switch' | null
 const DEFAULT_ORDER: AIBackend[] = ['gemini', 'ollama', 'custom']
 
 function backendName(backend: AIBackend, settings: Settings): string {
-  if (backend === 'custom') return settings.ai.custom?.name || 'tu servidor'
+  if (backend === 'custom') return settings.ai.custom?.name || t('tu servidor', 'your server')
   return backend === 'gemini' ? 'Gemini' : 'Ollama'
 }
 
 const BACKEND_ICONS: Record<AIBackend, string> = { gemini: '☁️', ollama: '🏠', custom: '🖥️' }
 
-const CHOICES: Array<{ value: Choice; title: string; text: string }> = [
+const choices = (): Array<{ value: Choice; title: string; text: string }> => [
   {
     value: 'auto',
-    title: '✨ Automático',
-    text: 'Usa la primera disponible, en el orden que elijas. Si una falla, prueba la siguiente.'
+    title: t('✨ Automático', '✨ Automatic'),
+    text: t(
+      'Usa la primera disponible, en el orden que elijas. Si una falla, prueba la siguiente.',
+      'Uses the first one available, in the order you choose. If one fails, it tries the next.'
+    )
   },
   {
     value: 'ollama',
     title: '🏠 Ollama',
-    text: 'En tu Mac. Gratis, sin cuenta y sin key. Lo que escribes no sale de tu computadora.'
+    text: t(
+      'En tu Mac. Gratis, sin cuenta y sin key. Lo que escribes no sale de tu computadora.',
+      'On your Mac. Free, no account and no key. What you write never leaves your computer.'
+    )
   },
   {
     value: 'gemini',
     title: '☁️ Gemini',
-    text: 'En internet, de Google. Necesita una key (la cuenta debe ser de alguien de 18 o más).'
+    text: t(
+      'En internet, de Google. Necesita una key (la cuenta debe ser de alguien de 18 o más).',
+      'Online, from Google. Needs a key (the account must belong to someone 18 or older).'
+    )
   },
   {
     value: 'custom',
-    title: '🖥️ Servidor propio',
-    text: 'Un servidor tuyo compatible con OpenAI, con servidores de respaldo.'
+    title: t('🖥️ Servidor propio', '🖥️ Your own server'),
+    text: t(
+      'Un servidor tuyo compatible con OpenAI, con servidores de respaldo.',
+      'Your own OpenAI-compatible server, with backup servers.'
+    )
   }
 ]
 
 function describeStatus(status: AIStatus | null, choice: Choice, settings: Settings): string {
-  if (!status) return 'Revisando…'
-  if (status.active) return `Ahora Dip usa ${backendName(status.active, settings)}`
-  if (choice === 'gemini') return 'Falta guardar una key de Gemini'
-  if (choice === 'ollama') return 'Ollama no está abierto (o no tiene modelos)'
+  if (!status) return t('Revisando…', 'Checking…')
+  if (status.active) {
+    const name = backendName(status.active, settings)
+    return t(`Ahora Dip usa ${name}`, `Dip is using ${name} now`)
+  }
+  if (choice === 'gemini')
+    return t('Falta guardar una key de Gemini', 'You still need to save a Gemini key')
+  if (choice === 'ollama') {
+    return t('Ollama no está abierto (o no tiene modelos)', "Ollama isn't open (or has no models)")
+  }
   if (choice === 'custom') {
     return settings.ai.custom
-      ? 'Tu servidor no responde. ¿Está Tailscale prendido?'
-      : 'Falta agregar tu servidor (abajo)'
+      ? t(
+          'Tu servidor no responde. ¿Está Tailscale prendido?',
+          "Your server isn't answering. Is Tailscale on?"
+        )
+      : t('Falta agregar tu servidor (abajo)', 'You still need to add your server (below)')
   }
-  return 'Ninguna IA disponible: abre Ollama, guarda una key de Gemini o agrega tu servidor'
+  return t(
+    'Ninguna IA disponible: abre Ollama, guarda una key de Gemini o agrega tu servidor',
+    'No AI available: open Ollama, save a Gemini key or add your server'
+  )
 }
 
 // Connecting Dip to an AI: automatic, Ollama (local) or Gemini (online).
@@ -71,14 +96,17 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
 
   const test = async (): Promise<void> => {
     setBusy('test')
-    setStatus({ kind: 'info', text: 'Probando la conexión…' })
+    setStatus({ kind: 'info', text: t('Probando la conexión…', 'Testing the connection…') })
     const result = await window.api.ai.test()
     setBusy(null)
     if (result.ok) {
       setModels((m) => ({ ...m, [result.backend]: result.models }))
       setStatus({
         kind: 'ok',
-        text: `¡Conectado! Dip está usando ${backendName(result.backend, settings)} (${result.model}) ✨`
+        text: t(
+          `¡Conectado! Dip está usando ${backendName(result.backend, settings)} (${result.model}) ✨`,
+          `Connected! Dip is using ${backendName(result.backend, settings)} (${result.model}) ✨`
+        )
       })
     } else {
       setStatus({ kind: 'error', text: result.error })
@@ -100,11 +128,13 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
 
   return (
     <section className="settings-section">
-      <h3>🤖 IA de Dip</h3>
-      <p className="settings-hint">Sin IA, Nuggit funciona igual.</p>
+      <h3>🤖 {t('IA de Dip', "Dip's AI")}</h3>
+      <p className="settings-hint">
+        {t('Sin IA, Nuggit funciona igual.', 'Nuggit works just the same without AI.')}
+      </p>
 
-      <div className="provider-picker" role="radiogroup" aria-label="IA de Dip">
-        {CHOICES.map((option) => (
+      <div className="provider-picker" role="radiogroup" aria-label={t('IA de Dip', "Dip's AI")}>
+        {choices().map((option) => (
           <label
             key={option.value}
             className={`provider-option${choice === option.value ? ' is-checked' : ''}`}
@@ -131,7 +161,7 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
         </div>
         {aiStatus?.active && (
           <button className="button-ghost" disabled={busy !== null} onClick={test}>
-            {busy === 'test' ? 'Probando…' : 'Probar conexión'}
+            {busy === 'test' ? t('Probando…', 'Testing…') : t('Probar conexión', 'Test connection')}
           </button>
         )}
       </div>
@@ -162,13 +192,18 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
         <div className="settings-subsection">
           <h4>🏠 Ollama</h4>
           <p className="settings-hint">
-            {aiStatus?.ollama ? 'Abierto y listo.' : 'No está abierto, o no tiene modelos.'}
+            {aiStatus?.ollama
+              ? t('Abierto y listo.', 'Open and ready.')
+              : t('No está abierto, o no tiene modelos.', "It isn't open, or has no models.")}
           </p>
           <ModelField
             id="ollama-models"
             value={settings.ai.ollamaModel}
-            placeholder="El primero que tengas instalado"
-            emptyHint="Déjalo vacío para usar el primer modelo que tengas."
+            placeholder={t('El primero que tengas instalado', 'The first one you have installed')}
+            emptyHint={t(
+              'Déjalo vacío para usar el primer modelo que tengas.',
+              'Leave it empty to use the first model you have.'
+            )}
             models={models.ollama ?? []}
             onSave={(ollamaModel) => update({ ai: { ollamaModel } })}
           />
@@ -189,8 +224,11 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
           <ModelField
             id="gemini-models"
             value={settings.ai.model}
-            placeholder={`${DEFAULT_GEMINI_MODEL} (recomendado)`}
-            emptyHint="Déjalo vacío para usar el recomendado."
+            placeholder={`${DEFAULT_GEMINI_MODEL} ${t('(recomendado)', '(recommended)')}`}
+            emptyHint={t(
+              'Déjalo vacío para usar el recomendado.',
+              'Leave it empty to use the recommended one.'
+            )}
             models={models.gemini ?? []}
             onSave={(model) => update({ ai: { model } })}
           />
@@ -207,10 +245,12 @@ export function AISettings({ settings, update }: SectionProps): React.JSX.Elemen
           onChange={(e) => update({ ai: { shareTasksWithAI: e.target.checked } })}
         />
         <span>
-          Compartir tareas con Dip
+          {t('Compartir tareas con Dip', 'Share tasks with Dip')}
           <small>
-            Dip ve tus tareas pendientes (título, fecha, prioridad y tiempo) para ayudarte a
-            decidir. Nunca las cambia.
+            {t(
+              'Dip ve tus tareas pendientes (título, fecha, prioridad y tiempo) para ayudarte a decidir. Nunca las cambia.',
+              'Dip sees your pending tasks (title, date, priority and time) to help you decide. It never changes them.'
+            )}
           </small>
         </span>
       </label>
@@ -238,18 +278,20 @@ function ProviderOrder({
 
   return (
     <div className="settings-subsection">
-      <h4>Orden en automático</h4>
+      <h4>{t('Orden en automático', 'Order in automatic')}</h4>
       <ol className="provider-order">
         {order.map((backend, i) => (
           <li key={backend}>
             <span className={`ai-dot${aiStatus?.[backend] ? ' is-on' : ''}`} aria-hidden />
             <span className="provider-order-name">
               {BACKEND_ICONS[backend]} {backendName(backend, settings)}
-              {!aiStatus?.[backend] && <small> (no disponible ahora)</small>}
+              {!aiStatus?.[backend] && (
+                <small>{t(' (no disponible ahora)', ' (not available now)')}</small>
+              )}
             </span>
             <button
               className="icon-button"
-              title="Subir"
+              title={t('Subir', 'Move up')}
               disabled={i === 0}
               onClick={() => move(i, -1)}
             >
@@ -257,7 +299,7 @@ function ProviderOrder({
             </button>
             <button
               className="icon-button"
-              title="Bajar"
+              title={t('Bajar', 'Move down')}
               disabled={i === order.length - 1}
               onClick={() => move(i, 1)}
             >
@@ -266,7 +308,12 @@ function ProviderOrder({
           </li>
         ))}
       </ol>
-      <small>Dip usa la primera que esté disponible. Si falla, prueba la siguiente.</small>
+      <small>
+        {t(
+          'Dip usa la primera que esté disponible. Si falla, prueba la siguiente.',
+          'Dip uses the first one available. If it fails, it tries the next.'
+        )}
+      </small>
     </div>
   )
 }
@@ -299,26 +346,28 @@ function GeminiKey({
   }
 
   const removeKey = async (): Promise<void> => {
-    if (!window.confirm('¿Quitar la key de Gemini?')) return
+    if (!window.confirm(t('¿Quitar la key de Gemini?', 'Remove the Gemini key?'))) return
     setBusy('remove')
     await window.api.ai.removeKey().catch((err) => console.error('Could not remove key', err))
     setBusy(null)
-    setStatus({ kind: 'info', text: 'Key quitada.' })
+    setStatus({ kind: 'info', text: t('Key quitada.', 'Key removed.') })
   }
 
   if (hasKey && !replacing) {
     return (
       <div className="settings-row is-centered">
-        <span className="settings-hint">Key guardada (cifrada en este equipo).</span>
+        <span className="settings-hint">
+          {t('Key guardada (cifrada en este equipo).', 'Key saved (encrypted on this computer).')}
+        </span>
         <button
           className="button-ghost"
           disabled={busy !== null}
           onClick={() => setReplacing(true)}
         >
-          Cambiar
+          {t('Cambiar', 'Change')}
         </button>
         <button className="button-ghost" disabled={busy !== null} onClick={removeKey}>
-          Quitar
+          {t('Quitar', 'Remove')}
         </button>
       </div>
     )
@@ -335,18 +384,18 @@ function GeminiKey({
       <input
         type="password"
         value={keyInput}
-        placeholder="Pega aquí tu API key de Gemini"
-        aria-label="API key de Gemini"
+        placeholder={t('Pega aquí tu API key de Gemini', 'Paste your Gemini API key here')}
+        aria-label={t('API key de Gemini', 'Gemini API key')}
         autoComplete="off"
         spellCheck={false}
         onChange={(e) => setKeyInput(e.target.value)}
       />
       <button type="submit" className="button-primary" disabled={!keyInput.trim() || busy !== null}>
-        {busy === 'save' ? 'Guardando…' : 'Guardar'}
+        {busy === 'save' ? t('Guardando…', 'Saving…') : t('Guardar', 'Save')}
       </button>
       {replacing && (
         <button type="button" className="button-ghost" onClick={() => setReplacing(false)}>
-          Cancelar
+          {t('Cancelar', 'Cancel')}
         </button>
       )}
     </form>
@@ -378,7 +427,7 @@ function ModelField({
 
   return (
     <label className="settings-field">
-      <span>Modelo</span>
+      <span>{t('Modelo', 'Model')}</span>
       <input
         list={id}
         value={input}
@@ -399,7 +448,11 @@ function ModelField({
       </datalist>
       <small>
         {emptyHint}
-        {models.length > 0 && ' Haz clic en el campo para ver los modelos disponibles.'}
+        {models.length > 0 &&
+          t(
+            ' Haz clic en el campo para ver los modelos disponibles.',
+            ' Click the field to see the available models.'
+          )}
       </small>
     </label>
   )
@@ -408,23 +461,31 @@ function ModelField({
 function GeminiGuide(): React.JSX.Element {
   return (
     <details className="settings-guide">
-      <summary>¿Cómo saco una key gratis?</summary>
+      <summary>{t('¿Cómo saco una key gratis?', 'How do I get a free key?')}</summary>
       <ol>
         <li>
-          Una persona de 18 años o más entra a{' '}
+          {t('Una persona de 18 años o más entra a', 'Someone 18 or older goes to')}{' '}
           <a href={KEY_URL} target="_blank" rel="noreferrer">
             aistudio.google.com/apikey
           </a>{' '}
-          con su cuenta de Google.
+          {t('con su cuenta de Google.', 'with their Google account.')}
         </li>
         <li>
-          Hace clic en <strong>Create API key</strong> (Crear clave de API).
+          {t('Hace clic en', 'Clicks')} <strong>Create API key</strong>
+          {t(' (Crear clave de API).', '.')}
         </li>
-        <li>Copia la key, pégala arriba y dale a Guardar.</li>
+        <li>
+          {t(
+            'Copia la key, pégala arriba y dale a Guardar.',
+            'Copy the key, paste it above and hit Save.'
+          )}
+        </li>
       </ol>
       <p>
-        Es gratis, con un límite de preguntas por día. En el plan gratis, Google puede usar lo que
-        le escribes para mejorar sus modelos, así que no le cuentes cosas muy privadas.
+        {t(
+          'Es gratis, con un límite de preguntas por día. En el plan gratis, Google puede usar lo que le escribes para mejorar sus modelos, así que no le cuentes cosas muy privadas.',
+          "It's free, with a limit on questions per day. On the free plan, Google can use what you write to improve its models, so don't tell it anything very private."
+        )}
       </p>
     </details>
   )
@@ -433,25 +494,38 @@ function GeminiGuide(): React.JSX.Element {
 function OllamaGuide(): React.JSX.Element {
   return (
     <details className="settings-guide">
-      <summary>¿Cómo instalo Ollama?</summary>
+      <summary>{t('¿Cómo instalo Ollama?', 'How do I install Ollama?')}</summary>
       <ol>
-        <li>Pide permiso a un adulto antes de instalar un programa nuevo.</li>
         <li>
-          Descarga Ollama desde{' '}
+          {t(
+            'Pide permiso a un adulto antes de instalar un programa nuevo.',
+            'Ask a grown-up for permission before installing a new program.'
+          )}
+        </li>
+        <li>
+          {t('Descarga Ollama desde', 'Download Ollama from')}{' '}
           <a href={OLLAMA_URL} target="_blank" rel="noreferrer">
             ollama.com/download
           </a>
-          , instálalo y ábrelo.
+          {t(', instálalo y ábrelo.', ', install it and open it.')}
         </li>
         <li>
-          Abre la app Terminal y escribe: <code>ollama pull {SUGGESTED_OLLAMA_MODEL}</code> (baja un
-          modelo de unos 2 GB).
+          {t('Abre la app Terminal y escribe:', 'Open the Terminal app and type:')}{' '}
+          <code>ollama pull {SUGGESTED_OLLAMA_MODEL}</code>{' '}
+          {t('(baja un modelo de unos 2 GB).', '(downloads a model of about 2 GB).')}
         </li>
-        <li>Listo: aquí arriba debe decir que está abierto.</li>
+        <li>
+          {t(
+            'Listo: aquí arriba debe decir que está abierto.',
+            'Done: up here it should say it’s open.'
+          )}
+        </li>
       </ol>
       <p>
-        Ollama tiene que estar abierto para que Dip lo use. La primera respuesta puede tardar un
-        poco mientras el modelo se carga.
+        {t(
+          'Ollama tiene que estar abierto para que Dip lo use. La primera respuesta puede tardar un poco mientras el modelo se carga.',
+          'Ollama has to be open for Dip to use it. The first answer can take a little while as the model loads.'
+        )}
       </p>
     </details>
   )

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { Task, TenderAnswer, TenderStep } from '../../../../shared/types'
 import { useAIStatus } from '../../store/useAIStatus'
 import type { WidgetProps } from '../types'
@@ -98,7 +99,7 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
       setPhase({ kind: 'saved', saved })
     } catch (err) {
       console.error('Could not save tenders', err)
-      setError('No pude guardar. Intenta otra vez.')
+      setError(t('No pude guardar. Intenta otra vez.', 'I couldn’t save. Try again.'))
     }
   }
 
@@ -126,18 +127,22 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
             if (task.trim() && !busy) hasAI ? askQuestions() : byHand()
           }}
         >
-          <label htmlFor="tenders-task">¿Qué tarea grande quieres dividir?</label>
+          <label htmlFor="tenders-task">
+            {t('¿Qué tarea grande quieres dividir?', 'What big task do you want to break down?')}
+          </label>
           <input
             id="tenders-task"
             value={task}
-            placeholder='Ej: "proyecto de ciencias"'
+            placeholder={t('Ej: "proyecto de ciencias"', 'E.g. "science project"')}
             disabled={busy}
             onChange={(e) => setTask(e.target.value)}
           />
           <div className="tenders-actions">
             {hasAI && (
               <button type="submit" className="button-primary" disabled={!task.trim() || busy}>
-                {busy ? 'Dip está pensando…' : '🪜 Dividir con Dip'}
+                {busy
+                  ? t('Dip está pensando…', 'Dip is thinking…')
+                  : t('🪜 Dividir con Dip', '🪜 Break it down with Dip')}
               </button>
             )}
             <button
@@ -146,20 +151,24 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
               disabled={!task.trim() || busy}
               onClick={hasAI ? () => byHand() : undefined}
             >
-              Hacer los pasos a mano
+              {t('Hacer los pasos a mano', 'Write the steps myself')}
             </button>
           </div>
         </form>
         {errorBox}
         {!hasAI && aiStatus && (
           <p className="tenders-hint">
-            Sin IA puedes escribir los pasos tú. Para que Dip te ayude, abre Ollama, conecta Gemini
-            o tu servidor en Ajustes.
+            {t(
+              'Sin IA puedes escribir los pasos tú. Para que Dip te ayude, abre Ollama, conecta Gemini o tu servidor en Ajustes.',
+              'Without AI you can write the steps yourself. For Dip to help, open Ollama, or connect Gemini or your server in Settings.'
+            )}
           </p>
         )}
         <p className="tenders-hint">
-          Dip te hace 2 o 3 preguntas y te propone pasos chiquitos de 5 a 25 minutos. Tú decides
-          cuáles se guardan.
+          {t(
+            'Dip te hace 2 o 3 preguntas y te propone pasos chiquitos de 5 a 25 minutos. Tú decides cuáles se guardan.',
+            'Dip asks you 2 or 3 questions and suggests tiny steps of 5 to 25 minutes. You decide which ones to keep.'
+          )}
         </p>
       </div>
     )
@@ -190,27 +199,37 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
                 value={a.answer}
                 disabled={busy}
                 autoFocus={i === 0}
-                placeholder="Tu respuesta (puedes dejarla vacía)"
+                placeholder={t(
+                  'Tu respuesta (puedes dejarla vacía)',
+                  'Your answer (you can leave it blank)'
+                )}
                 onChange={(e) => setAnswer(i, e.target.value)}
               />
             </label>
           ))}
           <div className="tenders-actions">
             <button type="submit" className="button-primary" disabled={busy}>
-              {busy ? 'Dip está armando los pasos…' : 'Ver los pasos'}
+              {busy
+                ? t('Dip está armando los pasos…', 'Dip is putting the steps together…')
+                : t('Ver los pasos', 'See the steps')}
             </button>
             <button type="button" className="button-ghost" disabled={busy} onClick={reset}>
-              Cancelar
+              {t('Cancelar', 'Cancel')}
             </button>
           </div>
         </form>
         {busy && (
-          <p className="tenders-hint">Con Ollama esto puede tardar hasta un minuto. ¡Ya casi! ⏳</p>
+          <p className="tenders-hint">
+            {t(
+              'Con Ollama esto puede tardar hasta un minuto. ¡Ya casi! ⏳',
+              'With Ollama this can take up to a minute. Almost there! ⏳'
+            )}
+          </p>
         )}
         {errorBox}
         {error && !busy && (
           <button className="button-ghost" onClick={() => byHand(phase.answers)}>
-            Hacer los pasos a mano
+            {t('Hacer los pasos a mano', 'Write the steps myself')}
           </button>
         )}
       </div>
@@ -222,18 +241,19 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
     const [parent, ...children] = phase.saved
     return (
       <div className={`${className} tenders-done`}>
-        <p className="tenders-done-title">¡Listo! ✅</p>
+        <p className="tenders-done-title">{t('¡Listo! ✅', 'Done! ✅')}</p>
         <p>
-          Guardé &quot;{parent.title}&quot; con {children.length}{' '}
-          {children.length === 1 ? 'paso' : 'pasos'} en Tareas. Empieza por el primero: es el más
-          fácil.
+          {t(
+            `Guardé "${parent.title}" con ${children.length} ${children.length === 1 ? 'paso' : 'pasos'} en Tareas. Empieza por el primero: es el más fácil.`,
+            `I saved "${parent.title}" with ${children.length} ${children.length === 1 ? 'step' : 'steps'} in Tasks. Start with the first one: it’s the easiest.`
+          )}
         </p>
         <div className="tenders-actions">
           <button className="button-primary" onClick={reset}>
-            Dividir otra tarea
+            {t('Dividir otra tarea', 'Break down another task')}
           </button>
           <button className="button-ghost" onClick={() => undoSave(phase.saved)}>
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       </div>
@@ -248,17 +268,18 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
     <div className={className}>
       <div className="tenders-card">
         <label className="tenders-field">
-          <span>Tarea</span>
+          <span>{t('Tarea', 'Task')}</span>
           <input value={title} onChange={(e) => setTitle(e.target.value)} />
         </label>
         <label className="tenders-field is-date">
-          <span>Para cuándo</span>
+          <span>{t('Para cuándo', 'Due')}</span>
           <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
         </label>
 
         <StepsEditor steps={steps} onChange={setSteps} />
         <p className="tenders-hint">
-          {filled.length} {filled.length === 1 ? 'paso' : 'pasos'} · {total} min en total
+          {filled.length} {filled.length === 1 ? t('paso', 'step') : t('pasos', 'steps')} · {total}{' '}
+          {t('min en total', 'min total')}
         </p>
 
         {errorBox}
@@ -274,26 +295,29 @@ export function TendersWidget({ size }: WidgetProps<TendersConfig>): React.JSX.E
             <input
               value={feedback}
               autoFocus
-              placeholder='¿Qué cambio? Ej: "menos pasos" o "más cortos"'
+              placeholder={t(
+                '¿Qué cambio? Ej: "menos pasos" o "más cortos"',
+                'What should I change? E.g. "fewer steps" or "shorter"'
+              )}
               onChange={(e) => setFeedback(e.target.value)}
             />
             <button type="submit" className="button-primary" disabled={!feedback.trim()}>
-              Pedir cambio
+              {t('Pedir cambio', 'Ask for a change')}
             </button>
           </form>
         )}
 
         <div className="tenders-actions">
           <button className="button-primary" disabled={!canSave} onClick={save}>
-            Guardar
+            {t('Guardar', 'Save')}
           </button>
           {hasAI && feedback === null && (
             <button className="button-ghost" onClick={() => setFeedback('')}>
-              Cambiar
+              {t('Cambiar', 'Change')}
             </button>
           )}
           <button className="button-ghost" onClick={reset}>
-            Cancelar
+            {t('Cancelar', 'Cancel')}
           </button>
         </div>
       </div>

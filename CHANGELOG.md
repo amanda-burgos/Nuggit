@@ -4,6 +4,12 @@ Lo nuevo, lo arreglado y lo que cambió, por fecha y en palabras simples. Se ve 
 
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
+## [Español o English] - 2026-11-04
+
+### Nuevo
+
+- **Nuggit en inglés 🇺🇸:** la primera vez que abres Nuggit, antes del tour, escoges el idioma: Español o English. Cambia todo: pestañas, widgets, Ajustes, Ayuda, el tour, la Pregunta del día, el menú de la barra de menú y los avisos. Dip y los demás ayudantes de IA también contestan en ese idioma. Se cambia cuando quieras en Ajustes → General (Fase 14).
+
 ## [Tu letra] - 2026-11-04
 
 ### Nuevo

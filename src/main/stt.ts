@@ -18,6 +18,7 @@ import { customConfig, geminiKey } from './ai'
 import { resolveSttConfig, type SttConfig } from './ai/config'
 import { AIError } from './ai/provider'
 import { loadSettings } from './storage'
+import { t } from '../shared/i18n'
 
 // SPEC 9.10, call mode: speech to text. Configurable like the AI providers (8.1):
 // - whisper: whisper.cpp on this Mac (brew install whisper-cpp + a model Nuggit downloads).
@@ -102,9 +103,20 @@ function cleanText(text: string): string {
 async function withWhisper(wav: Uint8Array, lang: string, config: SttConfig): Promise<string> {
   const bin = whisperBin(config)
   if (!bin)
-    throw new AIError('Falta whisper.cpp. Instálalo en la Terminal con: brew install whisper-cpp')
+    throw new AIError(
+      t(
+        'Falta whisper.cpp. Instálalo en la Terminal con: brew install whisper-cpp',
+        'whisper.cpp is missing. Install it in Terminal with: brew install whisper-cpp'
+      )
+    )
   const model = whisperModelPath(config)
-  if (!existsSync(model)) throw new AIError('Falta bajar el modelo de whisper (Ajustes → Voz).')
+  if (!existsSync(model))
+    throw new AIError(
+      t(
+        'Falta bajar el modelo de whisper (Ajustes → Voz).',
+        'The whisper model still needs to be downloaded (Settings → Voice).'
+      )
+    )
   const file = join(app.getPath('temp'), `nuggit-heard-${randomUUID()}.wav`)
   await fs.writeFile(file, wav)
   try {
@@ -124,7 +136,10 @@ async function withWhisper(wav: Uint8Array, lang: string, config: SttConfig): Pr
 
 async function withServer(wav: Uint8Array, lang: string, config: SttConfig): Promise<string> {
   const server = await customConfig()
-  if (!server) throw new AIError('No hay un servidor propio en Ajustes.')
+  if (!server)
+    throw new AIError(
+      t('No hay un servidor propio en Ajustes.', "There's no server of your own in Settings.")
+    )
   let lastError: unknown = null
   for (const base of server.servers) {
     try {
@@ -139,21 +154,35 @@ async function withServer(wav: Uint8Array, lang: string, config: SttConfig): Pro
         signal: AbortSignal.timeout(TIMEOUT_MS)
       })
       if (response.status === 404) {
-        throw new AIError('Tu servidor no transcribe audio (no tiene /audio/transcriptions).')
+        throw new AIError(
+          t(
+            'Tu servidor no transcribe audio (no tiene /audio/transcriptions).',
+            "Your server doesn't transcribe audio (it has no /audio/transcriptions)."
+          )
+        )
       }
-      if (!response.ok) throw new AIError(`Tu servidor no pudo transcribir (${response.status}).`)
+      if (!response.ok)
+        throw new AIError(
+          t(
+            `Tu servidor no pudo transcribir (${response.status}).`,
+            `Your server couldn't transcribe (${response.status}).`
+          )
+        )
       const data = (await response.json()) as { text?: unknown }
       return typeof data.text === 'string' ? data.text : ''
     } catch (err) {
       lastError = err
     }
   }
-  throw lastError instanceof AIError ? lastError : new AIError('No llego a tu servidor.')
+  throw lastError instanceof AIError
+    ? lastError
+    : new AIError(t('No llego a tu servidor.', "I can't reach your server."))
 }
 
 async function withGemini(wav: Uint8Array, lang: string, config: SttConfig): Promise<string> {
   const apiKey = await geminiKey()
-  if (!apiKey) throw new AIError('No hay una key de Gemini guardada.')
+  if (!apiKey)
+    throw new AIError(t('No hay una key de Gemini guardada.', "There's no Gemini key saved."))
   const ai = new GoogleGenAI({ apiKey, httpOptions: { timeout: TIMEOUT_MS } })
   const language = lang === 'es' ? 'en español ' : lang === 'en' ? 'in English ' : ''
   const response = await ai.models.generateContent({
@@ -186,7 +215,7 @@ export async function transcribe(input: unknown, langInput: unknown): Promise<Tr
     input.byteLength < 44 ||
     input.byteLength > MAX_AUDIO_BYTES
   ) {
-    return { ok: false, error: 'No llegó el audio.' }
+    return { ok: false, error: t('No llegó el audio.', "The audio didn't arrive.") }
   }
   const settings = await loadSettings()
   const config = resolveSttConfig(settings)
@@ -283,7 +312,13 @@ export function downloadModel(): Promise<void> {
     } catch (err) {
       console.error('[stt] model download failed', err)
       await fs.rm(partial, { force: true })
-      report({ state: 'error', error: 'No pude bajar el modelo. ¿Hay internet? Intenta otra vez.' })
+      report({
+        state: 'error',
+        error: t(
+          'No pude bajar el modelo. ¿Hay internet? Intenta otra vez.',
+          "I couldn't download the model. Is there internet? Try again."
+        )
+      })
     } finally {
       downloading = null
     }

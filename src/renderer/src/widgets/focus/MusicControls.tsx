@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { MusicStatus } from '../../../../shared/types'
 import { useSettings } from '../../store/useSettings'
+import { t } from '../../../../shared/i18n'
 
 const POLL_MS = 4000
 const log = (err: unknown): void => console.error('[music]', err)
@@ -31,17 +32,23 @@ export function MusicControls(): React.JSX.Element | null {
         <span>
           🎵{' '}
           {status.app === 'not-installed'
-            ? 'Instala Spotify para tener música en Focus.'
+            ? t(
+                'Instala Spotify para tener música en Focus.',
+                'Install Spotify to have music in Focus.'
+              )
             : status.app === 'denied'
-              ? 'Permite que Nuggit controle Spotify (Ajustes del Sistema → Privacidad → Automatización).'
-              : 'Abre Spotify para que suene tu música.'}
+              ? t(
+                  'Permite que Nuggit controle Spotify (Ajustes del Sistema → Privacidad → Automatización).',
+                  'Let Nuggit control Spotify (System Settings → Privacy → Automation).'
+                )
+              : t('Abre Spotify para que suene tu música.', 'Open Spotify to play your music.')}
         </span>
         {status.app === 'closed' && (
           <button
             className="button-ghost"
             onClick={() => window.api.music.openSpotify().then(refresh).catch(log)}
           >
-            Abrir Spotify
+            {t('Abrir Spotify', 'Open Spotify')}
           </button>
         )}
       </div>
@@ -57,20 +64,22 @@ export function MusicControls(): React.JSX.Element | null {
         🎵{' '}
         {status.track
           ? `${status.track}${status.artist ? ` · ${status.artist}` : ''}`
-          : 'Sin música'}
+          : t('Sin música', 'No music')}
       </span>
       <button
         className="icon-button"
-        title={status.playing ? 'Pausar música' : 'Poner música'}
-        aria-label={status.playing ? 'Pausar música' : 'Poner música'}
+        title={status.playing ? t('Pausar música', 'Pause music') : t('Poner música', 'Play music')}
+        aria-label={
+          status.playing ? t('Pausar música', 'Pause music') : t('Poner música', 'Play music')
+        }
         onClick={() => window.api.music.playPause().then(setStatus).catch(log)}
       >
         {status.playing ? '⏸' : '▶'}
       </button>
       <button
         className="icon-button"
-        title="Siguiente canción"
-        aria-label="Siguiente canción"
+        title={t('Siguiente canción', 'Next song')}
+        aria-label={t('Siguiente canción', 'Next song')}
         onClick={() => window.api.music.next().then(setStatus).catch(log)}
       >
         ⏭

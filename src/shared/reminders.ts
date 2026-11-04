@@ -1,5 +1,6 @@
 import type { Reminder } from './types'
 import { addDays, describeRepeat, isDueOn } from './dailies'
+import { t } from './i18n'
 
 // Fase 12: when a reminder rings. Shared by the main process (which rings them) and the
 // Recordatorios widget. Times are local "YYYY-MM-DDTHH:MM" keys, so they compare as text.
@@ -54,8 +55,16 @@ export function formatTime(time: string): string {
   return `${Number(h)}:${m}`
 }
 
-const MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
-const WEEKDAYS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado']
+const months = (): string[] =>
+  t(
+    'ene feb mar abr may jun jul ago sep oct nov dic',
+    'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'
+  ).split(' ')
+const weekdays = (): string[] =>
+  t(
+    'domingo lunes martes miércoles jueves viernes sábado',
+    'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'
+  ).split(' ')
 
 // "Hoy 9:00", "Mañana 18:30", "El jueves 7:00", "12 nov 9:00".
 export function describeWhen(at: Date, now = new Date()): string {
@@ -63,14 +72,16 @@ export function describeWhen(at: Date, now = new Date()): string {
   const day = key.slice(0, 10)
   const today = localKey(now).slice(0, 10)
   const time = formatTime(key.slice(11, 16))
-  if (day === today) return `Hoy ${time}`
-  if (day === addDays(today, 1)) return `Mañana ${time}`
-  if (day > today && day < addDays(today, 7)) return `El ${WEEKDAYS[at.getDay()]} ${time}`
+  if (day === today) return t(`Hoy ${time}`, `Today ${time}`)
+  if (day === addDays(today, 1)) return t(`Mañana ${time}`, `Tomorrow ${time}`)
+  if (day > today && day < addDays(today, 7))
+    return t(`El ${weekdays()[at.getDay()]} ${time}`, `${weekdays()[at.getDay()]} ${time}`)
   const year = at.getFullYear() !== now.getFullYear() ? ` ${at.getFullYear()}` : ''
-  return `${at.getDate()} ${MONTHS[at.getMonth()]}${year} ${time}`
+  const month = months()[at.getMonth()]
+  return t(`${at.getDate()} ${month}${year} ${time}`, `${month} ${at.getDate()}${year} ${time}`)
 }
 
 // "Una vez", "Todos los días", "Lun, Mié y Vie"…
 export function describeReminderRepeat(repeat: Reminder['repeat']): string {
-  return repeat.kind === 'once' ? 'Una vez' : describeRepeat(repeat)
+  return repeat.kind === 'once' ? t('Una vez', 'Once') : describeRepeat(repeat)
 }

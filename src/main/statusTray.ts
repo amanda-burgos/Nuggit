@@ -4,6 +4,7 @@ import { pickNextActions, toISODate, type NextAction } from '../shared/nextActio
 import { getNextActionState, onNextActionChange, skipAction, startAction } from './nextAction'
 import { getPickupMode, onPickupModeChange, showPickup } from './pickupTray'
 import { getMusicTrayMode, onMusicTrayModeChange, showMusicPlayer } from './musicTray'
+import { onLangChange, t } from '../shared/i18n'
 import { completeTask, getTasks, onTasksChange, setStatuses, updateTask } from './tasks'
 
 // While something is "En curso", Nuggit shows a small indicator in the macOS menu bar, so
@@ -17,12 +18,12 @@ let chooseMode: (mode: StatusIndicator) => void = () => undefined
 
 const MAX_TITLE = 28
 
-const MODE_LABELS: Record<StatusIndicator, string> = {
-  dot: 'Solo el puntito',
-  'dot-title': 'Puntito y nombre de la tarea',
-  title: 'Solo el nombre de la tarea',
-  off: 'Nada (ocultar)'
-}
+const MODE_LABELS = (): Record<StatusIndicator, string> => ({
+  dot: t('Solo el puntito', 'Just the dot'),
+  'dot-title': t('Puntito y nombre de la tarea', 'Dot and task name'),
+  title: t('Solo el nombre de la tarea', 'Just the task name'),
+  off: t('Nada (ocultar)', 'Nothing (hide)')
+})
 
 function shorten(text: string, max = MAX_TITLE): string {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text
@@ -56,33 +57,50 @@ function dotIcon(): Electron.NativeImage {
 
 function buildMenu(top: NextAction, others: Task[]): Menu {
   const { task, root } = top
+  const labels = MODE_LABELS()
   const items: MenuItemConstructorOptions[] = [
-    { label: `${top.started ? '▶' : 'Ahora:'} ${shorten(root.title, 48)}`, enabled: false }
+    {
+      label: `${top.started ? '▶' : t('Ahora:', 'Now:')} ${shorten(root.title, 48)}`,
+      enabled: false
+    }
   ]
   if (task !== root) {
     const minutes = task.estimateMin ? ` (${task.estimateMin} min)` : ''
     items.push({
-      label: `Paso ${top.stepNumber} de ${top.stepCount}: ${shorten(task.title, 40)}${minutes}`,
+      label: t(
+        `Paso ${top.stepNumber} de ${top.stepCount}: ${shorten(task.title, 40)}${minutes}`,
+        `Step ${top.stepNumber} of ${top.stepCount}: ${shorten(task.title, 40)}${minutes}`
+      ),
       enabled: false
     })
   }
   if (top.nextStep) {
-    items.push({ label: `Siguiente paso: ${shorten(top.nextStep.title, 40)}`, enabled: false })
+    items.push({
+      label: t(
+        `Siguiente paso: ${shorten(top.nextStep.title, 40)}`,
+        `Next step: ${shorten(top.nextStep.title, 40)}`
+      ),
+      enabled: false
+    })
   }
   items.push({ type: 'separator' })
-  if (!top.started) items.push({ label: '▶ Empezar', click: () => startAction(task.id) })
+  if (!top.started)
+    items.push({ label: t('▶ Empezar', '▶ Start'), click: () => startAction(task.id) })
   // Done with this step: the menu (and the Next Action widget) move on to the next one.
-  items.push({ label: '✅ Marcar como hecha', click: () => completeTask(task.id) })
+  items.push({
+    label: t('✅ Marcar como hecha', '✅ Mark as done'),
+    click: () => completeTask(task.id)
+  })
   if (task !== root) {
     items.push({
-      label: 'Terminar toda la tarea',
+      label: t('Terminar toda la tarea', 'Finish the whole task'),
       click: () => updateTask(root.id, { status: 'done' })
     })
   }
-  items.push({ label: '⏭ Saltar', click: () => skipAction(task.id) })
+  items.push({ label: t('⏭ Saltar', '⏭ Skip'), click: () => skipAction(task.id) })
   if (top.started) {
     items.push({
-      label: '⏸ Pausar',
+      label: t('⏸ Pausar', '⏸ Pause'),
       click: () =>
         setStatuses(
           [root, task]
@@ -93,8 +111,14 @@ function buildMenu(top: NextAction, others: Task[]): Menu {
   }
   if (others.length) {
     items.push({ type: 'separator' })
-    for (const t of others)
-      items.push({ label: `También en curso: ${shorten(t.title, 36)}`, enabled: false })
+    for (const other of others)
+      items.push({
+        label: t(
+          `También en curso: ${shorten(other.title, 36)}`,
+          `Also in progress: ${shorten(other.title, 36)}`
+        ),
+        enabled: false
+      })
   }
   items.push(
     { type: 'separator' },
@@ -104,18 +128,23 @@ function buildMenu(top: NextAction, others: Task[]): Menu {
       : []),
     // The music player can live here too (SPEC 9.19).
     ...(getMusicTrayMode() === 'menu'
-      ? [{ label: '🎵 Música…', click: () => showMusicPlayer() } as MenuItemConstructorOptions]
+      ? [
+          {
+            label: t('🎵 Música…', '🎵 Music…'),
+            click: () => showMusicPlayer()
+          } as MenuItemConstructorOptions
+        ]
       : []),
     {
-      label: 'Mostrar en la barra',
-      submenu: (Object.keys(MODE_LABELS) as StatusIndicator[]).map((m) => ({
-        label: MODE_LABELS[m],
+      label: t('Mostrar en la barra', 'Show in the menu bar'),
+      submenu: (Object.keys(labels) as StatusIndicator[]).map((m) => ({
+        label: labels[m],
         type: 'radio',
         checked: m === mode,
         click: () => chooseMode(m)
       }))
     },
-    { label: 'Abrir Nuggit', click: () => openApp() }
+    { label: t('Abrir Nuggit', 'Open Nuggit'), click: () => openApp() }
   )
   return Menu.buildFromTemplate(items)
 }
@@ -144,7 +173,9 @@ function render(): void {
   else if (mode === 'dot-title') tray.setTitle(`${name}${extra}`)
   else tray.setTitle(`${top.started ? '▶ ' : ''}${name}${extra}`)
 
-  tray.setToolTip(`${top.started ? 'En curso' : 'Ahora'}: ${name}${extra}`)
+  tray.setToolTip(
+    `${top.started ? t('En curso', 'In progress') : t('Ahora', 'Now')}: ${name}${extra}`
+  )
   tray.setContextMenu(buildMenu(top, others))
 }
 
@@ -167,4 +198,5 @@ export function initStatusTray(options: {
   onNextActionChange(render)
   onPickupModeChange(render)
   onMusicTrayModeChange(render)
+  onLangChange(render) // Fase 14: the menu in the new language
 }

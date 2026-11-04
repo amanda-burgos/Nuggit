@@ -6,6 +6,7 @@ import { extname, join } from 'path'
 import { pathToFileURL } from 'url'
 import { getDesktop } from './desktop'
 import { IMAGE_NAME, loadSettings } from './storage'
+import { t } from '../shared/i18n'
 
 // Fase 9: pictures chosen by the person (backgrounds, the image widget, SPEC 9.17). Each
 // one is COPIED into Nuggit's data folder with a generated name, so moving or deleting the
@@ -65,9 +66,9 @@ async function copyIn(file: string): Promise<string | null> {
 export async function pickImages(sender: WebContents, multiple: unknown): Promise<string[]> {
   const win = BrowserWindow.fromWebContents(sender)
   const options: Electron.OpenDialogOptions = {
-    title: 'Elegir imagen',
+    title: t('Elegir imagen', 'Choose an image'),
     properties: multiple === true ? ['openFile', 'multiSelections'] : ['openFile'],
-    filters: [{ name: 'Imágenes', extensions: EXTENSIONS }]
+    filters: [{ name: t('Imágenes', 'Images'), extensions: EXTENSIONS }]
   }
   const { canceled, filePaths } = win
     ? await dialog.showOpenDialog(win, options)

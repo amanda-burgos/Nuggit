@@ -9,6 +9,7 @@ import {
 } from '../../../shared/voices'
 import { speak, stopSpeaking, useSystemVoices } from '../voice/speech'
 import type { SectionProps } from './shared'
+import { locale, t } from '../../../shared/i18n'
 
 const IS_MAC = navigator.userAgent.includes('Mac')
 const SAMPLES = {
@@ -16,19 +17,18 @@ const SAMPLES = {
   en: "Hi! I'm Dip. This is how I sound when I answer you. Shall we start with something small?"
 }
 
-const QUALITY_LABELS: Record<VoiceQuality, string> = {
+const qualityLabels = (): Record<VoiceQuality, string> => ({
   premium: '⭐ Premium',
-  enhanced: '✨ Mejorada',
+  enhanced: t('✨ Mejorada', '✨ Enhanced'),
   standard: '',
-  basic: 'robótica'
-}
-
-const regionNames = new Intl.DisplayNames(['es'], { type: 'region' })
+  basic: t('robótica', 'robotic')
+})
 
 function describe(voice: SystemVoice): string {
   const region = voice.lang.split('-')[1]
+  const regionNames = new Intl.DisplayNames([locale()], { type: 'region' })
   const where = region ? regionNames.of(region.toUpperCase()) : voice.lang
-  const quality = QUALITY_LABELS[voice.quality]
+  const quality = qualityLabels()[voice.quality]
   return `${voice.name} — ${where}${quality ? ` · ${quality}` : ''}`
 }
 
@@ -69,7 +69,7 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
 
   return (
     <section className="settings-section">
-      <h3>🎙️ Voz</h3>
+      <h3>🎙️ {t('Voz', 'Voice')}</h3>
 
       <label className="settings-check">
         <input
@@ -78,21 +78,27 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
           onChange={(e) => update({ voice: { speak: e.target.checked } })}
         />
         <span>
-          Dip contesta hablando
+          {t('Dip contesta hablando', 'Dip answers out loud')}
           <small>
-            Lee en voz alta sus respuestas en el chat, con una voz del sistema. También se prende y
-            apaga con 🔊 en el chat.
+            {t(
+              'Lee en voz alta sus respuestas en el chat, con una voz del sistema. También se prende y apaga con 🔊 en el chat.',
+              'It reads its chat answers out loud, with a system voice. You can also turn it on and off with 🔊 in the chat.'
+            )}
           </small>
         </span>
       </label>
 
       {IS_MAC && (
         <div className="settings-field">
-          <span>Voz</span>
-          <div className="voice-list" role="radiogroup" aria-label="Voz de Dip">
+          <span>{t('Voz', 'Voice')}</span>
+          <div className="voice-list" role="radiogroup" aria-label={t('Voz de Dip', "Dip's voice")}>
             <VoiceRow
-              label={voices ? 'La mejor disponible' : 'Buscando voces…'}
-              detail={best ? `ahora: ${describe(best)}` : undefined}
+              label={
+                voices
+                  ? t('La mejor disponible', 'The best available')
+                  : t('Buscando voces…', 'Looking for voices…')
+              }
+              detail={best ? `${t('ahora', 'now')}: ${describe(best)}` : undefined}
               checked={!chosen}
               onChoose={() => update({ voice: { voiceURI: null } })}
               onPlay={() => play(best)}
@@ -125,8 +131,10 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
             )}
           </div>
           <small>
-            Las respuestas en inglés usan la mejor voz en inglés si la elegida es en español (y al
-            revés).
+            {t(
+              'Las respuestas en inglés usan la mejor voz en inglés si la elegida es en español (y al revés).',
+              'Answers in English use the best English voice if the chosen one is Spanish (and the other way around).'
+            )}
           </small>
         </div>
       )}
@@ -134,17 +142,43 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
       {IS_MAC && voices && !hasGoodVoice(voices, 'es') && (
         <div className="settings-guide voice-tip">
           <p>
-            <strong>Tu Mac no tiene voces Mejoradas ni Premium en español</strong>, por eso Dip
-            suena robótico. Son gratis:
+            <strong>
+              {t(
+                'Tu Mac no tiene voces Mejoradas ni Premium en español',
+                "Your Mac doesn't have Enhanced or Premium Spanish voices"
+              )}
+            </strong>
+            {t(
+              ', por eso Dip suena robótico. Son gratis:',
+              ", that's why Dip sounds robotic. They're free:"
+            )}
           </p>
           <ol>
-            <li>Ajustes del Sistema → Accesibilidad → Contenido leído.</li>
-            <li>En “Voz del sistema”, abre la lista y elige “Administrar voces…”.</li>
             <li>
-              Busca <em>Español</em> y descarga una “(Mejorada)” o “(Premium)” (por ejemplo Paulina
-              o Mónica).
+              {t(
+                'Ajustes del Sistema → Accesibilidad → Contenido leído.',
+                'System Settings → Accessibility → Spoken Content.'
+              )}
             </li>
-            <li>Vuelve aquí y toca “Actualizar voces”.</li>
+            <li>
+              {t(
+                'En “Voz del sistema”, abre la lista y elige “Administrar voces…”.',
+                'In “System voice”, open the list and choose “Manage Voices…”.'
+              )}
+            </li>
+            <li>
+              {t('Busca', 'Look for')} <em>{t('Español', 'Spanish')}</em>{' '}
+              {t(
+                'y descarga una “(Mejorada)” o “(Premium)” (por ejemplo Paulina o Mónica).',
+                'and download an “(Enhanced)” or “(Premium)” one (for example Paulina or Mónica).'
+              )}
+            </li>
+            <li>
+              {t(
+                'Vuelve aquí y toca “Actualizar voces”.',
+                'Come back here and tap “Refresh voices”.'
+              )}
+            </li>
           </ol>
           <div className="settings-row">
             <button
@@ -155,17 +189,19 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
                   .catch((err) => console.error('Could not open settings', err))
               }
             >
-              Abrir Accesibilidad
+              {t('Abrir Accesibilidad', 'Open Accessibility')}
             </button>
             <button className="button-ghost" disabled={refreshing} onClick={reload}>
-              {refreshing ? 'Buscando…' : 'Actualizar voces'}
+              {refreshing ? t('Buscando…', 'Looking…') : t('Actualizar voces', 'Refresh voices')}
             </button>
           </div>
         </div>
       )}
 
       <label className="settings-field">
-        <span>Velocidad: {voice.rate.toFixed(1)}×</span>
+        <span>
+          {t('Velocidad', 'Speed')}: {voice.rate.toFixed(1)}×
+        </span>
         <input
           type="range"
           className="settings-range"
@@ -179,7 +215,12 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
 
       <label className="settings-field">
         <span>
-          Tono: {voice.pitch === 1 ? 'normal' : voice.pitch < 1 ? 'más grave' : 'más agudo'}
+          {t('Tono', 'Pitch')}:{' '}
+          {voice.pitch === 1
+            ? t('normal', 'normal')
+            : voice.pitch < 1
+              ? t('más grave', 'lower')
+              : t('más agudo', 'higher')}
         </span>
         <input
           type="range"
@@ -194,28 +235,37 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
 
       <div className="settings-row">
         <button className="button-ghost" onClick={test}>
-          ▶ Probar
+          ▶ {t('Probar', 'Test')}
         </button>
         <button className="button-ghost" onClick={stopSpeaking}>
-          ⏹ Parar
+          ⏹ {t('Parar', 'Stop')}
         </button>
         {IS_MAC && voices && hasGoodVoice(voices, 'es') && (
           <button className="button-ghost" disabled={refreshing} onClick={reload}>
-            {refreshing ? 'Buscando…' : 'Actualizar voces'}
+            {refreshing ? t('Buscando…', 'Looking…') : t('Actualizar voces', 'Refresh voices')}
           </button>
         )}
       </div>
 
       {IS_MAC && (
         <div className="settings-subsection">
-          <h4>🎤 Hablarle a Dip</h4>
+          <h4>🎤 {t('Hablarle a Dip', 'Talking to Dip')}</h4>
           <p className="settings-hint">
-            Usa el dictado de la Mac: toca 🎤 junto al chat (o en Brain Dump), o pulsa dos veces la
-            tecla <kbd>Fn</kbd> (🌐) en cualquier campo de texto. Habla y vuelve a tocarla para
-            terminar. Lo convierte en texto macOS; Nuggit no graba nada.
+            {t(
+              'Usa el dictado de la Mac: toca 🎤 junto al chat (o en Brain Dump), o pulsa dos veces la tecla',
+              "It uses the Mac's dictation: tap 🎤 next to the chat (or in Brain Dump), or press the"
+            )}{' '}
+            <kbd>Fn</kbd>{' '}
+            {t(
+              '(🌐) en cualquier campo de texto. Habla y vuelve a tocarla para terminar. Lo convierte en texto macOS; Nuggit no graba nada.',
+              "(🌐) key twice in any text field. Talk, then tap it again to finish. macOS turns it into text; Nuggit doesn't record anything."
+            )}
           </p>
           <p className="settings-hint">
-            Si no pasa nada, actívalo en Ajustes del Sistema → Teclado → Dictado.
+            {t(
+              'Si no pasa nada, actívalo en Ajustes del Sistema → Teclado → Dictado.',
+              'If nothing happens, turn it on in System Settings → Keyboard → Dictation.'
+            )}
           </p>
           <div className="settings-row">
             <button
@@ -226,7 +276,7 @@ export function VoiceSettings({ settings, update }: SectionProps): React.JSX.Ele
                   .catch((err) => console.error('Could not open settings', err))
               }
             >
-              Abrir ajustes de Dictado
+              {t('Abrir ajustes de Dictado', 'Open Dictation settings')}
             </button>
           </div>
         </div>
@@ -259,8 +309,8 @@ function VoiceRow({
       </label>
       <button
         className="icon-button"
-        title="Escuchar"
-        aria-label={`Escuchar ${label}`}
+        title={t('Escuchar', 'Listen')}
+        aria-label={t(`Escuchar ${label}`, `Listen to ${label}`)}
         onClick={onPlay}
       >
         ▶

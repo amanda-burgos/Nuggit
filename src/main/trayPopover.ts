@@ -1,5 +1,6 @@
 import { BrowserWindow, screen, type Rectangle } from 'electron'
 import { createAppWindow } from './appWindow'
+import { onLangChange } from '../shared/i18n'
 
 // A small floating window that opens under a menu bar icon (Dip's mini chat, the quick
 // pickup). It opens over any app, even in full screen, and hides when you click outside.
@@ -14,9 +15,10 @@ export interface TrayPopover {
 export function createTrayPopover(options: {
   size: { width: number; height: number }
   view: string // what the renderer shows (?view=...)
-  title: string
+  title: string | (() => string) // a function when it changes with the language
 }): TrayPopover {
   const { size } = options
+  const title = (): string => (typeof options.title === 'string' ? options.title : options.title())
   let popover: BrowserWindow | null = null
 
   const create = (): BrowserWindow => {
@@ -34,7 +36,7 @@ export function createTrayPopover(options: {
         // A non-activating panel: it opens over any app (even full screen) without bringing
         // Nuggit's other windows to the front.
         type: 'panel',
-        title: options.title
+        title: title()
       },
       { view: options.view }
     )
@@ -81,6 +83,7 @@ export function createTrayPopover(options: {
 
   // Load it ahead of time so it opens instantly the first time.
   popover = create()
+  onLangChange(() => popover?.setTitle(title()))
 
   return {
     show,

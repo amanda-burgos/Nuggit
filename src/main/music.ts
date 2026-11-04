@@ -7,6 +7,7 @@ import type { MusicStatus, SavedPlaylist } from '../shared/types'
 import { spotifyUri } from '../shared/music'
 import { changeSettings } from './settings'
 import { loadSettings } from './storage'
+import { t } from '../shared/i18n'
 
 // SPEC 9.19: music by controlling the Spotify app on this Mac with AppleScript, during
 // Focus (Paso 1) and at any time from the Música widget and its menu bar icon. No login
@@ -159,17 +160,32 @@ function playUri(uri: string): Promise<MusicStatus> {
 // "▶ Probar" in Ajustes: the person asked for it, so it says why if it can't.
 export async function playLink(input: unknown): Promise<{ ok: boolean; error?: string }> {
   const uri = typeof input === 'string' ? spotifyUri(input) : null
-  if (!uri) return { ok: false, error: 'Ese no parece un link de Spotify.' }
-  if (!installed()) return { ok: false, error: 'Spotify no está instalado en esta Mac.' }
-  if (!(await running())) return { ok: false, error: 'Abre Spotify primero y vuelve a probar.' }
+  if (!uri)
+    return {
+      ok: false,
+      error: t('Ese no parece un link de Spotify.', "That doesn't look like a Spotify link.")
+    }
+  if (!installed())
+    return {
+      ok: false,
+      error: t('Spotify no está instalado en esta Mac.', "Spotify isn't installed on this Mac.")
+    }
+  if (!(await running()))
+    return {
+      ok: false,
+      error: t('Abre Spotify primero y vuelve a probar.', 'Open Spotify first and try again.')
+    }
   const status = await playUri(uri)
-  if (status.app === 'denied') return { ok: false, error: DENIED }
+  if (status.app === 'denied') return { ok: false, error: DENIED() }
   ours = status.playing
   return { ok: true }
 }
 
-export const DENIED =
-  'macOS no deja que Nuggit controle Spotify. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Automatización.'
+export const DENIED = (): string =>
+  t(
+    'macOS no deja que Nuggit controle Spotify. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Automatización.',
+    "macOS won't let Nuggit control Spotify. Turn it on in System Settings → Privacy & Security → Automation."
+  )
 
 export async function openSpotify(): Promise<void> {
   const app = APP_PATHS.find((p) => existsSync(p))
@@ -238,16 +254,32 @@ async function describe(uri: string): Promise<SavedPlaylist> {
   } catch (err) {
     console.warn('[music] no name for the playlist', err)
   }
-  return { uri, name: kind === 'album' ? 'Álbum de Spotify' : 'Playlist de Spotify' }
+  return {
+    uri,
+    name:
+      kind === 'album'
+        ? t('Álbum de Spotify', 'Spotify album')
+        : t('Playlist de Spotify', 'Spotify playlist')
+  }
 }
 
 export async function addPlaylist(link: unknown): Promise<{ ok: boolean; error?: string }> {
   const uri = typeof link === 'string' ? spotifyUri(link) : null
-  if (!uri) return { ok: false, error: 'Ese no parece un link de Spotify.' }
+  if (!uri)
+    return {
+      ok: false,
+      error: t('Ese no parece un link de Spotify.', "That doesn't look like a Spotify link.")
+    }
   const { music } = await loadSettings()
   if (music.playlists.some((p) => p.uri === uri)) return { ok: true }
   if (music.playlists.length >= MAX_PLAYLISTS) {
-    return { ok: false, error: `Caben ${MAX_PLAYLISTS} playlists. Quita alguna primero.` }
+    return {
+      ok: false,
+      error: t(
+        `Caben ${MAX_PLAYLISTS} playlists. Quita alguna primero.`,
+        `There's room for ${MAX_PLAYLISTS} playlists. Remove one first.`
+      )
+    }
   }
   const playlist = await describe(uri)
   await changeSettings({ music: { playlists: [...music.playlists, playlist] } })

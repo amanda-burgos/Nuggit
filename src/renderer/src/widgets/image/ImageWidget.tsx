@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { imageUrl } from '../../theme/appearance'
 import type { WidgetProps } from '../types'
 import './image.css'
+import { t } from '../../../../shared/i18n'
 
 export interface ImageConfig {
   images: string[] // copies in Nuggit's data folder
@@ -36,9 +37,14 @@ export function ImageWidget({ config, updateConfig }: WidgetProps<ImageConfig>):
               .catch(log)
           }
         >
-          🖼 Elegir imágenes
+          {t('🖼 Elegir imágenes', '🖼 Choose images')}
         </button>
-        <small>Una o varias: si eliges varias, van cambiando solas.</small>
+        <small>
+          {t(
+            'Una o varias: si eliges varias, van cambiando solas.',
+            'One or several: if you pick several, they take turns on their own.'
+          )}
+        </small>
       </div>
     )
   }

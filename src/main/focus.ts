@@ -5,6 +5,7 @@ import { getNextActionState, startAction } from './nextAction'
 import { readJson, writeJson } from './storage/jsonStore'
 import { getTasks } from './tasks'
 import { onBreakStart, onFocusPause, onFocusStart, onFocusStop } from './music'
+import { t } from '../shared/i18n'
 
 // SPEC 9.8. The Focus timer lives here, so the widget, its tab and a detached window all
 // show the same one; it also keeps running (and survives a restart)
@@ -81,7 +82,12 @@ function finishPhase(): void {
     const today = toISODate(new Date())
     const rounds = (state.roundsDay === today ? state.rounds : 0) + 1
     const durationMs = phaseMs('break', state.preset)
-    notify(`¡Ronda lista! 🎉 Descansa ${state.preset.breakMin} min.`)
+    notify(
+      t(
+        `¡Ronda lista! 🎉 Descansa ${state.preset.breakMin} min.`,
+        `Round done! 🎉 Take a ${state.preset.breakMin} min break.`
+      )
+    )
     void onBreakStart()
     commit({
       ...state,
@@ -93,7 +99,7 @@ function finishPhase(): void {
       roundsDay: today
     })
   } else if (state.phase === 'break') {
-    notify('Se acabó el descanso. ¿Otra ronda? 💪')
+    notify(t('Se acabó el descanso. ¿Otra ronda? 💪', 'Break is over. Another round? 💪'))
     void onFocusStop()
     commit({ ...state, phase: 'idle', endsAt: null, pausedLeftMs: null, durationMs: 0 })
   }

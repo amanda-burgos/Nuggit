@@ -6,6 +6,7 @@ import type { WidgetProps } from '../types'
 import { MusicControls } from './MusicControls'
 import { completeFocusTask, useFocusTask } from './useFocusTask'
 import './focus.css'
+import { t } from '../../../../shared/i18n'
 
 // Focus has no options yet: the chosen times are kept with the timer itself.
 export type FocusConfig = Record<string, never>
@@ -15,7 +16,11 @@ const PRESETS: FocusPreset[] = [
   { focusMin: 15, breakMin: 5 }
 ]
 
-const PHASE_LABELS = { idle: 'Listo para empezar', focus: 'Concentración', break: 'Descanso' }
+const phaseLabels = (): Record<FocusState['phase'], string> => ({
+  idle: t('Listo para empezar', 'Ready to start'),
+  focus: t('Concentración', 'Focusing'),
+  break: t('Descanso', 'Break')
+})
 
 const same = (a: FocusPreset, b: FocusPreset): boolean =>
   a.focusMin === b.focusMin && a.breakMin === b.breakMin
@@ -41,28 +46,40 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
   return (
     <div className={`focus is-${size} is-${focus.phase}`}>
       <div className="focus-task">
-        <small>{focus.phase === 'break' ? 'Después del descanso' : 'Ahora'}</small>
+        <small>
+          {focus.phase === 'break'
+            ? t('Después del descanso', 'After the break')
+            : t('Ahora', 'Now')}
+        </small>
         {action ? (
           <>
             <strong>{action.task.title}</strong>
             {action.task !== action.root && (
               <small>
-                Paso {action.stepNumber} de {action.stepCount} · {action.root.title}
+                {t(
+                  `Paso ${action.stepNumber} de ${action.stepCount}`,
+                  `Step ${action.stepNumber} of ${action.stepCount}`
+                )}{' '}
+                · {action.root.title}
               </small>
             )}
           </>
         ) : (
-          <strong className="focus-muted">No hay tareas pendientes 🎉</strong>
+          <strong className="focus-muted">
+            {t('No hay tareas pendientes 🎉', 'No pending tasks 🎉')}
+          </strong>
         )}
         {pending.length > 0 && (
           <select
-            aria-label="Tarea"
+            aria-label={t('Tarea', 'Task')}
             value={
               focus.taskId && pending.some((p) => p.task.id === focus.taskId) ? focus.taskId : ''
             }
             onChange={(e) => window.api.focus.setTask(e.target.value || null).catch(log)}
           >
-            <option value="">Lo que diga “¿Qué hago ahora?”</option>
+            <option value="">
+              {t('Lo que diga “¿Qué hago ahora?”', 'Whatever “What do I do now?” says')}
+            </option>
             {pending.map((p) => (
               <option key={p.task.id} value={p.task.id}>
                 {p.label}
@@ -74,8 +91,8 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
 
       <div className="focus-clock" role="timer" aria-live="off">
         <span className="focus-phase">
-          {PHASE_LABELS[focus.phase]}
-          {paused && ' · en pausa'}
+          {phaseLabels()[focus.phase]}
+          {paused && t(' · en pausa', ' · paused')}
         </span>
         <span className="focus-time">
           {formatClock(focus.phase === 'idle' ? focus.preset.focusMin * 60_000 : left)}
@@ -88,7 +105,7 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
       <FocusControls focus={focus} />
       <MusicControls />
 
-      <div className="focus-presets" role="group" aria-label="Tiempos">
+      <div className="focus-presets" role="group" aria-label={t('Tiempos', 'Times')}>
         {PRESETS.map((p) => (
           <button
             key={p.focusMin}
@@ -105,7 +122,7 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
           className={`focus-chip${custom || !isPreset ? ' is-active' : ''}`}
           onClick={() => setCustom(true)}
         >
-          Personalizado
+          {t('Personalizado', 'Custom')}
         </button>
       </div>
       {(custom || !isPreset) && (
@@ -118,10 +135,12 @@ export function FocusWidget({ size }: WidgetProps<FocusConfig>): React.JSX.Eleme
             className="button-ghost"
             onClick={() => completeFocusTask(action.task.id).catch(log)}
           >
-            ✅ Hecho
+            {t('✅ Hecho', '✅ Done')}
           </button>
         )}
-        {rounds > 0 && <small className="focus-muted">✓ {rounds} hoy</small>}
+        {rounds > 0 && (
+          <small className="focus-muted">{t(`✓ ${rounds} hoy`, `✓ ${rounds} today`)}</small>
+        )}
       </div>
     </div>
   )
@@ -133,7 +152,7 @@ export function FocusControls({ focus }: { focus: FocusState }): React.JSX.Eleme
     return (
       <div className="focus-controls">
         <button className="button-primary" onClick={() => window.api.focus.start().catch(log)}>
-          ▶ Empezar
+          {t('▶ Empezar', '▶ Start')}
         </button>
       </div>
     )
@@ -142,15 +161,15 @@ export function FocusControls({ focus }: { focus: FocusState }): React.JSX.Eleme
     <div className="focus-controls">
       {paused ? (
         <button className="button-primary" onClick={() => window.api.focus.resume().catch(log)}>
-          ▶ Seguir
+          {t('▶ Seguir', '▶ Resume')}
         </button>
       ) : (
         <button className="button-primary" onClick={() => window.api.focus.pause().catch(log)}>
-          ⏸ Pausa
+          {t('⏸ Pausa', '⏸ Pause')}
         </button>
       )}
       <button className="button-ghost" onClick={() => window.api.focus.cancel().catch(log)}>
-        {focus.phase === 'break' ? 'Saltar descanso' : 'Cancelar'}
+        {focus.phase === 'break' ? t('Saltar descanso', 'Skip break') : t('Cancelar', 'Cancel')}
       </button>
     </div>
   )
@@ -182,7 +201,11 @@ function CustomTimes({ preset }: { preset: FocusPreset }): React.JSX.Element {
               if (e.key === 'Enter') save()
             }}
           />
-          <span>{key === 'focusMin' ? 'min de concentración' : 'min de descanso'}</span>
+          <span>
+            {key === 'focusMin'
+              ? t('min de concentración', 'min of focus')
+              : t('min de descanso', 'min of break')}
+          </span>
         </label>
       ))}
     </div>

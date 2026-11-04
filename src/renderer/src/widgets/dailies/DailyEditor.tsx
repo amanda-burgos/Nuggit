@@ -1,18 +1,19 @@
 import { useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { DailyInput, DailyRepeat } from '../../../../shared/types'
 import { toISODate } from '../../../../shared/nextAction'
 
 export type DailyDraft = DailyInput & { title: string; repeat: DailyRepeat }
 
 // Monday first, as people read a week.
-const WEEK: Array<{ day: number; letter: string; name: string }> = [
-  { day: 1, letter: 'L', name: 'Lunes' },
-  { day: 2, letter: 'M', name: 'Martes' },
-  { day: 3, letter: 'X', name: 'Miércoles' },
-  { day: 4, letter: 'J', name: 'Jueves' },
-  { day: 5, letter: 'V', name: 'Viernes' },
-  { day: 6, letter: 'S', name: 'Sábado' },
-  { day: 0, letter: 'D', name: 'Domingo' }
+const week = (): Array<{ day: number; letter: string; name: string }> => [
+  { day: 1, letter: t('L', 'M'), name: t('Lunes', 'Monday') },
+  { day: 2, letter: t('M', 'T'), name: t('Martes', 'Tuesday') },
+  { day: 3, letter: t('X', 'W'), name: t('Miércoles', 'Wednesday') },
+  { day: 4, letter: t('J', 'T'), name: t('Jueves', 'Thursday') },
+  { day: 5, letter: t('V', 'F'), name: t('Viernes', 'Friday') },
+  { day: 6, letter: t('S', 'S'), name: t('Sábado', 'Saturday') },
+  { day: 0, letter: t('D', 'S'), name: t('Domingo', 'Sunday') }
 ]
 
 type Kind = DailyRepeat['kind']
@@ -20,7 +21,7 @@ type Kind = DailyRepeat['kind']
 // Create or edit one daily: title, how it repeats, optional time and duration, streak.
 export function DailyEditor({
   initial,
-  saveLabel = 'Guardar',
+  saveLabel = t('Guardar', 'Save'),
   onSave,
   onCancel
 }: {
@@ -72,18 +73,18 @@ export function DailyEditor({
       <input
         className="daily-editor-title"
         value={title}
-        placeholder='Ej: "Bañarme", "Ir al gimnasio"'
-        aria-label="Nombre del daily"
+        placeholder={t('Ej: "Bañarme", "Ir al gimnasio"', 'E.g. "Shower", "Go to the gym"')}
+        aria-label={t('Nombre del daily', 'Daily name')}
         autoFocus
         onChange={(e) => setTitle(e.target.value)}
       />
 
-      <div className="daily-editor-repeat" role="radiogroup" aria-label="Se repite">
+      <div className="daily-editor-repeat" role="radiogroup" aria-label={t('Se repite', 'Repeats')}>
         {(
           [
-            ['every-day', 'Todos los días'],
-            ['weekdays', 'Algunos días'],
-            ['every-n', 'Cada X días']
+            ['every-day', t('Todos los días', 'Every day')],
+            ['weekdays', t('Algunos días', 'Some days')],
+            ['every-n', t('Cada X días', 'Every X days')]
           ] as Array<[Kind, string]>
         ).map(([value, label]) => (
           <button
@@ -100,8 +101,8 @@ export function DailyEditor({
       </div>
 
       {kind === 'weekdays' && (
-        <div className="daily-editor-days" role="group" aria-label="Días">
-          {WEEK.map((w) => (
+        <div className="daily-editor-days" role="group" aria-label={t('Días', 'Days')}>
+          {week().map((w) => (
             <button
               key={w.day}
               type="button"
@@ -118,7 +119,7 @@ export function DailyEditor({
 
       {kind === 'every-n' && (
         <label className="daily-editor-inline">
-          Cada
+          {t('Cada', 'Every')}
           <input
             type="number"
             min={2}
@@ -126,18 +127,23 @@ export function DailyEditor({
             value={every}
             onChange={(e) => setEvery(Number(e.target.value))}
           />
-          días, empezando{' '}
-          {repeat?.kind === 'every-n' ? `el ${repeat.start.split('-').reverse().join('/')}` : 'hoy'}
+          {t('días, empezando', 'days, starting')}{' '}
+          {repeat?.kind === 'every-n'
+            ? t(
+                `el ${repeat.start.split('-').reverse().join('/')}`,
+                `on ${repeat.start.split('-').reverse().join('/')}`
+              )
+            : t('hoy', 'today')}
         </label>
       )}
 
       <div className="daily-editor-row">
         <label className="daily-editor-inline">
-          Hora
+          {t('Hora', 'Time')}
           <input type="time" value={time} onChange={(e) => setTime(e.target.value)} />
         </label>
         <label className="daily-editor-inline">
-          Dura
+          {t('Dura', 'Takes')}
           <input
             type="number"
             min={1}
@@ -152,7 +158,7 @@ export function DailyEditor({
 
       <label className="daily-editor-check">
         <input type="checkbox" checked={streak} onChange={(e) => setStreak(e.target.checked)} />
-        Contar racha (cuántos seguidos)
+        {t('Contar racha (cuántos seguidos)', 'Count streak (how many in a row)')}
       </label>
 
       <div className="daily-editor-buttons">
@@ -160,7 +166,7 @@ export function DailyEditor({
           {saveLabel}
         </button>
         <button type="button" className="button-ghost" onClick={onCancel}>
-          Cancelar
+          {t('Cancelar', 'Cancel')}
         </button>
       </div>
     </form>

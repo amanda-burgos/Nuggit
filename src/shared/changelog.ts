@@ -1,3 +1,5 @@
+import { t } from './i18n'
+
 // Fase 10: CHANGELOG.md read as entries (a version or a dated title), for the 📣 Novedades
 // button, Ayuda → Novedades and "Qué hay de nuevo".
 
@@ -25,7 +27,7 @@ export function parseChangelog(markdown: string): ChangelogRelease[] {
     if (!current) continue
     if (line.startsWith('### ')) current.groups.push({ title: line.slice(4).trim(), items: [] })
     else if (line.startsWith('- ')) {
-      if (!current.groups.length) current.groups.push({ title: 'Nuevo', items: [] })
+      if (!current.groups.length) current.groups.push({ title: t('Nuevo', 'New'), items: [] })
       current.groups[current.groups.length - 1].items.push(line.slice(2).trim())
     }
   }

@@ -1,3 +1,4 @@
+import type { Lang } from './i18n'
 import type { SystemVoice } from './voices'
 
 // Types shared between the main process, preload and renderer.
@@ -177,6 +178,7 @@ export interface Settings {
   onboarding: OnboardingSettings
   qotdTopics: string[] // Fase 11: the topics you like, each with its own question of the day
   qotdCustomTopics: QotdCustomTopic[] // topics you wrote yourself
+  language?: Lang // Fase 14: the app's language; unset = not chosen yet (asked on first open)
 }
 
 // A Pregunta del día topic you wrote ("K-pop"); its id starts with "mi-".
@@ -333,6 +335,7 @@ export interface SettingsPatch {
   onboarding?: Partial<OnboardingSettings>
   qotdTopics?: string[]
   qotdCustomTopics?: QotdCustomTopic[]
+  language?: Lang
   // themeColor: null = back to light/dark
   appearance?: Partial<Omit<AppearanceSettings, 'themeColor' | 'headingFont'>> & {
     themeColor?: string | null

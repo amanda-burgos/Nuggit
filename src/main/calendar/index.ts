@@ -15,6 +15,7 @@ import {
   type WrittenEntry
 } from './apple'
 import { currentIcs, feedUrl, startFeed, stopFeed } from './feed'
+import { t } from '../../shared/i18n'
 
 // SPEC 9.14: Nuggit's calendar and the ways it connects to others, each optional:
 // - Paso 1: a .ics file to import anywhere (Google, Apple…) and a feed the Mac's Calendar
@@ -55,12 +56,20 @@ function accessError(err: unknown): Partial<CalendarStatus> {
   if (err instanceof CalendarAccessError) {
     return {
       apple: 'denied',
-      error:
-        'macOS no deja que Nuggit use Calendario. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Automatización.'
+      error: t(
+        'macOS no deja que Nuggit use Calendario. Actívalo en Ajustes del Sistema → Privacidad y seguridad → Automatización.',
+        "macOS won't let Nuggit use Calendar. Turn it on in System Settings → Privacy & Security → Automation."
+      )
     }
   }
   console.error('[calendar]', err)
-  return { apple: 'error', error: 'No pude hablar con Calendario. Intenta otra vez.' }
+  return {
+    apple: 'error',
+    error: t(
+      'No pude hablar con Calendario. Intenta otra vez.',
+      "I couldn't talk to Calendar. Try again."
+    )
+  }
 }
 
 export function getCalendarStatus(): CalendarStatus {
@@ -71,9 +80,9 @@ export function getCalendarStatus(): CalendarStatus {
 
 export async function exportIcs(): Promise<{ ok: boolean; path?: string }> {
   const { canceled, filePath } = await dialog.showSaveDialog({
-    title: 'Exportar calendario de Nuggit',
+    title: t('Exportar calendario de Nuggit', 'Export Nuggit calendar'),
     defaultPath: 'Nuggit.ics',
-    filters: [{ name: 'Calendario', extensions: ['ics'] }]
+    filters: [{ name: t('Calendario', 'Calendar'), extensions: ['ics'] }]
   })
   if (canceled || !filePath) return { ok: false }
   await fs.writeFile(filePath, currentIcs(), 'utf8')

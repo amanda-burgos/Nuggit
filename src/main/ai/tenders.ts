@@ -1,4 +1,5 @@
 import type { TenderAnswer, TenderPlanResult, TenderQuestionsResult } from '../../shared/types'
+import { t } from '../../shared/i18n'
 import { loadSettings } from '../storage'
 import { tenderizer } from './agents'
 import { cleanSteps } from './agents/tenderizer'
@@ -16,7 +17,8 @@ const MAX_ANSWER = 500
 
 export async function tenderQuestions(input: unknown): Promise<TenderQuestionsResult> {
   const task = text(input, MAX_TASK)
-  if (!task) return { ok: false, error: 'Escribe primero la tarea grande.' }
+  if (!task)
+    return { ok: false, error: t('Escribe primero la tarea grande.', 'First write the big task.') }
   try {
     const settings = await loadSettings()
     const { value: questions } = await askAgent(
@@ -50,7 +52,8 @@ export async function proposeTenders(input: unknown): Promise<TenderPlanResult> 
     unknown
   >
   const task = text(request.task, MAX_TASK)
-  if (!task) return { ok: false, error: 'Escribe primero la tarea grande.' }
+  if (!task)
+    return { ok: false, error: t('Escribe primero la tarea grande.', 'First write the big task.') }
   const answers = cleanAnswers(request.answers).filter((a) => a.answer)
   const feedback = text(request.feedback, MAX_ANSWER)
   const previous = cleanSteps(request.previous, false)

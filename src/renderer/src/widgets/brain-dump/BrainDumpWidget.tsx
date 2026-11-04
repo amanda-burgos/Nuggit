@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { BrainDumpTask } from '../../../../shared/types'
 import { useAIStatus } from '../../store/useAIStatus'
 import { MicButton } from '../../voice/MicButton'
@@ -66,7 +67,9 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
     setPhase('sorting')
     const result = await window.api.ai.brainDump(text).catch(() => null)
     if (!result?.ok) {
-      setError(result?.error ?? 'Algo salió mal. Intenta otra vez.')
+      setError(
+        result?.error ?? t('Algo salió mal. Intenta otra vez.', 'Something went wrong. Try again.')
+      )
       return setPhase('write')
     }
     setTasks(result.tasks)
@@ -86,36 +89,47 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
     setError(null)
     try {
       const note = await window.api.notes.create({ text: text.trim() })
-      finish({ taskIds: [], noteIds: [note.id], label: 'Guardado como nota ✓' })
+      finish({
+        taskIds: [],
+        noteIds: [note.id],
+        label: t('Guardado como nota ✓', 'Saved as a note ✓')
+      })
     } catch (err) {
       console.error('Could not save the brain dump', err)
-      setError('No pude guardar. Intenta otra vez.')
+      setError(t('No pude guardar. Intenta otra vez.', 'I couldn’t save. Try again.'))
     }
   }
 
   const saveReviewed = async (): Promise<void> => {
     setError(null)
-    const keepTasks = tasks.filter((t) => t.title.trim())
+    const keepTasks = tasks.filter((item) => item.title.trim())
     const keepNotes = notes.map((n) => n.trim()).filter(Boolean)
     try {
       const taskIds: string[] = []
-      for (const t of keepTasks) {
-        const task = await window.api.tasks.create({ ...t, title: t.title.trim() })
+      for (const item of keepTasks) {
+        const task = await window.api.tasks.create({ ...item, title: item.title.trim() })
         taskIds.push(task.id)
       }
       const made = await window.api.notes.createMany(keepNotes.map((n) => ({ text: n })))
       const parts = [
-        keepTasks.length ? plural(keepTasks.length, 'tarea', 'tareas') : null,
-        made.length ? plural(made.length, 'nota', 'notas') : null
+        keepTasks.length
+          ? plural(keepTasks.length, t('tarea', 'task'), t('tareas', 'tasks'))
+          : null,
+        made.length ? plural(made.length, t('nota', 'note'), t('notas', 'notes')) : null
       ].filter(Boolean)
       finish({
         taskIds,
         noteIds: made.map((n) => n.id),
-        label: `${parts.join(' y ')} guardadas ✓`
+        label: t(`${parts.join(' y ')} guardadas ✓`, `${parts.join(' and ')} saved ✓`)
       })
     } catch (err) {
       console.error('Could not save the brain dump', err)
-      setError('No pude guardar todo. Revisa Tareas y Notas.')
+      setError(
+        t(
+          'No pude guardar todo. Revisa Tareas y Notas.',
+          'I couldn’t save everything. Check Tasks and Notes.'
+        )
+      )
     }
   }
 
@@ -131,7 +145,8 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
   }
 
   const hasAI = Boolean(aiStatus?.active)
-  const count = tasks.filter((t) => t.title.trim()).length + notes.filter((n) => n.trim()).length
+  const count =
+    tasks.filter((item) => item.title.trim()).length + notes.filter((n) => n.trim()).length
 
   return (
     <div className={`brain-dump is-${size}`}>
@@ -141,7 +156,10 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
             ref={textRef}
             className="brain-dump-text"
             value={text}
-            placeholder="Suelta aquí todo lo que tienes en la cabeza, como salga: pendientes, ideas, preocupaciones…"
+            placeholder={t(
+              'Suelta aquí todo lo que tienes en la cabeza, como salga: pendientes, ideas, preocupaciones…',
+              'Dump everything on your mind here, however it comes out: to-dos, ideas, worries…'
+            )}
             aria-label="Brain Dump"
             disabled={phase === 'sorting'}
             onChange={(e) => setText(e.target.value)}
@@ -154,7 +172,9 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
                 disabled={!text.trim() || phase === 'sorting'}
                 onClick={sort}
               >
-                {phase === 'sorting' ? 'Dip está ordenando…' : '✨ Ordenar con Dip'}
+                {phase === 'sorting'
+                  ? t('Dip está ordenando…', 'Dip is sorting…')
+                  : t('✨ Ordenar con Dip', '✨ Sort with Dip')}
               </button>
             )}
             <button
@@ -162,32 +182,38 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
               disabled={!text.trim() || phase === 'sorting'}
               onClick={saveAsNote}
             >
-              📝 Guardar como nota
+              {t('📝 Guardar como nota', '📝 Save as a note')}
             </button>
           </div>
           {!hasAI && (
             <p className="brain-dump-hint">
-              Con una IA conectada, Dip lo separa en tareas y notas para que lo revises.
+              {t(
+                'Con una IA conectada, Dip lo separa en tareas y notas para que lo revises.',
+                'With an AI connected, Dip splits it into tasks and notes for you to review.'
+              )}
             </p>
           )}
         </>
       ) : (
         <div className="brain-dump-review">
           <p className="brain-dump-hint">
-            Revisa, cambia o quita lo que quieras. Nada se guarda hasta que digas.
+            {t(
+              'Revisa, cambia o quita lo que quieras. Nada se guarda hasta que digas.',
+              'Check, change or remove whatever you want. Nothing is saved until you say so.'
+            )}
           </p>
 
-          <section aria-label="Tareas">
-            <h3>✅ Tareas</h3>
+          <section aria-label={t('Tareas', 'Tasks')}>
+            <h3>{t('✅ Tareas', '✅ Tasks')}</h3>
             {tasks.length === 0 ? (
-              <p className="brain-dump-hint">Ninguna.</p>
+              <p className="brain-dump-hint">{t('Ninguna.', 'None.')}</p>
             ) : (
               <ul className="brain-dump-list">
-                {tasks.map((t, i) => (
+                {tasks.map((item, i) => (
                   <li key={i} className="brain-dump-row">
                     <input
-                      value={t.title}
-                      aria-label="Tarea"
+                      value={item.title}
+                      aria-label={t('Tarea', 'Task')}
                       onChange={(e) =>
                         setTasks((list) =>
                           list.map((x, j) => (j === i ? { ...x, title: e.target.value } : x))
@@ -196,8 +222,8 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
                     />
                     <input
                       type="date"
-                      value={t.dueDate ?? ''}
-                      aria-label="Para cuándo"
+                      value={item.dueDate ?? ''}
+                      aria-label={t('Para cuándo', 'Due')}
                       onChange={(e) =>
                         setTasks((list) =>
                           list.map((x, j) =>
@@ -207,9 +233,9 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
                       }
                     />
                     <button
-                      className={`brain-dump-urgent${t.priority === 'high' ? ' is-active' : ''}`}
-                      title="Urgente"
-                      aria-pressed={t.priority === 'high'}
+                      className={`brain-dump-urgent${item.priority === 'high' ? ' is-active' : ''}`}
+                      title={t('Urgente', 'Urgent')}
+                      aria-pressed={item.priority === 'high'}
                       onClick={() =>
                         setTasks((list) =>
                           list.map((x, j) =>
@@ -224,7 +250,7 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
                     </button>
                     <button
                       className="icon-button"
-                      title="Quitar"
+                      title={t('Quitar', 'Remove')}
                       onClick={() => setTasks((list) => list.filter((_, j) => j !== i))}
                     >
                       ×
@@ -235,24 +261,24 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
             )}
           </section>
 
-          <section aria-label="Notas">
-            <h3>📝 Notas</h3>
+          <section aria-label={t('Notas', 'Notes')}>
+            <h3>{t('📝 Notas', '📝 Notes')}</h3>
             {notes.length === 0 ? (
-              <p className="brain-dump-hint">Ninguna.</p>
+              <p className="brain-dump-hint">{t('Ninguna.', 'None.')}</p>
             ) : (
               <ul className="brain-dump-list">
                 {notes.map((n, i) => (
                   <li key={i} className="brain-dump-row">
                     <textarea
                       value={n}
-                      aria-label="Nota"
+                      aria-label={t('Nota', 'Note')}
                       onChange={(e) =>
                         setNotes((list) => list.map((x, j) => (j === i ? e.target.value : x)))
                       }
                     />
                     <button
                       className="icon-button"
-                      title="Quitar"
+                      title={t('Quitar', 'Remove')}
                       onClick={() => setNotes((list) => list.filter((_, j) => j !== i))}
                     >
                       ×
@@ -265,13 +291,13 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
 
           <div className="brain-dump-actions">
             <button className="button-primary" disabled={count === 0} onClick={saveReviewed}>
-              Guardar
+              {t('Guardar', 'Save')}
             </button>
             <button className="button-ghost" onClick={() => setPhase('write')}>
-              Volver a escribir
+              {t('Volver a escribir', 'Back to writing')}
             </button>
             <button className="button-ghost" onClick={saveAsNote}>
-              Mejor como una nota
+              {t('Mejor como una nota', 'Just make it a note')}
             </button>
           </div>
         </div>
@@ -287,7 +313,7 @@ export function BrainDumpWidget({ size }: WidgetProps<BrainDumpConfig>): React.J
         <div className="brain-dump-undo" role="status">
           <span>{saved.label}</span>
           <button className="button-ghost" onClick={undo}>
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}

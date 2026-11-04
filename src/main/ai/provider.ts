@@ -1,3 +1,4 @@
+import { t } from '../../shared/i18n'
 import type { AIMessage, AIModelOption } from '../../shared/types'
 
 export interface ChatOptions {
@@ -26,7 +27,7 @@ export interface AIProvider {
 // An error whose message can be shown as is (in Spanish, without technical details).
 export class AIError extends Error {}
 
-export const CANCELLED = 'Se canceló la petición.'
+export const CANCELLED = (): string => t('Se canceló la petición.', 'The request was cancelled.')
 
 // The call's own timeout, plus the caller's cancel signal if there is one.
 export function withSignal(timeoutMs: number, signal?: AbortSignal): AbortSignal {

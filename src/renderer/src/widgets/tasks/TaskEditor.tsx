@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { Priority, Task, TaskInput } from '../../../../shared/types'
-import { PRIORITY_LABELS } from './grouping'
+import { priorityLabels } from './grouping'
 
 interface Props {
   task: Task
@@ -47,53 +48,53 @@ export function TaskEditor({ task, onSave, onCancel }: Props): React.JSX.Element
       }}
     >
       <label className="task-field task-field-wide">
-        <span>Tarea</span>
+        <span>{t('Tarea', 'Task')}</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)} autoFocus />
       </label>
       <label className="task-field">
-        <span>Prioridad</span>
+        <span>{t('Prioridad', 'Priority')}</span>
         <select value={priority} onChange={(e) => setPriority(e.target.value as Priority)}>
           {(['high', 'medium', 'low'] as const).map((p) => (
             <option key={p} value={p}>
-              {PRIORITY_LABELS[p]}
+              {priorityLabels()[p]}
             </option>
           ))}
         </select>
       </label>
       <label className="task-field">
-        <span>Para cuándo</span>
+        <span>{t('Para cuándo', 'Due')}</span>
         <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
       </label>
       <label className="task-field">
-        <span>Minutos</span>
+        <span>{t('Minutos', 'Minutes')}</span>
         <input
           type="number"
           min={1}
           step={5}
           inputMode="numeric"
-          placeholder="ej: 25"
+          placeholder={t('ej: 25', 'e.g. 25')}
           value={estimate}
           onChange={(e) => setEstimate(e.target.value)}
         />
       </label>
       <label className="task-field">
-        <span>Categoría</span>
+        <span>{t('Categoría', 'Category')}</span>
         <input
-          placeholder="ej: Ciencias"
+          placeholder={t('ej: Ciencias', 'e.g. Science')}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         />
       </label>
       <label className="task-field task-field-wide">
-        <span>Notas</span>
+        <span>{t('Notas', 'Notes')}</span>
         <textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
       </label>
       <div className="task-editor-actions">
         <button type="button" className="button-ghost" onClick={onCancel}>
-          Cancelar
+          {t('Cancelar', 'Cancel')}
         </button>
         <button type="submit" className="button-primary" disabled={!canSave}>
-          Guardar
+          {t('Guardar', 'Save')}
         </button>
       </div>
     </form>

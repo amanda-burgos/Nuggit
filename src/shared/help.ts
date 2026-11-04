@@ -1,5 +1,7 @@
 import community from '../../config/community.json'
 import rawHelp from '../../config/help.json'
+import rawHelpEn from '../../config/help.en.json'
+import { getLang, t } from './i18n'
 
 // Fase 10: the help texts live in config/help.json (easy to edit). The Ayuda tab shows
 // them, and Dip reads the few that match a question about how to use Nuggit.
@@ -39,7 +41,11 @@ export interface HelpContent {
   shortcuts: HelpShortcut[]
 }
 
-export const HELP: HelpContent = rawHelp
+const HELP_ES: HelpContent = rawHelp
+const HELP_EN: HelpContent = rawHelpEn
+
+// The help texts in the current language.
+export const helpContent = (): HelpContent => (getLang() === 'en' ? HELP_EN : HELP_ES)
 
 // The Discord invite from config/community.json, only if it really is one ('' = no button).
 export const DISCORD_INVITE = /^https:\/\/(discord\.gg|discord\.com\/invite)\/[\w-]+$/.test(
@@ -58,9 +64,10 @@ export function normalize(text: string): string {
 
 // Words that say nothing about the topic.
 const STOP = new Set(
-  'que como donde cual para por con sin una uno los las del una mas pero esto esta este eso ese hay hago puedo puede quiero tengo nuggit'.split(
-    ' '
-  )
+  (
+    'que como donde cual para por con sin una uno los las del una mas pero esto esta este eso ese hay hago puedo puede quiero tengo nuggit ' +
+    'the and for with without what how where which who why when can could does did are was this that these those there have has get from into you your just want'
+  ).split(' ')
 )
 
 function words(text: string): string[] {
@@ -75,9 +82,10 @@ export interface HelpEntry {
 }
 
 function entries(): Array<HelpEntry & { keywords: string[] }> {
+  const help = helpContent()
   return [
-    ...HELP.guides.map((g) => ({ title: g.title, text: g.text, keywords: g.keywords })),
-    ...HELP.faq.map((f) => ({ title: f.q, text: f.a, keywords: f.keywords }))
+    ...help.guides.map((g) => ({ title: g.title, text: g.text, keywords: g.keywords })),
+    ...help.faq.map((f) => ({ title: f.q, text: f.a, keywords: f.keywords }))
   ]
 }
 
@@ -104,7 +112,7 @@ export function searchHelp(query: string, limit = 3): HelpEntry[] {
 
 // Questions about using the app ("¿cómo pongo un fondo?", "¿dónde cambio el tema?").
 const HOW_TO =
-  /\b(nuggit|como|donde|se puede|puedo|ajustes?|configur\w*|cambi\w*|pongo|quito|activ\w*|widgets?|pestanas?|tutorial|ayuda|atajos?)\b/
+  /\b(nuggit|como|donde|se puede|puedo|ajustes?|configur\w*|cambi\w*|pongo|quito|activ\w*|widgets?|pestanas?|tutorial|ayuda|atajos?|how|where|can i|settings?|change|turn on|turn off|enable|tabs?|help|shortcuts?)\b/
 
 // What Dip gets to answer "¿cómo hago X en Nuggit?" with the same texts as the Ayuda tab.
 // Only for questions that look like that, and only the matching entries, to keep it small.
@@ -113,5 +121,9 @@ export function helpForDip(question: string): string {
   const found = searchHelp(question)
   if (!found.length) return ''
   const lines = found.map((e) => `- ${e.title}: ${e.text.replace(/\*\*/g, '')}`)
-  return `Ayuda de Nuggit (si la persona pregunta cómo usar la app, contesta con esto en tus palabras, corto; no inventes botones ni funciones que no estén aquí, y si no sabes, dile que lo busque en la pestaña Ayuda):\n${lines.join('\n')}`
+  const header = t(
+    'Ayuda de Nuggit (si la persona pregunta cómo usar la app, contesta con esto en tus palabras, corto; no inventes botones ni funciones que no estén aquí, y si no sabes, dile que lo busque en la pestaña Ayuda):',
+    "Nuggit help (if the person asks how to use the app, answer with this in your own words, briefly; don't make up buttons or features that aren't here, and if you don't know, tell them to look it up in the Help tab):"
+  )
+  return `${header}\n${lines.join('\n')}`
 }

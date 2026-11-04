@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { DISCORD_INVITE } from '../../../shared/help'
+import { t } from '../../../shared/i18n'
 import { RELEASES } from './news'
 import { Releases } from './Releases'
 
@@ -22,8 +23,13 @@ export function NewsPanel({ onClose }: { onClose(): void }): React.JSX.Element {
         aria-labelledby="news-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="news-title">📣 Novedades</h2>
-        <p className="news-panel-intro">Todo lo que ha cambiado en Nuggit, lo más nuevo arriba.</p>
+        <h2 id="news-title">{t('📣 Novedades', "📣 What's new")}</h2>
+        <p className="news-panel-intro">
+          {t(
+            'Todo lo que ha cambiado en Nuggit, lo más nuevo arriba.',
+            "Everything that's changed in Nuggit, newest first."
+          )}
+        </p>
         <div className="whats-new-body">
           <Releases releases={RELEASES} />
         </div>
@@ -34,7 +40,7 @@ export function NewsPanel({ onClose }: { onClose(): void }): React.JSX.Element {
             </a>
           )}
           <button className="button-primary" onClick={onClose} autoFocus>
-            Cerrar
+            {t('Cerrar', 'Close')}
           </button>
         </footer>
       </div>

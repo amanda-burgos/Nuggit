@@ -3,6 +3,7 @@ import type { MusicStatus, SavedPlaylist } from '../../../../shared/types'
 import { useSettings } from '../../store/useSettings'
 import type { WidgetProps } from '../types'
 import './music.css'
+import { t } from '../../../../shared/i18n'
 
 // The music widget has no options yet.
 export type MusicConfig = Record<string, never>
@@ -77,17 +78,23 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
         </span>
         <p>
           {status.app === 'not-installed'
-            ? 'Para poner música desde aquí, instala la app de Spotify.'
+            ? t(
+                'Para poner música desde aquí, instala la app de Spotify.',
+                'To play music from here, install the Spotify app.'
+              )
             : status.app === 'denied'
-              ? 'Permite que Nuggit controle Spotify en Ajustes del Sistema → Privacidad y seguridad → Automatización.'
-              : 'Spotify está cerrado.'}
+              ? t(
+                  'Permite que Nuggit controle Spotify en Ajustes del Sistema → Privacidad y seguridad → Automatización.',
+                  'Let Nuggit control Spotify in System Settings → Privacy & Security → Automation.'
+                )
+              : t('Spotify está cerrado.', 'Spotify is closed.')}
         </p>
         {status.app === 'closed' && (
           <button
             className="button-primary"
             onClick={() => window.api.music.openSpotify().then(refresh).catch(log)}
           >
-            Abrir Spotify
+            {t('Abrir Spotify', 'Open Spotify')}
           </button>
         )}
       </div>
@@ -119,8 +126,8 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
   const saved = [
     ...(music?.playlists ?? []),
     ...[
-      { uri: music?.focusPlaylist, name: 'Playlist de Focus' },
-      { uri: music?.breakPlaylist, name: 'Playlist de descanso' }
+      { uri: music?.focusPlaylist, name: t('Playlist de Focus', 'Focus playlist') },
+      { uri: music?.breakPlaylist, name: t('Playlist de descanso', 'Break playlist') }
     ].filter(
       (p): p is SavedPlaylist => Boolean(p.uri) && !music?.playlists.some((s) => s.uri === p.uri)
     )
@@ -148,7 +155,9 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
               </span>
             )}
             <div className="music-song">
-              <strong title={status.track ?? ''}>{status.track ?? 'Nada sonando'}</strong>
+              <strong title={status.track ?? ''}>
+                {status.track ?? t('Nada sonando', 'Nothing playing')}
+              </strong>
               {status.artist && <small title={status.artist}>{status.artist}</small>}
             </div>
           </div>
@@ -166,24 +175,24 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
           <div className="music-controls">
             <button
               className="icon-button"
-              title="Anterior"
-              aria-label="Canción anterior"
+              title={t('Anterior', 'Previous')}
+              aria-label={t('Canción anterior', 'Previous song')}
               onClick={() => act(window.api.music.previous)}
             >
               ⏮
             </button>
             <button
               className="music-play"
-              title={status.playing ? 'Pausar' : 'Reproducir'}
-              aria-label={status.playing ? 'Pausar' : 'Reproducir'}
+              title={status.playing ? t('Pausar', 'Pause') : t('Reproducir', 'Play')}
+              aria-label={status.playing ? t('Pausar', 'Pause') : t('Reproducir', 'Play')}
               onClick={() => act(window.api.music.playPause)}
             >
               {status.playing ? '⏸' : '▶'}
             </button>
             <button
               className="icon-button"
-              title="Siguiente"
-              aria-label="Siguiente canción"
+              title={t('Siguiente', 'Next')}
+              aria-label={t('Siguiente canción', 'Next song')}
               onClick={() => act(window.api.music.next)}
             >
               ⏭
@@ -191,14 +200,17 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
           </div>
 
           <div className="music-footer">
-            <label className="music-volume" title={`Volumen ${shownVolume}%`}>
+            <label
+              className="music-volume"
+              title={t(`Volumen ${shownVolume}%`, `Volume ${shownVolume}%`)}
+            >
               <span aria-hidden>{shownVolume === 0 ? '🔇' : '🔈'}</span>
               <input
                 type="range"
                 min={0}
                 max={100}
                 value={shownVolume}
-                aria-label="Volumen"
+                aria-label={t('Volumen', 'Volume')}
                 onChange={(e) => changeVolume(Number(e.target.value))}
               />
             </label>
@@ -230,7 +242,7 @@ function PlaylistChooser({
     setError(null)
     const result = await window.api.music.play(uri).catch(() => null)
     if (result?.ok) onPlayed()
-    else setError(result?.error ?? 'No pude ponerla.')
+    else setError(result?.error ?? t('No pude ponerla.', "Couldn't play it."))
   }
 
   const add = async (): Promise<void> => {
@@ -240,21 +252,23 @@ function PlaylistChooser({
     const result = await window.api.music.addPlaylist(link).catch(() => null)
     setAdding(false)
     if (result?.ok) setLink('')
-    else setError(result?.error ?? 'No pude guardarla.')
+    else setError(result?.error ?? t('No pude guardarla.', "Couldn't save it."))
   }
 
   return (
     <div className="music-chooser">
       <div className="music-chooser-head">
-        <strong>🎶 Elegir playlist</strong>
-        <button className="icon-button" title="Volver" onClick={onClose}>
+        <strong>{t('🎶 Elegir playlist', '🎶 Choose a playlist')}</strong>
+        <button className="icon-button" title={t('Volver', 'Back')} onClick={onClose}>
           ×
         </button>
       </div>
       {playlists.length === 0 ? (
         <p className="music-hint">
-          Pega abajo el link de una playlist de Spotify (··· → Compartir → Copiar enlace) y queda
-          guardada aquí.
+          {t(
+            'Pega abajo el link de una playlist de Spotify (··· → Compartir → Copiar enlace) y queda guardada aquí.',
+            'Paste a Spotify playlist link below (··· → Share → Copy link) and it gets saved here.'
+          )}
         </p>
       ) : (
         <ul className="music-list">
@@ -272,7 +286,7 @@ function PlaylistChooser({
               </button>
               <button
                 className="icon-button"
-                title="Quitar de la lista"
+                title={t('Quitar de la lista', 'Remove from the list')}
                 onClick={() => window.api.music.removePlaylist(p.uri).catch(log)}
               >
                 ×
@@ -291,12 +305,12 @@ function PlaylistChooser({
         <input
           value={link}
           placeholder="https://open.spotify.com/playlist/…"
-          aria-label="Link de una playlist de Spotify"
+          aria-label={t('Link de una playlist de Spotify', 'Spotify playlist link')}
           spellCheck={false}
           onChange={(e) => setLink(e.target.value)}
         />
         <button type="submit" className="button-ghost" disabled={!link.trim() || adding}>
-          {adding ? 'Guardando…' : 'Guardar'}
+          {adding ? t('Guardando…', 'Saving…') : t('Guardar', 'Save')}
         </button>
       </form>
       {error && <p className="music-error">{error}</p>}

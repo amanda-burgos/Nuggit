@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { DetachedWidget, WidgetInstance } from '../../../shared/types'
 import { getWidgetDefinition, widgetRegistry } from '../widgets/registry'
+import { t } from '../../../shared/i18n'
 
 interface Props {
   widgets: WidgetInstance[]
@@ -44,7 +45,7 @@ export function Toolbar({
   return (
     <header className="toolbar">
       <h1 className="toolbar-title">
-        <span aria-hidden>🏠</span> Inicio
+        <span aria-hidden>🏠</span> {t('Inicio', 'Home')}
       </h1>
       <div className="toolbar-actions">
         <div className="menu-anchor" ref={menuRef}>
@@ -59,7 +60,7 @@ export function Toolbar({
           </button>
           {menuOpen && (
             <div className="menu" role="menu">
-              <div className="menu-label">Añadir</div>
+              <div className="menu-label">{t('Añadir', 'Add')}</div>
               {widgetRegistry.map((def) => (
                 <button
                   key={def.type}
@@ -75,7 +76,7 @@ export function Toolbar({
               ))}
               {hidden.length > 0 && (
                 <>
-                  <div className="menu-label">Ocultos</div>
+                  <div className="menu-label">{t('Ocultos', 'Hidden')}</div>
                   {hidden.map((w) => {
                     const def = getWidgetDefinition(w.type)
                     return (
@@ -88,7 +89,7 @@ export function Toolbar({
                           setMenuOpen(false)
                         }}
                       >
-                        <span aria-hidden>{def?.icon}</span> Mostrar {def?.name}
+                        <span aria-hidden>{def?.icon}</span> {t('Mostrar', 'Show')} {def?.name}
                       </button>
                     )
                   })}
@@ -96,7 +97,7 @@ export function Toolbar({
               )}
               {outside.length > 0 && (
                 <>
-                  <div className="menu-label">En tu escritorio</div>
+                  <div className="menu-label">{t('En tu escritorio', 'On your desktop')}</div>
                   {outside.map((w) => {
                     const def = getWidgetDefinition(w.type)
                     return (
@@ -109,7 +110,8 @@ export function Toolbar({
                           setMenuOpen(false)
                         }}
                       >
-                        <span aria-hidden>{def?.icon}</span> Regresar {def?.name}
+                        <span aria-hidden>{def?.icon}</span> {t('Regresar', 'Bring back')}{' '}
+                        {def?.name}
                       </button>
                     )
                   })}
@@ -125,11 +127,13 @@ export function Toolbar({
                       setMenuOpen(false)
                       const count = widgets.length
                       const message =
-                        count === 1 ? '¿Quitar el widget?' : `¿Quitar los ${count} widgets?`
+                        count === 1
+                          ? t('¿Quitar el widget?', 'Remove the widget?')
+                          : t(`¿Quitar los ${count} widgets?`, `Remove all ${count} widgets?`)
                       if (window.confirm(message)) onRemoveAll()
                     }}
                   >
-                    <span aria-hidden>🗑️</span> Quitar todos
+                    <span aria-hidden>🗑️</span> {t('Quitar todos', 'Remove all')}
                   </button>
                 </>
               )}

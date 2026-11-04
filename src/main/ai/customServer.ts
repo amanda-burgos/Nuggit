@@ -1,5 +1,6 @@
 import type { AIMessage, AIModelOption, CustomServerSettings } from '../../shared/types'
 import { AIError, type AIProvider, CANCELLED, type ChatOptions, withSignal } from './provider'
+import { t } from '../../shared/i18n'
 
 // The user's own server that speaks the OpenAI API (/v1/chat/completions), with backups.
 // Its addresses come from Ajustes (settings.json): none are written here. These servers
@@ -11,7 +12,8 @@ const PING_TIMEOUT_MS = 3_000
 const CHAT_TIMEOUT_MS = 60_000
 const LAST_CHAT_TIMEOUT_MS = 120_000
 
-const UNREACHABLE = 'No llego al servidor. ¿Está Tailscale prendido?'
+const UNREACHABLE = (): string =>
+  t('No llego al servidor. ¿Está Tailscale prendido?', "I can't reach the server. Is Tailscale on?")
 
 export interface CustomServerConfig extends CustomServerSettings {
   key: string | null
@@ -39,19 +41,34 @@ function failureFor(status: number, model: string): Failure {
   if (status === 401 || status === 403) {
     return {
       kind: 'request',
-      error: new AIError('El servidor no aceptó la key. Revísala en Ajustes 🔑')
+      error: new AIError(
+        t(
+          'El servidor no aceptó la key. Revísala en Ajustes 🔑',
+          "The server didn't accept the key. Check it in Settings 🔑"
+        )
+      )
     }
   }
   if (status === 404) {
     return {
       kind: 'request',
-      error: new AIError(`El servidor no tiene el modelo "${model}" (o la URL no termina en /v1).`)
+      error: new AIError(
+        t(
+          `El servidor no tiene el modelo "${model}" (o la URL no termina en /v1).`,
+          `The server doesn't have the model "${model}" (or the URL doesn't end in /v1).`
+        )
+      )
     }
   }
   // 429 / 5xx: busy or broken right now; a backup may do better.
   return {
     kind: 'busy',
-    error: new AIError('El servidor está ocupado o tuvo un problema. Intenta en un momento.')
+    error: new AIError(
+      t(
+        'El servidor está ocupado o tuvo un problema. Intenta en un momento.',
+        'The server is busy or had a problem. Try again in a moment.'
+      )
+    )
   }
 }
 
@@ -147,14 +164,27 @@ async function chatOnce(
     if (!text) {
       return {
         kind: 'request',
-        error: new AIError('El servidor no contestó nada. Intenta decirlo de otra forma.')
+        error: new AIError(
+          t(
+            'El servidor no contestó nada. Intenta decirlo de otra forma.',
+            "The server didn't answer anything. Try saying it another way."
+          )
+        )
       }
     }
     return text
   } catch (err) {
-    if (isNetworkError(err)) return { kind: 'unreachable', error: new AIError(UNREACHABLE) }
+    if (isNetworkError(err)) return { kind: 'unreachable', error: new AIError(UNREACHABLE()) }
     console.error('[ai] unexpected server error', err)
-    return { kind: 'busy', error: new AIError('Algo salió mal al hablar con el servidor.') }
+    return {
+      kind: 'busy',
+      error: new AIError(
+        t(
+          'Algo salió mal al hablar con el servidor.',
+          'Something went wrong talking to the server.'
+        )
+      )
+    }
   }
 }
 
@@ -187,7 +217,12 @@ export function createCustomServerProvider(
   async function config(): Promise<CustomServerConfig> {
     const c = await getConfig()
     if (!c || c.servers.length === 0) {
-      throw new AIError('Todavía no hay un servidor propio. Agrégalo en Ajustes.')
+      throw new AIError(
+        t(
+          'Todavía no hay un servidor propio. Agrégalo en Ajustes.',
+          "There's no server of your own yet. Add it in Settings."
+        )
+      )
     }
     return c
   }
@@ -203,7 +238,7 @@ export function createCustomServerProvider(
       let failure: Failure | null = null
       for (const [i, baseUrl] of c.servers.entries()) {
         // Cancelled: don't go on to the backups either.
-        if (opts?.signal?.aborted) throw new AIError(CANCELLED)
+        if (opts?.signal?.aborted) throw new AIError(CANCELLED())
         const last = i === c.servers.length - 1
         const result = await chatOnce(
           baseUrl,
@@ -213,7 +248,7 @@ export function createCustomServerProvider(
           last ? LAST_CHAT_TIMEOUT_MS : CHAT_TIMEOUT_MS
         )
         if (typeof result === 'string') return result
-        if (opts?.signal?.aborted) throw new AIError(CANCELLED)
+        if (opts?.signal?.aborted) throw new AIError(CANCELLED())
         // Keep the most telling reason: a real answer from a server beats "unreachable".
         if (!failure || failure.kind === 'unreachable') failure = result
       }
@@ -236,7 +271,7 @@ export function createCustomServerProvider(
           // try the next one
         }
       }
-      throw new AIError(UNREACHABLE)
+      throw new AIError(UNREACHABLE())
     }
   }
 }

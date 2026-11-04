@@ -6,6 +6,7 @@ import { dip } from './ai/agents'
 import { loadSettings } from './storage'
 import { readJson, writeJson } from './storage/jsonStore'
 import { getTasks, updateTask } from './tasks'
+import { t } from '../shared/i18n'
 
 // SPEC 9.5: what the user told Next Action today ("Saltar", "Tengo 30 min"). The main
 // process keeps it, so the widget, its detached window and the menu bar all agree.
@@ -81,12 +82,23 @@ export function startAction(taskId: unknown): void {
 // --- "Solo empieza": the step as something that takes 2 minutes ---
 
 function simpleTinyStep(title: string): string {
-  return `Pon un temporizador de 2 minutos y solo prepara lo que necesitas para «${title}». Si quieres seguir después, genial; si no, también cuenta.`
+  return t(
+    `Pon un temporizador de 2 minutos y solo prepara lo que necesitas para «${title}». Si quieres seguir después, genial; si no, también cuenta.`,
+    `Set a 2-minute timer and just get ready what you need for “${title}”. If you want to keep going after, great; if not, it still counts.`
+  )
 }
 
 export async function tinyStep(taskId: unknown): Promise<TinyStepResult> {
   const task = getTasks().find((t) => t.id === taskId)
-  if (!task) return { ok: true, text: 'Elige algo chiquito y hazlo solo 2 minutos.', byAI: false }
+  if (!task)
+    return {
+      ok: true,
+      text: t(
+        'Elige algo chiquito y hazlo solo 2 minutos.',
+        'Pick something tiny and do it for just 2 minutes.'
+      ),
+      byAI: false
+    }
   const settings = await loadSettings()
   // The task's name only goes to the AI with the user's permission.
   if (!settings.ai.shareTasksWithAI || !getStatus().active) {

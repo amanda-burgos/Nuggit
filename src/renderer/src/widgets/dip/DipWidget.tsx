@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { AIChatResult } from '../../../../shared/types'
 import { useDipChat } from '../../store/useDipChat'
 import { useSettings } from '../../store/useSettings'
@@ -12,9 +13,16 @@ import './dip.css'
 // Dip has no options yet.
 export type DipConfig = Record<string, never>
 
-const GREETING = '¡Hola! Soy Dip 👋 Pregúntame lo que quieras, o cuéntame qué tienes pendiente.'
+const greeting = (): string =>
+  t(
+    '¡Hola! Soy Dip 👋 Pregúntame lo que quieras, o cuéntame qué tienes pendiente.',
+    'Hi! I’m Dip 👋 Ask me anything, or tell me what you’ve got to do.'
+  )
 
-const failed = (): AIChatResult => ({ ok: false, error: 'Algo salió mal. Intenta otra vez.' })
+const failed = (): AIChatResult => ({
+  ok: false,
+  error: t('Algo salió mal. Intenta otra vez.', 'Something went wrong. Try again.')
+})
 
 // A chat with Dip. Small on the board, big in the Dip tab; same conversation in both.
 export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
@@ -88,7 +96,15 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
   }
 
   const clear = (): void => {
-    if (!window.confirm('¿Empezar una conversación nueva? Se borra el historial con Dip.')) return
+    if (
+      !window.confirm(
+        t(
+          '¿Empezar una conversación nueva? Se borra el historial con Dip.',
+          'Start a new conversation? Your history with Dip will be deleted.'
+        )
+      )
+    )
+      return
     setError(null)
     window.api.dipChat.clear().catch((err) => console.error('Could not clear chat', err))
   }
@@ -100,19 +116,23 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
       )}
       <div className="dip-messages" ref={listRef} aria-live="polite">
         <div className="dip-thread">
-          <p className="dip-bubble is-assistant">{GREETING}</p>
+          <p className="dip-bubble is-assistant">{greeting()}</p>
           {messages.map((m) => (
             <div key={m.id} className={`dip-message is-${m.role}`}>
               <p className={`dip-bubble is-${m.role}`}>{m.content}</p>
               {m.action && <ActionCard message={m} />}
             </div>
           ))}
-          {thinking && <p className="dip-bubble is-assistant is-thinking">Dip está pensando…</p>}
+          {thinking && (
+            <p className="dip-bubble is-assistant is-thinking">
+              {t('Dip está pensando…', 'Dip is thinking…')}
+            </p>
+          )}
           {!thinking && (error || lastIsUser) && (
             <div className="dip-error" role="alert">
-              <p>{error ?? 'Dip no alcanzó a contestar.'}</p>
+              <p>{error ?? t('Dip no alcanzó a contestar.', 'Dip didn’t get to answer.')}</p>
               <button className="button-ghost" onClick={() => run(window.api.dipChat.retry)}>
-                Reintentar
+                {t('Reintentar', 'Try again')}
               </button>
             </div>
           )}
@@ -130,7 +150,7 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
           <button
             type="button"
             className="icon-button"
-            title="Nueva conversación"
+            title={t('Nueva conversación', 'New conversation')}
             disabled={thinking}
             onClick={clear}
           >
@@ -141,7 +161,12 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
           type="button"
           className="icon-button"
           title={
-            speaking ? 'Dip contesta hablando (clic para apagar)' : 'Que Dip conteste hablando'
+            speaking
+              ? t(
+                  'Dip contesta hablando (clic para apagar)',
+                  'Dip answers out loud (click to turn off)'
+                )
+              : t('Que Dip conteste hablando', 'Have Dip answer out loud')
           }
           aria-pressed={speaking}
           disabled={!settings}
@@ -153,8 +178,8 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
           ref={inputRef}
           rows={1}
           value={draft}
-          placeholder="Escríbele a Dip…"
-          aria-label="Mensaje para Dip"
+          placeholder={t('Escríbele a Dip…', 'Write to Dip…')}
+          aria-label={t('Mensaje para Dip', 'Message for Dip')}
           autoFocus={size === 'full'}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
@@ -169,8 +194,8 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
         <button
           type="button"
           className="icon-button"
-          title="Llamar a Dip (manos libres)"
-          aria-label="Llamar a Dip"
+          title={t('Llamar a Dip (manos libres)', 'Call Dip (hands-free)')}
+          aria-label={t('Llamar a Dip', 'Call Dip')}
           disabled={!settings || thinking}
           onClick={() => {
             stopSpeaking()
@@ -180,7 +205,7 @@ export function DipWidget({ size }: WidgetProps<DipConfig>): React.JSX.Element {
           📞
         </button>
         <button type="submit" className="button-primary" disabled={!draft.trim() || thinking}>
-          Enviar
+          {t('Enviar', 'Send')}
         </button>
       </form>
     </div>

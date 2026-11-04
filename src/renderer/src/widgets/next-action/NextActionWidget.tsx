@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { Priority, TaskStatusChange } from '../../../../shared/types'
+import { locale, t } from '../../../../shared/i18n'
+import type { TaskStatusChange } from '../../../../shared/types'
 import { pickNextActions, type NextAction } from '../../../../shared/nextAction'
 import { useNextAction } from '../../store/useNextAction'
 import { useTasks } from '../../store/useTasks'
@@ -11,14 +12,13 @@ import './next-action.css'
 export type NextActionConfig = Record<string, never>
 
 // "Tengo…": how much time the user has right now (null = no limit).
-const TIME_OPTIONS: Array<{ minutes: number | null; label: string }> = [
+const timeOptions = (): Array<{ minutes: number | null; label: string }> => [
   { minutes: 15, label: '15 min' },
   { minutes: 30, label: '30 min' },
   { minutes: 60, label: '1 h' },
-  { minutes: null, label: 'Sin límite' }
+  { minutes: null, label: t('Sin límite', 'No limit') }
 ]
 
-const PRIORITY_LABELS: Record<Priority, string> = { high: 'alta', medium: 'normal', low: 'baja' }
 const TINY_MS = 2 * 60_000
 const UNDO_MS = 6000
 
@@ -32,17 +32,18 @@ function formatMinutes(min: number): string {
 function formatDue(dueDate: string, today: string): string {
   const day = new Date(`${dueDate}T00:00:00`)
   const diff = Math.round((day.getTime() - new Date(`${today}T00:00:00`).getTime()) / 86400000)
-  if (diff === 0) return 'Hoy'
-  if (diff === 1) return 'Mañana'
-  if (diff < 0) return diff === -1 ? 'Era para ayer' : 'Era para antes'
-  return day.toLocaleDateString('es', { weekday: 'short', day: 'numeric', month: 'short' })
+  if (diff === 0) return t('Hoy', 'Today')
+  if (diff === 1) return t('Mañana', 'Tomorrow')
+  if (diff < 0)
+    return diff === -1 ? t('Era para ayer', 'Was due yesterday') : t('Era para antes', 'Overdue')
+  return day.toLocaleDateString(locale(), { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
 function meta(action: NextAction, today: string): string[] {
   return [
     action.minutes ? `⏱ ${formatMinutes(action.minutes)}` : null,
     action.root.dueDate ? `📅 ${formatDue(action.root.dueDate, today)}` : null,
-    action.root.priority === 'high' ? `Prioridad ${PRIORITY_LABELS.high}` : null
+    action.root.priority === 'high' ? t('Prioridad alta', 'High priority') : null
   ].filter((m): m is string => Boolean(m))
 }
 
@@ -99,10 +100,10 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
         if (!changes.length) return
         const label =
           changes.length > 1
-            ? '¡Tarea terminada! 🎉'
+            ? t('¡Tarea terminada! 🎉', 'Task finished! 🎉')
             : action.task === action.root
-              ? '¡Hecho! ✅'
-              : '¡Paso hecho! ✅'
+              ? t('¡Hecho! ✅', 'Done! ✅')
+              : t('¡Paso hecho! ✅', 'Step done! ✅')
         setUndo({ changes, label })
       })
       .catch((err) => console.error('Could not complete task', err))
@@ -128,8 +129,16 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
       .tinyStep(taskId)
       .then((result) => setTiny((t) => (t?.taskId === taskId ? { ...t, text: result.text } : t)))
       .catch(() =>
-        setTiny((t) =>
-          t?.taskId === taskId ? { ...t, text: 'Hazlo solo 2 minutos. Lo que salga, cuenta.' } : t
+        setTiny((cur) =>
+          cur?.taskId === taskId
+            ? {
+                ...cur,
+                text: t(
+                  'Hazlo solo 2 minutos. Lo que salga, cuenta.',
+                  'Do it for just 2 minutes. Whatever you get done counts.'
+                )
+              }
+            : cur
         )
       )
   }
@@ -141,9 +150,13 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
   return (
     <div className={`next-action is-${size}`}>
       {hasPending && (
-        <div className="next-action-time" role="group" aria-label="¿Cuánto tiempo tienes?">
-          <span className="next-action-time-label">Tengo</span>
-          {TIME_OPTIONS.map((o) => (
+        <div
+          className="next-action-time"
+          role="group"
+          aria-label={t('¿Cuánto tiempo tienes?', 'How much time do you have?')}
+        >
+          <span className="next-action-time-label">{t('Tengo', 'I have')}</span>
+          {timeOptions().map((o) => (
             <button
               key={o.label}
               className={`next-action-chip${state.availableMin === o.minutes ? ' is-active' : ''}`}
@@ -159,10 +172,16 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
       {top ? (
         <article className={`next-action-card${top.started ? ' is-started' : ''}`}>
           <div className="next-action-from">
-            {top.started && <span className="next-action-badge">En curso</span>}
+            {top.started && (
+              <span className="next-action-badge">{t('En curso', 'In progress')}</span>
+            )}
             {top.task !== top.root && (
               <span>
-                {top.root.title} · Paso {top.stepNumber} de {top.stepCount}
+                {top.root.title} ·{' '}
+                {t(
+                  `Paso ${top.stepNumber} de ${top.stepCount}`,
+                  `Step ${top.stepNumber} of ${top.stepCount}`
+                )}
               </span>
             )}
           </div>
@@ -178,15 +197,18 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
           {tinyHere && (
             <div className="next-action-tiny" aria-live="polite">
               <span className="next-action-tiny-label">
-                ⚡ Solo 2 minutos
+                {t('⚡ Solo 2 minutos', '⚡ Just 2 minutes')}
                 <span className="next-action-countdown">
-                  {now < tinyHere.endsAt ? countdown(tinyHere.endsAt - now) : '¡Listo!'}
+                  {now < tinyHere.endsAt ? countdown(tinyHere.endsAt - now) : t('¡Listo!', 'Done!')}
                 </span>
               </span>
-              <p>{tinyHere.text ?? 'Dip está pensando…'}</p>
+              <p>{tinyHere.text ?? t('Dip está pensando…', 'Dip is thinking…')}</p>
               {now >= tinyHere.endsAt && (
                 <p className="next-action-tiny-end">
-                  ¡Lo hiciste! ¿Sigues un rato más o ya está? 💪
+                  {t(
+                    '¡Lo hiciste! ¿Sigues un rato más o ya está? 💪',
+                    'You did it! Keep going a bit more, or are you done? 💪'
+                  )}
                 </p>
               )}
             </div>
@@ -195,35 +217,38 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
           <div className="next-action-buttons">
             {top.started ? (
               <button className="button-primary" onClick={() => done(top)}>
-                ✅ Hecho
+                {t('✅ Hecho', '✅ Done')}
               </button>
             ) : (
               <button className="button-primary" onClick={() => start(top)}>
-                Empezar
+                {t('Empezar', 'Start')}
               </button>
             )}
             {!top.started && (
               <button className="button-ghost" onClick={() => done(top)}>
-                ✅ Hecho
+                {t('✅ Hecho', '✅ Done')}
               </button>
             )}
             <button className="button-ghost" onClick={() => skip(top)}>
-              Saltar
+              {t('Saltar', 'Skip')}
             </button>
             {!tinyHere && (
               <button
                 className="button-ghost"
-                title="Una versión de 2 minutos, para arrancar"
+                title={t(
+                  'Una versión de 2 minutos, para arrancar',
+                  'A 2-minute version, to get going'
+                )}
                 onClick={() => justStart(top)}
               >
-                Solo empieza
+                {t('Solo empieza', 'Just start')}
               </button>
             )}
           </div>
 
           {top.nextStep && (
             <p className="next-action-after">
-              Siguiente paso: <span>{top.nextStep.title}</span>
+              {t('Siguiente paso:', 'Next step:')} <span>{top.nextStep.title}</span>
             </p>
           )}
         </article>
@@ -231,19 +256,30 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
         <div className="next-action-empty">
           {hasPending && state.availableMin ? (
             <>
-              <p>Nada cabe en {formatMinutes(state.availableMin)} ⏳</p>
+              <p>
+                {t(
+                  `Nada cabe en ${formatMinutes(state.availableMin)} ⏳`,
+                  `Nothing fits in ${formatMinutes(state.availableMin)} ⏳`
+                )}
+              </p>
               <p className="next-action-hint">
-                Prueba con más tiempo, o divide algo grande en pasitos con Tenders.
+                {t(
+                  'Prueba con más tiempo, o divide algo grande en pasitos con Tenders.',
+                  'Try with more time, or break something big into tiny steps with Tenders.'
+                )}
               </p>
               <button className="button-ghost" onClick={() => setAvailable(null)}>
-                Ver sin límite
+                {t('Ver sin límite', 'Show with no limit')}
               </button>
             </>
           ) : (
             <>
-              <p>Nada pendiente 🎉</p>
+              <p>{t('Nada pendiente 🎉', 'Nothing to do 🎉')}</p>
               <p className="next-action-hint">
-                Cuando anotes una tarea, aquí te digo por dónde empezar.
+                {t(
+                  'Cuando anotes una tarea, aquí te digo por dónde empezar.',
+                  'When you add a task, I’ll tell you where to start here.'
+                )}
               </p>
             </>
           )}
@@ -251,8 +287,8 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
       )}
 
       {later.length > 0 && (
-        <section className="next-action-later" aria-label="Después">
-          <h3>Después</h3>
+        <section className="next-action-later" aria-label={t('Después', 'Later')}>
+          <h3>{t('Después', 'Later')}</h3>
           <ul>
             {later.map((a) => (
               <li key={a.task.id}>
@@ -279,7 +315,7 @@ export function NextActionWidget({ size }: WidgetProps<NextActionConfig>): React
               setUndo(null)
             }}
           >
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}

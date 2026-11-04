@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { AppInfo } from '../../../shared/types'
 import { RELEASES } from '../help/news'
 import { Releases } from '../help/Releases'
+import { t } from '../../../shared/i18n'
 
 export function AboutSettings(): React.JSX.Element {
   const [info, setInfo] = useState<AppInfo | null>(null)
@@ -14,20 +15,28 @@ export function AboutSettings(): React.JSX.Element {
 
   return (
     <section className="settings-section">
-      <h3>ℹ️ Acerca de Nuggit</h3>
+      <h3>ℹ️ {t('Acerca de Nuggit', 'About Nuggit')}</h3>
       <p className="settings-hint">
-        Versión {info?.version ?? '…'} · Make things easier to start, not harder to organize.
+        {t('Versión', 'Version')} {info?.version ?? '…'} · Make things easier to start, not harder
+        to organize.
       </p>
       {info && (
         <div className="settings-field">
-          <span>Tus datos se guardan solo en esta Mac:</span>
+          <span>
+            {t('Tus datos se guardan solo en esta Mac:', 'Your data is saved only on this Mac:')}
+          </span>
           <code className="settings-path">{info.dataPath}</code>
         </div>
       )}
       <div className="settings-subsection">
-        <h4>🆕 Novedades</h4>
+        <h4>🆕 {t('Novedades', "What's new")}</h4>
         {RELEASES[0] && <Releases releases={[RELEASES[0]]} />}
-        <small className="settings-hint">Las de antes están en ❓ Ayuda → Novedades.</small>
+        <small className="settings-hint">
+          {t(
+            'Las de antes están en ❓ Ayuda → Novedades.',
+            "Older ones are in ❓ Help → What's new."
+          )}
+        </small>
       </div>
     </section>
   )

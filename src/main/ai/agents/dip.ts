@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { t } from '../../../shared/i18n'
 import type { Task } from '../../../shared/types'
 import { dipBase, dipInstructions, PERSONALITY_SCHEMA, personalityInstructions } from '../dip'
 import { countWords, SUMMARY_MAX_WORDS } from '../chatMemory'
@@ -45,7 +46,9 @@ function checkSummary(raw: string): CheckResult<string> {
 export const dip = defineAgent({
   name: 'dip',
   label: 'Dip (chat)',
-  purpose: 'Conversa, ayuda a decidir y a empezar.',
+  get purpose() {
+    return t('Conversa, ayuda a decidir y a empezar.', 'Chats, helps you decide and get started.')
+  },
   tools: [],
   tasks: {
     chat: {

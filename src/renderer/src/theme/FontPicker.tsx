@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { FONT_PRESETS, MAC_PREFIX, fontStack } from './fonts'
 import './font-picker.css'
+import { getLang, t } from '../../../shared/i18n'
 
 // Fase 13: the fonts installed on this Mac, asked once per window.
 let macFonts: Promise<string[]> | null = null
@@ -36,21 +37,21 @@ export function FontSelect({
   return (
     <select
       className="font-select"
-      aria-label={ariaLabel ?? 'Letra'}
+      aria-label={ariaLabel ?? t('Letra', 'Font')}
       value={value ?? ''}
       style={{ fontFamily: value ? fontStack(value) : undefined }}
       onChange={(e) => onChange(e.target.value || null)}
     >
       {generalLabel !== undefined && <option value="">{generalLabel}</option>}
-      <optgroup label="Incluidas en Nuggit">
+      <optgroup label={t('Incluidas en Nuggit', 'Included in Nuggit')}>
         {FONT_PRESETS.map((f) => (
           <option key={f.id} value={f.id}>
-            {f.name.es}
+            {f.name[getLang()]}
           </option>
         ))}
       </optgroup>
       {(mac?.length || isMac) && (
-        <optgroup label="De tu Mac">
+        <optgroup label={t('De tu Mac', 'From your Mac')}>
           {isMac && !mac?.includes(value!.slice(MAC_PREFIX.length)) && (
             <option value={value!}>{value!.slice(MAC_PREFIX.length)}</option>
           )}
@@ -83,7 +84,7 @@ export function FontPicker({
 
   return (
     <div className="font-picker">
-      <div className="font-grid" role="radiogroup" aria-label="Letra">
+      <div className="font-grid" role="radiogroup" aria-label={t('Letra', 'Font')}>
         {FONT_PRESETS.map((f) => (
           <button
             key={f.id}
@@ -95,8 +96,8 @@ export function FontPicker({
             onClick={() => onChange(f.id)}
           >
             <span className="font-sample">Aa</span>
-            <span className="font-name">{f.name.es}</span>
-            <small>{f.hint.es}</small>
+            <span className="font-name">{f.name[getLang()]}</span>
+            <small>{f.hint[getLang()]}</small>
           </button>
         ))}
       </div>
@@ -107,25 +108,34 @@ export function FontPicker({
         aria-expanded={showMac}
         onClick={() => setShowMac((v) => !v)}
       >
-        {showMac ? '▾' : '▸'} Fuentes de tu Mac
+        {showMac ? '▾' : '▸'} {t('Fuentes de tu Mac', 'Fonts on your Mac')}
         {value.startsWith(MAC_PREFIX) ? ` · ${value.slice(MAC_PREFIX.length)}` : ''}
       </button>
       {showMac && (
         <div className="font-mac">
           {mac === null ? (
-            <small>Buscando las fuentes…</small>
+            <small>{t('Buscando las fuentes…', 'Looking for fonts…')}</small>
           ) : mac.length === 0 ? (
-            <small>No se pudieron leer las fuentes de esta Mac.</small>
+            <small>
+              {t('No se pudieron leer las fuentes de esta Mac.', "Couldn't read this Mac's fonts.")}
+            </small>
           ) : (
             <>
               <input
                 type="search"
                 className="settings-input"
-                placeholder={`Buscar entre ${mac.length} fuentes…`}
+                placeholder={t(
+                  `Buscar entre ${mac.length} fuentes…`,
+                  `Search ${mac.length} fonts…`
+                )}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <ul className="font-mac-list" role="listbox" aria-label="Fuentes de tu Mac">
+              <ul
+                className="font-mac-list"
+                role="listbox"
+                aria-label={t('Fuentes de tu Mac', 'Fonts on your Mac')}
+              >
                 {found.map((family) => {
                   const id = MAC_PREFIX + family
                   return (
@@ -143,7 +153,11 @@ export function FontPicker({
                     </li>
                   )
                 })}
-                {found.length === 0 && <li className="font-mac-empty">Ninguna se llama así.</li>}
+                {found.length === 0 && (
+                  <li className="font-mac-empty">
+                    {t('Ninguna se llama así.', 'None by that name.')}
+                  </li>
+                )}
               </ul>
             </>
           )}

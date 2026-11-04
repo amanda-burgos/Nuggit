@@ -1,0 +1,292 @@
+{
+  "guides": [
+    {
+      "id": "board",
+      "icon": "🏠",
+      "title": "The board (Home)",
+      "keywords": [
+        "board",
+        "home",
+        "widget",
+        "widgets",
+        "add",
+        "move",
+        "resize",
+        "size",
+        "hide",
+        "remove"
+      ],
+      "text": "Home is your widget desk. Use **+ Widget** to add one (clock, tasks, Dip, Focus, notes, music, image…). Move it by dragging its header and resize it from the bottom-right corner. In its header: **📌** locks it in place, **⚙︎** opens its options, **–** hides it (bring it back from + Widget) and **×** removes it."
+    },
+    {
+      "id": "detach",
+      "icon": "↗",
+      "title": "Pop widgets out onto your Mac's desktop",
+      "keywords": [
+        "pop out",
+        "detach",
+        "desktop",
+        "back",
+        "board",
+        "window",
+        "pin",
+        "on top",
+        "behind",
+        "front"
+      ],
+      "text": "Tap **↗** in a widget's header and it leaves the board as its own little window on your desktop. It stays wherever you put it, even if you close Nuggit. To bring it back, tap **↙** (Back to the board). From the quick pickup (🧩 in the menu bar) you can set it to **Pin on top** (always in front, on every desktop) or **Pin on back** (in the background, behind everything)."
+    },
+    {
+      "id": "menubar",
+      "icon": "📍",
+      "title": "Your Mac's menu bar",
+      "keywords": [
+        "menu bar",
+        "menu",
+        "bar",
+        "icon",
+        "icons",
+        "quick pickup",
+        "pickup",
+        "🧩",
+        "mini chat"
+      ],
+      "text": "Up in your Mac's menu bar Nuggit has its icons: the **Nuggit** one (what you're doing now and the next step), the **Dip** one (a mini chat you can open from any app), the **🧩 quick pickup** (to pop any widget out onto the desktop in one click) and, if you want, the **Music** one. Choose which ones show in Settings → Menu bar."
+    },
+    {
+      "id": "dip",
+      "icon": "💬",
+      "title": "Dip, your buddy",
+      "keywords": ["dip", "chat", "ai", "ask", "actions", "add", "task", "personality"],
+      "text": "Dip is your buddy for getting organized. Talk to it normally: \"add an English homework task for tomorrow\", \"I finished math\", \"what should I do now?\". When it wants to change something it shows you a card and **you confirm** before anything is saved. You can also ask it how to use Nuggit. To let it see your tasks, turn on **Share tasks with Dip** in Settings → AI and providers."
+    },
+    {
+      "id": "tasks",
+      "icon": "✅",
+      "title": "Tasks",
+      "keywords": ["tasks", "task", "subtasks", "date", "due", "complete", "done", "delete"],
+      "text": "In **Tasks** (⌘3) type a task and hit Enter. You can give it a date and subtasks, and mark it done with one click; done tasks leave the list. You can also add them by telling Dip."
+    },
+    {
+      "id": "next",
+      "icon": "🎯",
+      "title": "Now: what should I do now?",
+      "keywords": ["now", "next", "what should i do", "what now", "finished", "done"],
+      "text": "**Now** (⌘4) tells you **just one thing** to do right now, so you don't get lost in the list. When you finish it, \"I'm done\" checks it off and suggests the next one. You also see it in Nuggit's menu bar icon."
+    },
+    {
+      "id": "tenders",
+      "icon": "🪜",
+      "title": "Tenderizer: break big tasks down",
+      "keywords": ["tenderizer", "tenders", "steps", "break down", "split", "project", "big"],
+      "text": "If a task feels huge, take it to **Tenderizer** (⌘5). Dip asks you a couple of questions and breaks it into tiny steps (tenders). You review the steps, change them if you want and save them. If getting started is hard, \"Just start\" gives you a 2-minute version of the step."
+    },
+    {
+      "id": "dailies",
+      "icon": "🔁",
+      "title": "Dailies: routines",
+      "keywords": ["dailies", "routine", "routines", "daily", "streak", "repeat", "habit"],
+      "text": "In **Dailies** (⌘6) you create routines that repeat (every day or on the days you pick). They show up as today's tasks and keep your **streak 🔥**. \"Plan with Dip\" helps you put them together."
+    },
+    {
+      "id": "notes",
+      "icon": "📝",
+      "title": "Notes and Brain Dump",
+      "keywords": ["notes", "note", "brain dump", "head", "dump", "⌘n"],
+      "text": "**Notes** (⌘7) are quick notes that save themselves; ⌘N makes a new one from anywhere. In **Brain Dump** (⌘8) you dump everything on your mind into one box and Dip sorts it into tasks and notes for you to review before saving."
+    },
+    {
+      "id": "focus",
+      "icon": "⏳",
+      "title": "Focus",
+      "keywords": ["focus", "concentrate", "timer", "pomodoro", "break", "exit", "esc"],
+      "text": "In **Focus** (⌘9) pick a task and a time (25/5, 15/5 or your own) and start. You can pause, change or cancel whenever you want, and it keeps running even if you close the window."
+    },
+    {
+      "id": "calendar",
+      "icon": "📅",
+      "title": "Calendar",
+      "keywords": ["calendar", "date", "day", "events", "mac", "google", "ics"],
+      "text": "The **Calendar** (⌘0) puts your dated tasks, your dailies and your Mac's events together, by day. You can add a task straight onto a day. In Settings → Calendar you connect your Mac's Calendar (two-way) or export an .ics for Google Calendar."
+    },
+    {
+      "id": "music",
+      "icon": "🎵",
+      "title": "Music",
+      "keywords": ["music", "spotify", "playlist", "song"],
+      "text": "With the **Spotify** app open, the **Music** tab lets you pause, skip songs and play your saved playlists. In Settings → Music paste a playlist link so it plays on its own when you start Focus."
+    },
+    {
+      "id": "voice",
+      "icon": "🎤",
+      "title": "Voice and calling Dip",
+      "keywords": ["voice", "talk", "speak", "microphone", "dictation", "call", "listen"],
+      "text": "Tap **🎤** to talk to Dip instead of typing, and **🔊** to have it answer out loud. With **📞** you call it hands-free: it listens, answers and stops talking if you interrupt. Pick Dip's voice in Settings → Voice."
+    },
+    {
+      "id": "qotd",
+      "icon": "💭",
+      "title": "Question of the day",
+      "keywords": [
+        "question",
+        "question of the day",
+        "qotd",
+        "chat",
+        "answer",
+        "answers",
+        "topics",
+        "math",
+        "history"
+      ],
+      "text": "Every day there's a new **question** in the **Question** tab (and its widget). In **✏️ My topics** pick what you like (math, history, science…) and each topic gets its own little card with its own question. If your topic isn't there, type it and hit **+ Add**. Answer whichever you want (they save themselves), tap **🔀 Another** if one doesn't click, or **💬 Talk with Dip** to chat about it."
+    },
+    {
+      "id": "reminders",
+      "icon": "⏰",
+      "title": "Reminders",
+      "keywords": [
+        "reminder",
+        "reminders",
+        "remind me",
+        "remember",
+        "alert",
+        "alerts",
+        "alarm",
+        "notification",
+        "snooze",
+        "time"
+      ],
+      "text": "In the **Reminders** tab (or its widget) type what to remind you about, the day and the time (or tap **In 15 min**, **In 1 hour**, **Tomorrow 9:00**). It can be **once** or repeat: every day, some days or every X days. At that time you get a **Mac notification**, even if the window is closed: Nuggit just has to be open (in the menu bar is enough). Tapping the notification opens the tab, where you can **snooze it** (+10 min, +1 hour) or mark it **Done**."
+    }
+  ],
+  "customize": [
+    {
+      "id": "appearance",
+      "icon": "🎨",
+      "title": "Colors, theme and background",
+      "text": "Light theme, dark theme or your own color, the accent color, the app's background (a color or your photo, with transparency) and how widgets look.",
+      "settingsTab": "appearance"
+    },
+    {
+      "id": "widget-own",
+      "icon": "⚙︎",
+      "title": "One specific widget",
+      "text": "Every widget has its ⚙︎ in the header: its own background, corners, shadow and options."
+    },
+    {
+      "id": "dip-personality",
+      "icon": "💬",
+      "title": "Dip's personality",
+      "text": "Tell Dip how you want it to talk to you (shorter, funnier, like a pirate…). You can always go back to the original Dip.",
+      "settingsTab": "dip"
+    },
+    {
+      "id": "ai",
+      "icon": "🤖",
+      "title": "The AI (Gemini or Ollama)",
+      "text": "Connect Gemini with your free key or Ollama on your Mac, and decide whether Dip can see your tasks.",
+      "settingsTab": "ai"
+    },
+    {
+      "id": "voice-settings",
+      "icon": "🎙️",
+      "title": "Dip's voice",
+      "text": "Pick the voice, the speed and the pitch, and how Nuggit understands what you say.",
+      "settingsTab": "voice"
+    },
+    {
+      "id": "menubar-settings",
+      "icon": "📍",
+      "title": "The menu bar",
+      "text": "Which icons show up top, how what you're doing looks, and the shortcut to open Dip from any app.",
+      "settingsTab": "menubar"
+    },
+    {
+      "id": "general",
+      "icon": "⚙︎",
+      "title": "General",
+      "text": "Open Nuggit when your Mac starts, and the little \"What's new\" window after each update.",
+      "settingsTab": "general"
+    }
+  ],
+  "faq": [
+    {
+      "id": "offline",
+      "q": "Does it work offline?",
+      "keywords": ["internet", "offline", "connection", "without", "wifi"],
+      "a": "Yes. Tasks, notes, dailies, Focus, the calendar and the widgets all work without internet. Dip needs AI: with Gemini you need internet; with **Ollama**, the AI runs on your Mac and works offline."
+    },
+    {
+      "id": "data",
+      "q": "Where is my data saved?",
+      "keywords": ["data", "saved", "stored", "privacy", "folder", "cloud", "safe"],
+      "a": "On your Mac, in a Nuggit folder (you can see it in Settings → About). There's no account and no cloud. Your Gemini key is saved encrypted. Dip only sees your tasks if you turn on **Share tasks with Dip**."
+    },
+    {
+      "id": "connect-ai",
+      "q": "How do I connect Gemini or Ollama?",
+      "keywords": ["gemini", "ollama", "key", "connect", "api", "ai"],
+      "a": "Go to Settings → **AI and providers**. For Gemini, get a free key in Google AI Studio, paste it and tap \"Test connection\". For Ollama, install it on your Mac and Nuggit finds it on its own. That's also where you choose which one to use."
+    },
+    {
+      "id": "widget-back",
+      "q": "How do I put a widget back on the board?",
+      "keywords": ["back", "return", "widget", "board", "popped out", "detached"],
+      "a": "In the popped-out widget's header tap **↙** (Back to the board). If it's locked (🔒), tap the lock first. If it's on Pin on back, open it from the 🧩 quick pickup and tap **✏️ Edit** or **Remove from background**."
+    },
+    {
+      "id": "widget-gone",
+      "q": "I hid a widget, how do I get it back?",
+      "keywords": ["hid", "hidden", "hide", "disappeared", "gone", "recover", "widget"],
+      "a": "On Home tap **+ Widget**: hidden ones show up there (the number on the button says how many) so you can show them again."
+    },
+    {
+      "id": "dip-tasks",
+      "q": "Dip says it can't see my tasks",
+      "keywords": ["dip", "see", "tasks", "permission", "share"],
+      "a": "That's on purpose: your tasks are yours. If you want Dip to see them, turn on **Share tasks with Dip** in Settings → AI and providers."
+    },
+    {
+      "id": "dip-confirm",
+      "q": "Can Dip change my stuff without asking?",
+      "keywords": ["dip", "change", "delete", "confirm", "permission", "actions"],
+      "a": "No. When Dip wants to create, complete or change a task, it shows you a card and it's only saved if you confirm. And you can undo it."
+    },
+    {
+      "id": "tour",
+      "q": "Can I see the welcome tour again?",
+      "keywords": ["tour", "welcome", "tutorial", "again", "repeat"],
+      "a": "Yes: at the top of this Help tab tap **See the tour again**."
+    }
+  ],
+  "shortcuts": [
+    {
+      "keys": "⌘1 … ⌘0",
+      "what": "Switch tabs: Home, Dip, Tasks, Now, Tenderizer, Dailies, Notes, Brain Dump, Focus, Calendar"
+    },
+    {
+      "keys": "⌘,",
+      "what": "Open Settings"
+    },
+    {
+      "keys": "⌘N",
+      "what": "New quick note"
+    },
+    {
+      "keys": "Enter",
+      "what": "Send the message to Dip (⇧ Enter: new line)"
+    },
+    {
+      "keys": "Fn Fn (🌐)",
+      "what": "Dictate with your voice in any text field"
+    },
+    {
+      "keys": "Esc",
+      "what": "Hang up the call with Dip or close a little window"
+    },
+    {
+      "keys": "Your shortcut",
+      "what": "Open Dip's mini chat from any app (you pick it in Settings → Menu bar)"
+    }
+  ]
+}

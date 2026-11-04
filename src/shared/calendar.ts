@@ -1,5 +1,6 @@
 import type { CalendarEvent, Daily, DailyRepeat, Task } from './types'
 import { addDays, isDueOn } from './dailies'
+import { t } from './i18n'
 
 // SPEC 9.14: what goes on each day of Nuggit's calendar, and how Nuggit's tasks and dailies
 // become calendar entries for the Mac (and any app that reads .ics). Shared and pure, so
@@ -108,7 +109,7 @@ export function calendarEntries(tasks: Task[], dailies: Daily[]): CalendarEntry[
       title: task.title,
       date: task.dueDate,
       minutes: task.estimateMin ?? 30,
-      note: 'Tarea de Nuggit'
+      note: t('Tarea de Nuggit', 'Nuggit task')
     })
   }
   for (const daily of dailies) {
@@ -119,7 +120,7 @@ export function calendarEntries(tasks: Task[], dailies: Daily[]): CalendarEntry[
       ...(daily.time ? { time: daily.time } : {}),
       minutes: daily.estimateMin ?? 30,
       rrule: repeatRule(daily.repeat),
-      note: 'Daily de Nuggit'
+      note: t('Daily de Nuggit', 'Nuggit daily')
     })
   }
   return entries

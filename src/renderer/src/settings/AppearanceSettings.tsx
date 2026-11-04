@@ -10,11 +10,12 @@ import { ACCENT_PRESETS, isDarkColor } from '../theme/appearance'
 import { BackgroundPicker } from '../theme/BackgroundPicker'
 import { FontPicker, FontSelect } from '../theme/FontPicker'
 import type { SectionProps } from './shared'
+import { t } from '../../../shared/i18n'
 
-const THEMES: Array<{ value: ThemePreference; label: string }> = [
-  { value: 'system', label: '🖥️ Como el sistema' },
-  { value: 'light', label: '☀️ Claro' },
-  { value: 'dark', label: '🌙 Oscuro' }
+const themes = (): Array<{ value: ThemePreference; label: string }> => [
+  { value: 'system', label: t('🖥️ Como el sistema', '🖥️ Same as system') },
+  { value: 'light', label: t('☀️ Claro', '☀️ Light') },
+  { value: 'dark', label: t('🌙 Oscuro', '🌙 Dark') }
 ]
 
 // Fase 9: theme, accent color, the board's background and how widgets look.
@@ -28,19 +29,19 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
 
   return (
     <section className="settings-section">
-      <h3>🎨 Apariencia</h3>
+      <h3>🎨 {t('Apariencia', 'Appearance')}</h3>
 
       <fieldset className="settings-choices">
-        <legend>Tema</legend>
-        {THEMES.map((t) => (
-          <label key={t.value}>
+        <legend>{t('Tema', 'Theme')}</legend>
+        {themes().map((th) => (
+          <label key={th.value}>
             <input
               type="radio"
               name="theme"
-              checked={!themeColor && settings.theme === t.value}
-              onChange={() => update({ theme: t.value, appearance: { themeColor: null } })}
+              checked={!themeColor && settings.theme === th.value}
+              onChange={() => update({ theme: th.value, appearance: { themeColor: null } })}
             />
-            {t.label}
+            {th.label}
           </label>
         ))}
         <label>
@@ -50,11 +51,11 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             checked={!!themeColor}
             onChange={() => chooseThemeColor(themeColor ?? '#2b2350')}
           />
-          🎨 Mi color
+          🎨 {t('Mi color', 'My color')}
           <span className={`theme-color-choice${themeColor ? '' : ' is-off'}`}>
             <input
               type="color"
-              aria-label="Color de la app"
+              aria-label={t('Color de la app', 'App color')}
               value={themeColor ?? '#2b2350'}
               onChange={(e) => chooseThemeColor(e.target.value)}
             />
@@ -63,8 +64,12 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
       </fieldset>
 
       <div className="settings-field">
-        <span>Color de acento</span>
-        <div className="accent-picker" role="radiogroup" aria-label="Color de acento">
+        <span>{t('Color de acento', 'Accent color')}</span>
+        <div
+          className="accent-picker"
+          role="radiogroup"
+          aria-label={t('Color de acento', 'Accent color')}
+        >
           {Object.entries(ACCENT_PRESETS).map(([key, preset]) => (
             <button
               key={key}
@@ -80,12 +85,12 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
           ))}
           <label
             className={`accent-choice is-custom${custom ? ' is-active' : ''}`}
-            title="Otro color"
+            title={t('Otro color', 'Another color')}
             style={custom ? { background: appearance.accent } : undefined}
           >
             <input
               type="color"
-              aria-label="Otro color de acento"
+              aria-label={t('Otro color de acento', 'Another accent color')}
               value={custom ? appearance.accent : '#8b72dd'}
               onChange={(e) => update({ appearance: { accent: e.target.value } })}
             />
@@ -94,9 +99,9 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
       </div>
 
       <div className="settings-subsection">
-        <h4>🔤 Letra</h4>
+        <h4>🔤 {t('Letra', 'Text')}</h4>
         <div className="settings-field">
-          <span>Fuente</span>
+          <span>{t('Fuente', 'Font')}</span>
           <FontPicker
             value={appearance.font}
             onChange={(font) => update({ appearance: { font } })}
@@ -104,17 +109,19 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
         </div>
 
         <div className="settings-field">
-          <span>Fuente de los títulos</span>
+          <span>{t('Fuente de los títulos', 'Title font')}</span>
           <FontSelect
-            ariaLabel="Fuente de los títulos"
+            ariaLabel={t('Fuente de los títulos', 'Title font')}
             value={appearance.headingFont ?? null}
-            generalLabel="Igual que el texto"
+            generalLabel={t('Igual que el texto', 'Same as the text')}
             onChange={(headingFont) => update({ appearance: { headingFont } })}
           />
         </div>
 
         <label className="settings-field">
-          <span>Tamaño de la letra: {Math.round(appearance.fontScale * 100)}%</span>
+          <span>
+            {t('Tamaño de la letra', 'Text size')}: {Math.round(appearance.fontScale * 100)}%
+          </span>
           <input
             type="range"
             className="settings-range"
@@ -125,7 +132,10 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             onChange={(e) => update({ appearance: { fontScale: Number(e.target.value) } })}
           />
           <small>
-            Cambia el tamaño del texto en toda la app, también en los widgets despegados.
+            {t(
+              'Cambia el tamaño del texto en toda la app, también en los widgets despegados.',
+              'Changes the text size across the whole app, popped-out widgets too.'
+            )}
           </small>
         </label>
 
@@ -136,16 +146,20 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             onChange={(e) => update({ appearance: { fontAuto: e.target.checked } })}
           />
           <span>
-            Ajustar al tamaño de la ventana
+            {t('Ajustar al tamaño de la ventana', 'Fit to the window size')}
             <small>
-              Con la ventana chica la letra se achica y con la ventana grande crece. Los widgets
-              despegados quedan igual.
+              {t(
+                'Con la ventana chica la letra se achica y con la ventana grande crece. Los widgets despegados quedan igual.',
+                'With a small window the text shrinks and with a big window it grows. Popped-out widgets stay the same.'
+              )}
             </small>
           </span>
         </label>
 
         <p className="font-size-preview">
-          Así se ve: <strong>Termina un tender de 10 minutos</strong> y luego toma agua. 🌱
+          {t('Así se ve:', 'This is how it looks:')}{' '}
+          <strong>{t('Termina un tender de 10 minutos', 'Finish a 10-minute tender')}</strong>{' '}
+          {t('y luego toma agua. 🌱', 'and then drink some water. 🌱')}
         </p>
 
         {(appearance.font !== DEFAULT_FONT ||
@@ -162,14 +176,19 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
               })
             }
           >
-            Volver a la letra de siempre
+            {t('Volver a la letra de siempre', 'Back to the usual text')}
           </button>
         )}
-        <small>Cada widget puede tener su propia letra desde su ⚙︎.</small>
+        <small>
+          {t(
+            'Cada widget puede tener su propia letra desde su ⚙︎.',
+            'Each widget can have its own font from its ⚙︎.'
+          )}
+        </small>
       </div>
 
       <div className="settings-field">
-        <span>Fondo del tablero (Inicio)</span>
+        <span>{t('Fondo del tablero (Inicio)', 'Board background (Home)')}</span>
         <BackgroundPicker
           value={appearance.board}
           onChange={(board) => board && update({ appearance: { board } })}
@@ -180,9 +199,9 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
         <>
           <label className="settings-field">
             <span>
-              Transparencia del fondo:{' '}
+              {t('Transparencia del fondo:', 'Background transparency:')}{' '}
               {appearance.boardOpacity >= 1
-                ? 'ninguna'
+                ? t('ninguna', 'none')
                 : `${Math.round((1 - appearance.boardOpacity) * 100)}%`}
             </span>
             <input
@@ -203,8 +222,13 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
               onChange={(e) => update({ appearance: { boardEverywhere: e.target.checked } })}
             />
             <span>
-              Usarlo también en las otras pestañas
-              <small>Tareas, Notas, Focus, Ajustes… todas con el mismo fondo.</small>
+              {t('Usarlo también en las otras pestañas', 'Use it on the other tabs too')}
+              <small>
+                {t(
+                  'Tareas, Notas, Focus, Ajustes… todas con el mismo fondo.',
+                  'Tasks, Notes, Focus, Settings… all with the same background.'
+                )}
+              </small>
             </span>
           </label>
         </>
@@ -213,7 +237,7 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
       <div className="settings-subsection">
         <h4>🧩 Widgets</h4>
         <div className="settings-field">
-          <span>Fondo de todos los widgets</span>
+          <span>{t('Fondo de todos los widgets', 'Background for all widgets')}</span>
           <BackgroundPicker
             value={appearance.widgetBackground}
             onChange={(widgetBackground) =>
@@ -221,16 +245,18 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             }
           />
           <small>
-            Cada widget puede tener el suyo desde su ⚙︎. Con imagen, se pone un velo suave para que
-            el texto se lea bien.
+            {t(
+              'Cada widget puede tener el suyo desde su ⚙︎. Con imagen, se pone un velo suave para que el texto se lea bien.',
+              'Each widget can have its own from its ⚙︎. With an image, a soft veil goes on top so the text is easy to read.'
+            )}
           </small>
         </div>
 
         <label className="settings-field">
           <span>
-            Transparencia:{' '}
+            {t('Transparencia:', 'Transparency:')}{' '}
             {appearance.widgetOpacity >= 1
-              ? 'ninguna'
+              ? t('ninguna', 'none')
               : `${Math.round((1 - appearance.widgetOpacity) * 100)}%`}
           </span>
           <input
@@ -246,7 +272,10 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
 
         <label className="settings-field">
           <span>
-            Esquinas: {appearance.widgetRadius === 0 ? 'rectas' : `${appearance.widgetRadius} px`}
+            {t('Esquinas', 'Corners')}:{' '}
+            {appearance.widgetRadius === 0
+              ? t('rectas', 'square')
+              : `${appearance.widgetRadius} px`}
           </span>
           <input
             type="range"
@@ -257,7 +286,12 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             value={appearance.widgetRadius}
             onChange={(e) => update({ appearance: { widgetRadius: Number(e.target.value) } })}
           />
-          <small>Cada widget puede tener las suyas desde su ⚙︎.</small>
+          <small>
+            {t(
+              'Cada widget puede tener las suyas desde su ⚙︎.',
+              'Each widget can have its own from its ⚙︎.'
+            )}
+          </small>
         </label>
 
         <label className="settings-check">
@@ -267,8 +301,13 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             onChange={(e) => update({ appearance: { widgetShadow: e.target.checked } })}
           />
           <span>
-            Sombra en el tablero
-            <small>Los widgets despegados tienen su propia opción de sombra en su ⚙︎.</small>
+            {t('Sombra en el tablero', 'Shadow on the board')}
+            <small>
+              {t(
+                'Los widgets despegados tienen su propia opción de sombra en su ⚙︎.',
+                'Popped-out widgets have their own shadow option in their ⚙︎.'
+              )}
+            </small>
           </span>
         </label>
       </div>

@@ -16,6 +16,7 @@ import {
   WIDGET_RADIUS_MIN
 } from '../../shared/types'
 import { spotifyUri } from '../../shared/music'
+import { isLang } from '../../shared/i18n'
 import { readJson, writeJson } from './jsonStore'
 
 const DEFAULT_SETTINGS: Settings = {
@@ -315,6 +316,7 @@ export async function loadSettings(): Promise<Settings> {
     },
     qotdTopics: cleanTopics(data.qotdTopics) ?? [],
     qotdCustomTopics: cleanCustomTopics(data.qotdCustomTopics) ?? [],
+    ...(isLang(data.language) && { language: data.language }),
     ui: {
       ...DEFAULT_SETTINGS.ui,
       ...(isObject(data.ui) ? data.ui : {}),
@@ -475,6 +477,7 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     if (topics) current.qotdTopics = topics
     const custom = cleanCustomTopics(patch.qotdCustomTopics)
     if (custom) current.qotdCustomTopics = custom
+    if (isLang(patch.language)) current.language = patch.language
   }
   if (isObject(patch) && isObject(patch.onboarding)) {
     const { tourDone, whatsNew, lastSeenVersion, lastSeenNews } = patch.onboarding

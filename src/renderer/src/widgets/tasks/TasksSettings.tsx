@@ -1,11 +1,12 @@
+import { t } from '../../../../shared/i18n'
 import type { StatusIndicator } from '../../../../shared/types'
 import { useSettings } from '../../store/useSettings'
 
-const OPTIONS: Array<{ value: StatusIndicator; label: string }> = [
-  { value: 'dot', label: 'Solo el puntito' },
-  { value: 'dot-title', label: 'Puntito y nombre de la tarea' },
-  { value: 'title', label: 'Solo el nombre de la tarea' },
-  { value: 'off', label: 'Nada' }
+const options = (): Array<{ value: StatusIndicator; label: string }> => [
+  { value: 'dot', label: t('Solo el puntito', 'Just the dot') },
+  { value: 'dot-title', label: t('Puntito y nombre de la tarea', 'Dot and task name') },
+  { value: 'title', label: t('Solo el nombre de la tarea', 'Just the task name') },
+  { value: 'off', label: t('Nada', 'Nothing') }
 ]
 
 // The menu bar indicator is an app setting (not per widget), shown here because it is
@@ -16,8 +17,13 @@ export function TasksSettings(): React.JSX.Element {
 
   return (
     <fieldset className="tasks-settings">
-      <legend>Cuando hay algo en curso, mostrar en la barra de menú</legend>
-      {OPTIONS.map((option) => (
+      <legend>
+        {t(
+          'Cuando hay algo en curso, mostrar en la barra de menú',
+          'When something is in progress, show in the menu bar'
+        )}
+      </legend>
+      {options().map((option) => (
         <label key={option.value}>
           <input
             type="radio"

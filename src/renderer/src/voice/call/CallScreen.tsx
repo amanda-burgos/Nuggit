@@ -2,15 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import type { VoiceSettings } from '../../../../shared/types'
 import { CallEngine, INITIAL_CALL, type CallPhase, type CallState } from './callEngine'
 import './call.css'
+import { t } from '../../../../shared/i18n'
 
-const LABELS: Partial<Record<CallPhase, string>> = {
-  checking: 'Llamando a Dip…',
-  connecting: 'Llamando a Dip…',
-  listening: 'Te escucho…',
-  hearing: 'Escuchando…',
-  thinking: 'Pensando…',
-  speaking: 'Dip está hablando · habla para interrumpir'
-}
+const labels = (): Partial<Record<CallPhase, string>> => ({
+  checking: t('Llamando a Dip…', 'Calling Dip…'),
+  connecting: t('Llamando a Dip…', 'Calling Dip…'),
+  listening: t('Te escucho…', "I'm listening…"),
+  hearing: t('Escuchando…', 'Listening…'),
+  thinking: t('Pensando…', 'Thinking…'),
+  speaking: t('Dip está hablando · habla para interrumpir', 'Dip is talking · talk to interrupt')
+})
 
 const log = (err: unknown): void => console.error('[call]', err)
 
@@ -54,24 +55,32 @@ export function CallScreen({
     <div
       className={`call is-${phase}${muted ? ' is-muted' : ''}`}
       role="dialog"
-      aria-label="Llamada con Dip"
+      aria-label={t('Llamada con Dip', 'Call with Dip')}
     >
       {phase === 'explain-mic' && (
         <div className="call-notice">
-          <strong>🎤 Para hablar con Dip, Nuggit necesita tu micrófono.</strong>
+          <strong>
+            🎤{' '}
+            {t(
+              'Para hablar con Dip, Nuggit necesita tu micrófono.',
+              'To talk to Dip, Nuggit needs your microphone.'
+            )}
+          </strong>
           <p>
-            Solo lo usa durante la llamada. Lo que dices se convierte en texto y el audio no se
-            guarda. macOS te va a preguntar una sola vez.
+            {t(
+              'Solo lo usa durante la llamada. Lo que dices se convierte en texto y el audio no se guarda. macOS te va a preguntar una sola vez.',
+              "It only uses it during the call. What you say is turned into text and the audio isn't saved. macOS will ask you just once."
+            )}
           </p>
           <div className="call-buttons">
             <button
               className="button-primary"
               onClick={() => engine.current?.allowMic().catch(log)}
             >
-              Permitir micrófono
+              {t('Permitir micrófono', 'Allow microphone')}
             </button>
             <button className="button-ghost" onClick={onHangUp}>
-              Ahora no
+              {t('Ahora no', 'Not now')}
             </button>
           </div>
         </div>
@@ -79,17 +88,27 @@ export function CallScreen({
 
       {phase === 'mic-denied' && (
         <div className="call-notice">
-          <strong>macOS no deja que Nuggit use el micrófono.</strong>
-          <p>Actívalo en Ajustes del Sistema → Privacidad y seguridad → Micrófono.</p>
+          <strong>
+            {t(
+              'macOS no deja que Nuggit use el micrófono.',
+              "macOS isn't letting Nuggit use the microphone."
+            )}
+          </strong>
+          <p>
+            {t(
+              'Actívalo en Ajustes del Sistema → Privacidad y seguridad → Micrófono.',
+              'Turn it on in System Settings → Privacy & Security → Microphone.'
+            )}
+          </p>
           <div className="call-buttons">
             <button
               className="button-primary"
               onClick={() => window.api.voice.openMicSettings().catch(log)}
             >
-              Abrir Privacidad
+              {t('Abrir Privacidad', 'Open Privacy')}
             </button>
             <button className="button-ghost" onClick={onHangUp}>
-              Cerrar
+              {t('Cerrar', 'Close')}
             </button>
           </div>
         </div>
@@ -97,10 +116,14 @@ export function CallScreen({
 
       {phase === 'no-stt' && (
         <div className="call-notice">
-          <strong>Dip todavía no puede entender tu voz.</strong>
+          <strong>
+            {t('Dip todavía no puede entender tu voz.', "Dip can't understand your voice yet.")}
+          </strong>
           <p>
-            Falta algo que convierta tu voz en texto: whisper.cpp en esta Mac (gratis y privado), tu
-            servidor o Gemini. Se prepara en Ajustes → Voz → Modo llamada.
+            {t(
+              'Falta algo que convierta tu voz en texto: whisper.cpp en esta Mac (gratis y privado), tu servidor o Gemini. Se prepara en Ajustes → Voz → Modo llamada.',
+              'It needs something that turns your voice into text: whisper.cpp on this Mac (free and private), your server or Gemini. Set it up in Settings → Voice → Call mode.'
+            )}
           </p>
           <div className="call-buttons">
             <button
@@ -111,10 +134,10 @@ export function CallScreen({
                 onHangUp()
               }}
             >
-              Ir a Ajustes → Voz
+              {t('Ir a Ajustes → Voz', 'Go to Settings → Voice')}
             </button>
             <button className="button-ghost" onClick={onHangUp}>
-              Cerrar
+              {t('Cerrar', 'Close')}
             </button>
           </div>
         </div>
@@ -126,12 +149,12 @@ export function CallScreen({
             <div className="call-orb" style={{ transform: `scale(${scale.toFixed(3)})` }} />
           </div>
           <p className="call-state" aria-live="polite">
-            {muted ? 'Silenciado' : LABELS[phase]}
+            {muted ? t('Silenciado', 'Muted') : labels()[phase]}
           </p>
           <div className="call-transcript">
             {state.heard && (
               <p>
-                <small>Tú</small> {state.heard}
+                <small>{t('Tú', 'You')}</small> {state.heard}
               </p>
             )}
             {state.said && (
@@ -147,16 +170,16 @@ export function CallScreen({
               aria-pressed={muted}
               onClick={() => engine.current?.toggleMute()}
             >
-              {muted ? '🎙️ Activar micrófono' : '🔇 Silenciar'}
+              {muted ? t('🎙️ Activar micrófono', '🎙️ Unmute') : t('🔇 Silenciar', '🔇 Mute')}
             </button>
             <button className="call-hangup" onClick={onHangUp}>
-              📞 Colgar
+              📞 {t('Colgar', 'Hang up')}
             </button>
           </div>
         </>
       )}
 
-      {phase === 'checking' && <p className="call-state">{LABELS.checking}</p>}
+      {phase === 'checking' && <p className="call-state">{labels().checking}</p>}
     </div>
   )
 }

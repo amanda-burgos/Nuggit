@@ -1,3 +1,4 @@
+import { t } from '../../../../shared/i18n'
 import type { TenderStep } from '../../../../shared/types'
 
 export type EditableStep = TenderStep & { key: number }
@@ -34,20 +35,20 @@ export function StepsEditor({ steps, onChange }: Props): React.JSX.Element {
               className="tenders-step-title"
               rows={1}
               value={step.title}
-              placeholder="Paso chiquito…"
-              aria-label={`Paso ${i + 1}`}
+              placeholder={t('Paso chiquito…', 'Tiny step…')}
+              aria-label={t(`Paso ${i + 1}`, `Step ${i + 1}`)}
               onChange={(e) => update(i, { title: e.target.value.replace(/\n/g, ' ') })}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') e.preventDefault()
               }}
             />
-            <label className="tenders-step-minutes" title="Minutos">
+            <label className="tenders-step-minutes" title={t('Minutos', 'Minutes')}>
               <input
                 type="number"
                 min={1}
                 max={600}
                 value={step.minutes}
-                aria-label={`Minutos del paso ${i + 1}`}
+                aria-label={t(`Minutos del paso ${i + 1}`, `Minutes for step ${i + 1}`)}
                 onChange={(e) =>
                   update(i, { minutes: Math.min(600, Math.max(1, Number(e.target.value) || 1)) })
                 }
@@ -57,7 +58,7 @@ export function StepsEditor({ steps, onChange }: Props): React.JSX.Element {
             <div className="tenders-step-actions">
               <button
                 className="icon-button"
-                title="Subir"
+                title={t('Subir', 'Move up')}
                 disabled={i === 0}
                 onClick={() => move(i, -1)}
               >
@@ -65,7 +66,7 @@ export function StepsEditor({ steps, onChange }: Props): React.JSX.Element {
               </button>
               <button
                 className="icon-button"
-                title="Bajar"
+                title={t('Bajar', 'Move down')}
                 disabled={i === steps.length - 1}
                 onClick={() => move(i, 1)}
               >
@@ -73,7 +74,7 @@ export function StepsEditor({ steps, onChange }: Props): React.JSX.Element {
               </button>
               <button
                 className="icon-button"
-                title="Borrar paso"
+                title={t('Borrar paso', 'Delete step')}
                 onClick={() => onChange(steps.filter((_, j) => j !== i))}
               >
                 ×
@@ -86,7 +87,7 @@ export function StepsEditor({ steps, onChange }: Props): React.JSX.Element {
         className="button-ghost"
         onClick={() => onChange([...steps, { key: nextKey++, title: '', minutes: 10 }])}
       >
-        + Añadir paso
+        {t('+ Añadir paso', '+ Add step')}
       </button>
     </div>
   )

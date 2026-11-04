@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { t } from '../../../../shared/i18n'
 import type { Daily, TenderAnswer } from '../../../../shared/types'
 import { describeRepeat } from '../../../../shared/dailies'
 import { DailyEditor, type DailyDraft } from './DailyEditor'
@@ -31,7 +32,9 @@ export function DailyPlanner({
     setPhase({ kind: 'asking' })
     const result = await window.api.ai.dailyQuestions(request).catch(() => null)
     if (!result?.ok) {
-      setError(result?.error ?? 'Algo salió mal. Intenta otra vez.')
+      setError(
+        result?.error ?? t('Algo salió mal. Intenta otra vez.', 'Something went wrong. Try again.')
+      )
       return setPhase({ kind: 'start' })
     }
     setPhase({
@@ -51,7 +54,9 @@ export function DailyPlanner({
       })
       .catch(() => null)
     if (!result?.ok) {
-      setError(result?.error ?? 'Algo salió mal. Intenta otra vez.')
+      setError(
+        result?.error ?? t('Algo salió mal. Intenta otra vez.', 'Something went wrong. Try again.')
+      )
       return setPhase(change ? { kind: 'review', answers } : { kind: 'questions', answers })
     }
     setDrafts(result.dailies)
@@ -66,15 +71,15 @@ export function DailyPlanner({
       onDone(saved)
     } catch (err) {
       console.error('Could not save dailies', err)
-      setError('No pude guardar. Intenta otra vez.')
+      setError(t('No pude guardar. Intenta otra vez.', 'I couldn’t save. Try again.'))
     }
   }
 
   return (
     <div className="daily-planner">
       <div className="daily-planner-head">
-        <strong>✨ Planear con Dip</strong>
-        <button className="icon-button" title="Cerrar" onClick={onClose}>
+        <strong>{t('✨ Planear con Dip', '✨ Plan with Dip')}</strong>
+        <button className="icon-button" title={t('Cerrar', 'Close')} onClick={onClose}>
           ×
         </button>
       </div>
@@ -89,8 +94,11 @@ export function DailyPlanner({
           <textarea
             rows={2}
             value={request}
-            placeholder='Ej: "ayúdame a armar mi rutina de la semana"'
-            aria-label="Qué rutina quieres"
+            placeholder={t(
+              'Ej: "ayúdame a armar mi rutina de la semana"',
+              'E.g. "help me build my weekly routine"'
+            )}
+            aria-label={t('Qué rutina quieres', 'What routine you want')}
             autoFocus
             disabled={phase.kind === 'asking'}
             onChange={(e) => setRequest(e.target.value)}
@@ -100,7 +108,9 @@ export function DailyPlanner({
             className="button-primary"
             disabled={!request.trim() || phase.kind === 'asking'}
           >
-            {phase.kind === 'asking' ? 'Dip está pensando…' : 'Siguiente'}
+            {phase.kind === 'asking'
+              ? t('Dip está pensando…', 'Dip is thinking…')
+              : t('Siguiente', 'Next')}
           </button>
         </form>
       )}
@@ -131,7 +141,9 @@ export function DailyPlanner({
             </label>
           ))}
           <button type="submit" className="button-primary" disabled={phase.kind === 'planning'}>
-            {phase.kind === 'planning' ? 'Dip está armando tu rutina…' : 'Proponer dailies'}
+            {phase.kind === 'planning'
+              ? t('Dip está armando tu rutina…', 'Dip is building your routine…')
+              : t('Proponer dailies', 'Suggest dailies')}
           </button>
         </form>
       )}
@@ -139,7 +151,10 @@ export function DailyPlanner({
       {(phase.kind === 'review' || (phase.kind === 'planning' && drafts.length > 0)) && (
         <div className="daily-planner-review">
           <p className="daily-hint">
-            Revisa, cambia o quita lo que quieras. Nada se guarda hasta que digas.
+            {t(
+              'Revisa, cambia o quita lo que quieras. Nada se guarda hasta que digas.',
+              'Check, change or remove whatever you want. Nothing is saved until you say so.'
+            )}
           </p>
           <ul className="daily-list">
             {drafts.map((d, i) =>
@@ -147,7 +162,7 @@ export function DailyPlanner({
                 <li key={i}>
                   <DailyEditor
                     initial={d}
-                    saveLabel="Listo"
+                    saveLabel={t('Listo', 'Done')}
                     onSave={(next) => {
                       setDrafts((list) => list.map((x, j) => (j === i ? next : x)))
                       setEditing(null)
@@ -165,12 +180,16 @@ export function DailyPlanner({
                       {d.estimateMin ? ` · ${d.estimateMin} min` : ''}
                     </small>
                   </span>
-                  <button className="icon-button" title="Editar" onClick={() => setEditing(i)}>
+                  <button
+                    className="icon-button"
+                    title={t('Editar', 'Edit')}
+                    onClick={() => setEditing(i)}
+                  >
                     ✏️
                   </button>
                   <button
                     className="icon-button"
-                    title="Quitar"
+                    title={t('Quitar', 'Remove')}
                     onClick={() => setDrafts((list) => list.filter((_, j) => j !== i))}
                   >
                     ×
@@ -190,26 +209,31 @@ export function DailyPlanner({
             >
               <input
                 value={feedback}
-                placeholder='Ej: "el gimnasio mejor martes y jueves"'
-                aria-label="Qué cambiar"
+                placeholder={t(
+                  'Ej: "el gimnasio mejor martes y jueves"',
+                  'E.g. "gym on Tuesdays and Thursdays instead"'
+                )}
+                aria-label={t('Qué cambiar', 'What to change')}
                 autoFocus
                 disabled={phase.kind === 'planning'}
                 onChange={(e) => setFeedback(e.target.value)}
               />
               <button type="submit" className="button-primary" disabled={phase.kind === 'planning'}>
-                {phase.kind === 'planning' ? 'Cambiando…' : 'Pedir cambio'}
+                {phase.kind === 'planning'
+                  ? t('Cambiando…', 'Changing…')
+                  : t('Pedir cambio', 'Ask for a change')}
               </button>
             </form>
           ) : (
             <div className="daily-editor-buttons">
               <button className="button-primary" disabled={drafts.length === 0} onClick={save}>
-                Guardar
+                {t('Guardar', 'Save')}
               </button>
               <button className="button-ghost" onClick={() => setFeedback('')}>
-                Cambiar
+                {t('Cambiar', 'Change')}
               </button>
               <button className="button-ghost" onClick={onClose}>
-                Cancelar
+                {t('Cancelar', 'Cancel')}
               </button>
             </div>
           )}

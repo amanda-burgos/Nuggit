@@ -1,3 +1,4 @@
+import { locale } from '../../shared/i18n'
 import type { Task } from '../../shared/types'
 
 // Dip's original personality (SPEC "Nombres"). The user can add changes on top of it.
@@ -67,7 +68,7 @@ export function dipBase(
   extra: string[],
   now = new Date()
 ): string {
-  const when = now.toLocaleString('es', {
+  const when = now.toLocaleString(locale(), {
     weekday: 'long',
     year: 'numeric',
     month: 'long',

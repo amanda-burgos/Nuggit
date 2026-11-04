@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { WidgetProps, WidgetSettingsProps } from '../types'
 import './clock.css'
+import { locale, t } from '../../../../shared/i18n'
 
 export interface ClockConfig {
   showSeconds: boolean
@@ -18,13 +19,13 @@ function useNow(): Date {
 
 export function ClockWidget({ config }: WidgetProps<ClockConfig>): React.JSX.Element {
   const now = useNow()
-  const time = now.toLocaleTimeString('es', {
+  const time = now.toLocaleTimeString(locale(), {
     hour: '2-digit',
     minute: '2-digit',
     second: config.showSeconds ? '2-digit' : undefined,
     hour12: config.hour12
   })
-  const date = now.toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })
+  const date = now.toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' })
 
   return (
     <div className="clock">
@@ -46,7 +47,7 @@ export function ClockSettings({
           checked={config.showSeconds}
           onChange={(e) => updateConfig({ showSeconds: e.target.checked })}
         />
-        Mostrar segundos
+        {t('Mostrar segundos', 'Show seconds')}
       </label>
       <label>
         <input
@@ -54,7 +55,7 @@ export function ClockSettings({
           checked={config.hour12}
           onChange={(e) => updateConfig({ hour12: e.target.checked })}
         />
-        Formato 12 horas
+        {t('Formato 12 horas', '12-hour clock')}
       </label>
     </div>
   )

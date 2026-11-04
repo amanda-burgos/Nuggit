@@ -17,6 +17,7 @@ import { type ChatMemory, EMPTY_MEMORY, messagesToSend, nextBlock } from './ai/c
 import { readJson, writeJson } from './storage/jsonStore'
 import { getNextActionState } from './nextAction'
 import { completeTask, createTask, getTasks, removeTask, setStatuses, updateTask } from './tasks'
+import { t } from '../shared/i18n'
 
 // The conversation with Dip, shared by the Dip widget, its detached window, the Dip tab and
 // the menu bar mini chat. Saved in dip-chat.json so the history survives restarts.
@@ -169,8 +170,9 @@ function stopSummarizing(): void {
 
 export async function sendToDip(input: unknown, options?: unknown): Promise<AIChatResult> {
   const text = typeof input === 'string' ? input.trim().slice(0, MAX_TEXT) : ''
-  if (!text) return { ok: false, error: 'Escribe algo para Dip.' }
-  if (state.pending) return { ok: false, error: 'Dip todavía está contestando.' }
+  if (!text) return { ok: false, error: t('Escribe algo para Dip.', 'Write something for Dip.') }
+  if (state.pending)
+    return { ok: false, error: t('Dip todavía está contestando.', 'Dip is still answering.') }
   stopSummarizing()
   commit({ ...state, messages: [...state.messages, message('user', text)] }, true)
   const voice = isObject(options) && options.voice === true
@@ -181,7 +183,7 @@ export async function sendToDip(input: unknown, options?: unknown): Promise<AICh
 export async function retryDip(): Promise<AIChatResult> {
   const last = state.messages[state.messages.length - 1]
   if (state.pending || last?.role !== 'user') {
-    return { ok: false, error: 'No hay nada que reintentar.' }
+    return { ok: false, error: t('No hay nada que reintentar.', "There's nothing to retry.") }
   }
   stopSummarizing()
   return answer()
@@ -224,7 +226,10 @@ function setMessage(id: string, patch: Partial<DipChatMessage>): void {
 export function applyAction(messageId: unknown, input: unknown): { ok: boolean; error?: string } {
   const msg = state.messages.find((m) => m.id === messageId)
   if (!msg?.action || msg.actionState !== 'pending')
-    return { ok: false, error: 'Esa propuesta ya no está.' }
+    return {
+      ok: false,
+      error: t('Esa propuesta ya no está.', "That suggestion isn't there anymore.")
+    }
   const edits = cleanEdits(input)
   const action = msg.action
   try {
@@ -244,7 +249,8 @@ export function applyAction(messageId: unknown, input: unknown): { ok: boolean; 
     }
 
     const task = getTasks().find((t) => t.id === (edits.taskId ?? action.taskId))
-    if (!task) return { ok: false, error: 'Esa tarea ya no existe.' }
+    if (!task)
+      return { ok: false, error: t('Esa tarea ya no existe.', "That task doesn't exist anymore.") }
 
     if (action.type === 'complete') {
       // The same "Hecho" as Next Action: the last tender also finishes its big task.
@@ -274,20 +280,34 @@ export function applyAction(messageId: unknown, input: unknown): { ok: boolean; 
     return { ok: true }
   } catch (err) {
     console.error('[dip-chat] could not apply action', err)
-    return { ok: false, error: 'No pude guardarlo. Intenta otra vez.' }
+    return {
+      ok: false,
+      error: t('No pude guardarlo. Intenta otra vez.', "I couldn't save it. Try again.")
+    }
   }
 }
 
 // After "ya terminé X" is saved, Dip says what comes next (the Next Action rules, no AI).
 function suggestNext(): void {
   const next = pickNextActions(getTasks(), getNextActionState(), toISODate(new Date()), 1)[0]
-  let text = '¡Bien hecho! 🎉 No te queda nada pendiente. A descansar un ratito ✨'
+  let text = t(
+    '¡Bien hecho! 🎉 No te queda nada pendiente. A descansar un ratito ✨',
+    "Nice work! 🎉 You've got nothing left to do. Time for a little rest ✨"
+  )
   if (next) {
-    const minutes = next.minutes ? ` (unos ${next.minutes} min)` : ''
+    const minutes = next.minutes
+      ? t(` (unos ${next.minutes} min)`, ` (about ${next.minutes} min)`)
+      : ''
     text =
       next.task === next.root
-        ? `¡Bien hecho! 🎉 Lo siguiente: «${next.task.title}»${minutes}.`
-        : `¡Bien hecho! 🎉 Siguiente paso de «${next.root.title}»: «${next.task.title}»${minutes}.`
+        ? t(
+            `¡Bien hecho! 🎉 Lo siguiente: «${next.task.title}»${minutes}.`,
+            `Nice work! 🎉 Up next: “${next.task.title}”${minutes}.`
+          )
+        : t(
+            `¡Bien hecho! 🎉 Siguiente paso de «${next.root.title}»: «${next.task.title}»${minutes}.`,
+            `Nice work! 🎉 Next step of “${next.root.title}”: “${next.task.title}”${minutes}.`
+          )
   }
   commit({ ...state, messages: [...state.messages, message('assistant', text)] }, true)
 }

@@ -22,6 +22,7 @@ import { changeSettings, musicTrayMode } from './settings'
 import { initStatusTray } from './statusTray'
 import { initTasks } from './tasks'
 import { loadSettings } from './storage'
+import { setLang } from '../shared/i18n'
 import { flushWrites } from './storage/jsonStore'
 import { initWidgetWindows, prepareQuit } from './widgetWindows'
 import icon from '../../resources/icon.png?asset'
@@ -100,6 +101,7 @@ app.whenReady().then(async () => {
   let musicTray: NonNullable<Settings['musicTray']> = 'off'
   try {
     const settings = await loadSettings()
+    setLang(settings.language)
     nativeTheme.themeSource = settings.theme
     statusIndicator = settings.statusIndicator
     dipTray = settings.dipTray

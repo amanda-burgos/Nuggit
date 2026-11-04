@@ -6,6 +6,7 @@ import type { AnyWidgetDefinition } from '../widgets/types'
 import { fitRect, moveRect, resizeRect, type Size } from './layout'
 import { WidgetFrame } from './WidgetFrame'
 import './desktop.css'
+import { t } from '../../../shared/i18n'
 
 // Pixels the pointer must travel before a press becomes a drag (so clicks stay clicks).
 const DRAG_THRESHOLD = 3
@@ -91,8 +92,8 @@ export function Desktop({ desktop, store }: Props): React.JSX.Element {
       <div className="board-area" ref={areaRef}>
         {visible.length === 0 && (
           <div className="desktop-empty">
-            <p>Tu escritorio está vacío.</p>
-            <p>Usa “+ Widget” para añadir uno.</p>
+            <p>{t('Tu escritorio está vacío.', 'Your desktop is empty.')}</p>
+            <p>{t('Usa “+ Widget” para añadir uno.', 'Use “+ Widget” to add one.')}</p>
           </div>
         )}
         {area &&

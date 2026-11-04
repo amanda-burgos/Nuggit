@@ -757,6 +757,20 @@ Cómo quedó (Fase 13):
 - **Ajustar al tamaño de la ventana** (prendido por defecto): solo en la ventana principal, la base va de 13 px a 17 px según el ancho (~16 px a 1280 px), por el tamaño elegido. Los widgets despegados y las ventanitas de la barra de menú usan el tamaño normal.
 - **Por widget:** `font` en el widget (`desktop:setFont`), desde su ⚙︎; cambia su texto y su título.
 
+### Fase 14 — Idioma (español / inglés)
+- La primera vez que se abre Nuggit, **antes del tour**, se escoge el idioma: Español o English.
+- Toda la app cambia: pestañas, widgets, Ajustes, Ayuda, tour, Pregunta del día, menús de la barra de menú y avisos. Se cambia después en Ajustes → General.
+- La IA (Dip, Tenderizer, Dailies, Brain Dump) contesta en el idioma de la app.
+- **Listo cuando:** abro Nuggit nuevo, escojo English y todo (hasta el tour) sale en inglés; lo cambio a Español en Ajustes y todo vuelve al instante.
+
+Cómo quedó (Fase 14):
+- **`src/shared/i18n.ts`:** `t('Guardar', 'Save')` escrito en su lugar (sin archivos de claves), `locale()` para fechas y `getLang()`. Los textos se calculan al dibujar, nunca al cargar el módulo (listas → funciones o getters, como `get name()` en los widgets).
+- **Se guarda** en `settings.language` (`'es' | 'en'`). Sin poner = no se ha escogido: la ventana principal muestra la pantalla de idioma (en los dos idiomas a la vez) y el tour empieza después. A quien ya usaba Nuggit también se le pregunta una vez.
+- **Cada ventana** espera el idioma antes de dibujarse y se vuelve a dibujar completa al cambiarlo (`AppearanceRoot`, `key={lang}`). El proceso main también lo sigue (`setLang` en `settings.ts`): el menú de la barra de menú, tooltips, avisos y errores.
+- **Contenido:** `config/help.en.json` y `config/qotd.en.json` con los mismos ids que los de español (los temas guardados sirven en los dos). La Pregunta del día ya contestada guarda el texto en el idioma en que se contestó.
+- **IA:** en inglés, `askAgent` le agrega al prompt una nota corta (Dip contesta en el idioma en que le escriben, por defecto inglés; los demás escriben en inglés). En español el prompt queda idéntico.
+- **Queda en español:** el contenido del CHANGELOG (📣 Novedades) y los prompts internos de la IA. "Ya terminé X" para que Dip marque una tarea solo lo reconoce en español.
+
 ### Después del MVP (ideas)
 School, Recordatorios con Dip ("recuérdame a las 5…"), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 

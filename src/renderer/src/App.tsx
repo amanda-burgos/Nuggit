@@ -5,6 +5,7 @@ import { Desktop } from './desktop/Desktop'
 import { Toolbar } from './desktop/Toolbar'
 import { HelpPanel } from './help/HelpPanel'
 import { RELEASES } from './help/news'
+import { LanguagePicker } from './help/LanguagePicker'
 import { Tour } from './help/Tour'
 import { NewsPanel } from './help/NewsPanel'
 import { WhatsNew } from './help/WhatsNew'
@@ -35,7 +36,8 @@ function App(): React.JSX.Element {
   const greeted = useRef(false)
 
   useEffect(() => {
-    if (!settings || greeted.current) return
+    // Fase 14: first the language (if it was never chosen), then the tour.
+    if (!settings || !settings.language || greeted.current) return
     greeted.current = true
     const { onboarding } = settings
     window.api.app
@@ -97,6 +99,7 @@ function App(): React.JSX.Element {
   }, [selectTab])
 
   if (!desktop || !settings) return <div className="app" />
+  if (!settings.language) return <LanguagePicker onPick={(language) => update({ language })} />
 
   const widgetType = TABS.find((t) => t.key === tab)?.widgetType
   const { board, boardEverywhere } = settings.appearance

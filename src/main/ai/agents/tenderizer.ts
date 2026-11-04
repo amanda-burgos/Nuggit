@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { t } from '../../../shared/i18n'
 import type { TenderStep } from '../../../shared/types'
 import { dipBase } from '../dip'
 import type { CheckResult } from '../runAgent'
@@ -96,7 +97,9 @@ function checkPlan(raw: string): CheckResult<TenderPlan> {
 export const tenderizer = defineAgent({
   name: 'tenderizer',
   label: 'Tenderizer',
-  purpose: 'Divide una tarea grande en pasos chiquitos.',
+  get purpose() {
+    return t('Divide una tarea grande en pasos chiquitos.', 'Breaks a big task into tiny steps.')
+  },
   tools: [],
   tasks: {
     questions: {

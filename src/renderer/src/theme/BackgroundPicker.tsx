@@ -1,6 +1,7 @@
 import type { Background } from '../../../shared/types'
 import { imageUrl } from './appearance'
 import './background-picker.css'
+import { t } from '../../../shared/i18n'
 
 // Soft colors that suit the navy/lavender style, plus two dark ones.
 const SWATCHES = [
@@ -64,7 +65,7 @@ export function BackgroundPicker({
         className={`bg-choice is-text${is('default') ? ' is-active' : ''}`}
         onClick={() => replace({ kind: 'default' })}
       >
-        Normal
+        {t('Normal', 'Default')}
       </button>
       {SWATCHES.map((color) => (
         <button
@@ -81,7 +82,7 @@ export function BackgroundPicker({
         className={`bg-choice is-swatch is-custom${
           current?.kind === 'color' && !SWATCHES.includes(current.color) ? ' is-active' : ''
         }`}
-        title="Otro color"
+        title={t('Otro color', 'Another color')}
         style={
           current?.kind === 'color' && !SWATCHES.includes(current.color)
             ? { background: current.color }
@@ -90,7 +91,7 @@ export function BackgroundPicker({
       >
         <input
           type="color"
-          aria-label="Otro color"
+          aria-label={t('Otro color', 'Another color')}
           value={current?.kind === 'color' ? current.color : '#ede8ff'}
           onChange={(e) => replace({ kind: 'color', color: e.target.value })}
         />
@@ -107,10 +108,10 @@ export function BackgroundPicker({
               style={{ backgroundImage: `url("${imageUrl(current.image)}")` }}
               aria-hidden
             />
-            Cambiar imagen
+            {t('Cambiar imagen', 'Change image')}
           </>
         ) : (
-          '🖼 Imagen…'
+          t('🖼 Imagen…', '🖼 Image…')
         )}
       </button>
     </div>

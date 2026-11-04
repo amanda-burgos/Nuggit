@@ -1,6 +1,7 @@
 import { imageUrl } from '../../theme/appearance'
 import type { WidgetSettingsProps } from '../types'
 import type { ImageConfig } from './ImageWidget'
+import { t } from '../../../../shared/i18n'
 
 const INTERVALS = [
   { sec: 5, label: '5 s' },
@@ -11,10 +12,10 @@ const INTERVALS = [
   { sec: 1800, label: '30 min' }
 ]
 
-const FITS: Array<{ value: ImageConfig['fit']; label: string }> = [
-  { value: 'cover', label: 'Rellenar' },
-  { value: 'contain', label: 'Ajustar' },
-  { value: 'center', label: 'Centrar' }
+const fits = (): Array<{ value: ImageConfig['fit']; label: string }> => [
+  { value: 'cover', label: t('Rellenar', 'Fill') },
+  { value: 'contain', label: t('Ajustar', 'Fit') },
+  { value: 'center', label: t('Centrar', 'Center') }
 ]
 
 const log = (err: unknown): void => console.error('[image widget]', err)
@@ -43,19 +44,27 @@ export function ImageSettings({
         {images.map((name) => (
           <div key={name} className="image-thumb">
             <img src={imageUrl(name)} alt="" />
-            <button className="image-thumb-remove" title="Quitar" onClick={() => remove(name)}>
+            <button
+              className="image-thumb-remove"
+              title={t('Quitar', 'Remove')}
+              onClick={() => remove(name)}
+            >
               ×
             </button>
           </div>
         ))}
-        <button className="image-thumb is-add" title="Agregar imágenes" onClick={add}>
+        <button
+          className="image-thumb is-add"
+          title={t('Agregar imágenes', 'Add images')}
+          onClick={add}
+        >
           +
         </button>
       </div>
 
       {images.length > 1 && (
         <label className="image-setting">
-          <span>Cambiar cada</span>
+          <span>{t('Cambiar cada', 'Change every')}</span>
           <select
             value={intervalSec}
             onChange={(e) => updateConfig({ intervalSec: Number(e.target.value) })}
@@ -69,8 +78,8 @@ export function ImageSettings({
         </label>
       )}
 
-      <div className="image-setting" role="radiogroup" aria-label="Cómo se ve">
-        {FITS.map((f) => (
+      <div className="image-setting" role="radiogroup" aria-label={t('Cómo se ve', 'How it looks')}>
+        {fits().map((f) => (
           <label key={f.value}>
             <input
               type="radio"

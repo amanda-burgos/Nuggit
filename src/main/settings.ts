@@ -1,4 +1,5 @@
 import { BrowserWindow, nativeTheme } from 'electron'
+import { setLang } from '../shared/i18n'
 import type { Settings } from '../shared/types'
 import { applyCalendarSettings } from './calendar'
 import { setDipTrayOptions } from './dipTray'
@@ -29,6 +30,8 @@ export function musicTrayMode(settings: Settings): NonNullable<Settings['musicTr
 }
 
 function applySettings(settings: Settings): Settings {
+  // Fase 14: the menu bar menus and notifications follow the app's language.
+  setLang(settings.language) // listeners (like the menu bar menu) redraw themselves
   // Every window (including detached widgets) follows the theme through the OS setting.
   nativeTheme.themeSource = settings.theme
   setStatusIndicator(settings.statusIndicator)

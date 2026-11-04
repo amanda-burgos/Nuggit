@@ -3,6 +3,7 @@ import type { ReminderInput, ReminderRepeat } from '../../../../shared/types'
 import { addDays } from '../../../../shared/dailies'
 import { localKey } from '../../../../shared/reminders'
 import '../dailies/dailies.css'
+import { t } from '../../../../shared/i18n'
 
 export type ReminderDraft = ReminderInput & {
   title: string
@@ -12,32 +13,32 @@ export type ReminderDraft = ReminderInput & {
 }
 
 // Monday first, as people read a week.
-const WEEK: Array<{ day: number; letter: string; name: string }> = [
-  { day: 1, letter: 'L', name: 'Lunes' },
-  { day: 2, letter: 'M', name: 'Martes' },
-  { day: 3, letter: 'X', name: 'Miércoles' },
-  { day: 4, letter: 'J', name: 'Jueves' },
-  { day: 5, letter: 'V', name: 'Viernes' },
-  { day: 6, letter: 'S', name: 'Sábado' },
-  { day: 0, letter: 'D', name: 'Domingo' }
+const week = (): Array<{ day: number; letter: string; name: string }> => [
+  { day: 1, letter: t('L', 'M'), name: t('Lunes', 'Monday') },
+  { day: 2, letter: t('M', 'T'), name: t('Martes', 'Tuesday') },
+  { day: 3, letter: t('X', 'W'), name: t('Miércoles', 'Wednesday') },
+  { day: 4, letter: t('J', 'T'), name: t('Jueves', 'Thursday') },
+  { day: 5, letter: t('V', 'F'), name: t('Viernes', 'Friday') },
+  { day: 6, letter: t('S', 'S'), name: t('Sábado', 'Saturday') },
+  { day: 0, letter: t('D', 'S'), name: t('Domingo', 'Sunday') }
 ]
 
 type Kind = ReminderRepeat['kind']
 
-const KINDS: Array<[Kind, string]> = [
-  ['once', 'Una vez'],
-  ['every-day', 'Todos los días'],
-  ['weekdays', 'Algunos días'],
-  ['every-n', 'Cada X días']
+const kinds = (): Array<[Kind, string]> => [
+  ['once', t('Una vez', 'Once')],
+  ['every-day', t('Todos los días', 'Every day')],
+  ['weekdays', t('Algunos días', 'Some days')],
+  ['every-n', t('Cada X días', 'Every X days')]
 ]
 
 // "En 15 min", "En 1 hora", "Mañana 9:00": a day and time in one tap.
 function quickTimes(now: Date): Array<{ label: string; key: string }> {
   const today = localKey(now).slice(0, 10)
   return [
-    { label: 'En 15 min', key: localKey(new Date(now.getTime() + 15 * 60_000)) },
-    { label: 'En 1 hora', key: localKey(new Date(now.getTime() + 60 * 60_000)) },
-    { label: 'Mañana 9:00', key: `${addDays(today, 1)}T09:00` }
+    { label: t('En 15 min', 'In 15 min'), key: localKey(new Date(now.getTime() + 15 * 60_000)) },
+    { label: t('En 1 hora', 'In 1 hour'), key: localKey(new Date(now.getTime() + 60 * 60_000)) },
+    { label: t('Mañana 9:00', 'Tomorrow 9:00'), key: `${addDays(today, 1)}T09:00` }
   ]
 }
 
@@ -45,7 +46,7 @@ function quickTimes(now: Date): Array<{ label: string; key: string }> {
 export function ReminderEditor({
   initial,
   compact = false,
-  saveLabel = 'Guardar',
+  saveLabel = t('Guardar', 'Save'),
   onSave,
   onCancel
 }: {
@@ -99,8 +100,11 @@ export function ReminderEditor({
         className="reminder-editor-title"
         value={title}
         maxLength={200}
-        placeholder='Ej: "Tomar la pastilla", "Sacar la ropa"'
-        aria-label="Qué te recuerdo"
+        placeholder={t(
+          'Ej: "Tomar la pastilla", "Sacar la ropa"',
+          'E.g. "Take my pill", "Get the laundry out"'
+        )}
+        aria-label={t('Qué te recuerdo', 'What should I remind you of')}
         autoFocus={!compact}
         onChange={(e) => setTitle(e.target.value)}
       />
@@ -109,18 +113,18 @@ export function ReminderEditor({
         <input
           type="date"
           value={date}
-          aria-label="Día"
+          aria-label={t('Día', 'Day')}
           onChange={(e) => setDate(e.target.value)}
         />
         <input
           type="time"
           value={time}
-          aria-label="Hora"
+          aria-label={t('Hora', 'Time')}
           onChange={(e) => setTime(e.target.value)}
         />
       </div>
 
-      <div className="reminder-quick" role="group" aria-label="Rápido">
+      <div className="reminder-quick" role="group" aria-label={t('Rápido', 'Quick')}>
         {quickTimes(now).map((q) => (
           <button
             key={q.label}
@@ -138,8 +142,12 @@ export function ReminderEditor({
 
       {!compact && (
         <>
-          <div className="daily-editor-repeat" role="radiogroup" aria-label="Se repite">
-            {KINDS.map(([value, label]) => (
+          <div
+            className="daily-editor-repeat"
+            role="radiogroup"
+            aria-label={t('Se repite', 'Repeats')}
+          >
+            {kinds().map(([value, label]) => (
               <button
                 key={value}
                 type="button"
@@ -154,8 +162,8 @@ export function ReminderEditor({
           </div>
 
           {kind === 'weekdays' && (
-            <div className="daily-editor-days" role="group" aria-label="Días">
-              {WEEK.map((w) => (
+            <div className="daily-editor-days" role="group" aria-label={t('Días', 'Days')}>
+              {week().map((w) => (
                 <button
                   key={w.day}
                   type="button"
@@ -172,7 +180,7 @@ export function ReminderEditor({
 
           {kind === 'every-n' && (
             <label className="daily-editor-inline">
-              Cada
+              {t('Cada', 'Every')}
               <input
                 type="number"
                 min={2}
@@ -180,13 +188,17 @@ export function ReminderEditor({
                 value={every}
                 onChange={(e) => setEvery(Number(e.target.value))}
               />
-              días, empezando ese día
+              {t('días, empezando ese día', 'days, starting that day')}
             </label>
           )}
         </>
       )}
 
-      {past && <p className="reminder-hint">Esa hora ya pasó. Escoge otra.</p>}
+      {past && (
+        <p className="reminder-hint">
+          {t('Esa hora ya pasó. Escoge otra.', 'That time already passed. Pick another one.')}
+        </p>
+      )}
 
       <div className="daily-editor-buttons">
         <button type="submit" className="button-primary" disabled={!canSave}>
@@ -194,7 +206,7 @@ export function ReminderEditor({
         </button>
         {onCancel && (
           <button type="button" className="button-ghost" onClick={onCancel}>
-            Cancelar
+            {t('Cancelar', 'Cancel')}
           </button>
         )}
       </div>

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import type { CalendarStatus } from '../../../shared/types'
 import type { SectionProps } from './shared'
+import { locale, t } from '../../../shared/i18n'
 
 const log = (err: unknown): void => console.error('[calendar settings]', err)
 
 function since(iso: string | null): string {
   if (!iso) return ''
-  return new Date(iso).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })
 }
 
 // SPEC 9.14: the ways Nuggit's calendar connects to others. All optional.
@@ -31,7 +32,9 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
       setMacCalendars(result.calendars.filter((c) => c !== 'Nuggit'))
       setProblem(null)
     } else {
-      setProblem(result?.error ?? 'No pude hablar con Calendario.')
+      setProblem(
+        result?.error ?? t('No pude hablar con Calendario.', "I couldn't talk to Calendar.")
+      )
     }
   }
 
@@ -69,14 +72,16 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
 
   return (
     <section className="settings-section">
-      <h3>📅 Calendario</h3>
+      <h3>📅 {t('Calendario', 'Calendar')}</h3>
       <p className="settings-hint">
-        Tus tareas con fecha y tus dailies ya están en la pestaña Calendario. Aquí decides si
-        también aparecen en el calendario de tu Mac (o en Google). Todo es opcional.
+        {t(
+          'Tus tareas con fecha y tus dailies ya están en la pestaña Calendario. Aquí decides si también aparecen en el calendario de tu Mac (o en Google). Todo es opcional.',
+          'Your dated tasks and your dailies are already in the Calendar tab. Here you decide if they also show up in your Mac’s calendar (or in Google). It’s all optional.'
+        )}
       </p>
 
       <div className="settings-subsection">
-        <h4>🍎 Calendario de la Mac, en dos vías</h4>
+        <h4>🍎 {t('Calendario de la Mac, en dos vías', 'Mac Calendar, two-way')}</h4>
         <label className="settings-check">
           <input
             type="checkbox"
@@ -84,10 +89,12 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
             onChange={(e) => update({ calendar: { apple: e.target.checked } })}
           />
           <span>
-            Conectar con Calendario
+            {t('Conectar con Calendario', 'Connect to Calendar')}
             <small>
-              La primera vez macOS te pregunta si Nuggit puede usar Calendario. Nuggit solo escribe
-              en su propio calendario “Nuggit”; los tuyos solo los lee.
+              {t(
+                'La primera vez macOS te pregunta si Nuggit puede usar Calendario. Nuggit solo escribe en su propio calendario “Nuggit”; los tuyos solo los lee.',
+                'The first time, macOS asks if Nuggit can use Calendar. Nuggit only writes to its own “Nuggit” calendar; yours it only reads.'
+              )}
             </small>
           </span>
         </label>
@@ -101,19 +108,29 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
                 onChange={(e) => update({ calendar: { writeToApple: e.target.checked } })}
               />
               <span>
-                Guardar mis tareas y dailies en un calendario “Nuggit”
+                {t(
+                  'Guardar mis tareas y dailies en un calendario “Nuggit”',
+                  'Save my tasks and dailies in a “Nuggit” calendar'
+                )}
                 <small>
-                  Si mueves una tarea a otro día en Calendario, en Nuggit también se mueve.
+                  {t(
+                    'Si mueves una tarea a otro día en Calendario, en Nuggit también se mueve.',
+                    'If you move a task to another day in Calendar, it moves in Nuggit too.'
+                  )}
                 </small>
               </span>
             </label>
 
             <div className="settings-field">
-              <span>Mostrar en Nuggit los eventos de:</span>
+              <span>{t('Mostrar en Nuggit los eventos de:', 'Show events in Nuggit from:')}</span>
               {macCalendars === null ? (
-                <small className="settings-hint">{busy ? 'Buscando calendarios…' : ''}</small>
+                <small className="settings-hint">
+                  {busy ? t('Buscando calendarios…', 'Looking for calendars…') : ''}
+                </small>
               ) : macCalendars.length === 0 ? (
-                <small className="settings-hint">No encontré calendarios.</small>
+                <small className="settings-hint">
+                  {t('No encontré calendarios.', "I didn't find any calendars.")}
+                </small>
               ) : (
                 <div className="calendar-pick">
                   {macCalendars.map((name) => (
@@ -132,7 +149,7 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
 
             {calendar.writeToApple && (
               <fieldset className="settings-choices">
-                <legend>Sincronizar</legend>
+                <legend>{t('Sincronizar', 'Sync')}</legend>
                 <label>
                   <input
                     type="radio"
@@ -140,7 +157,10 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
                     checked={calendar.autoSync}
                     onChange={() => update({ calendar: { autoSync: true } })}
                   />
-                  Automático: cada vez que cambias algo y cada 10 minutos
+                  {t(
+                    'Automático: cada vez que cambias algo y cada 10 minutos',
+                    'Automatic: every time you change something and every 10 minutes'
+                  )}
                 </label>
                 <label>
                   <input
@@ -149,7 +169,10 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
                     checked={!calendar.autoSync}
                     onChange={() => update({ calendar: { autoSync: false } })}
                   />
-                  Manual: solo cuando toques “Sincronizar ahora”
+                  {t(
+                    'Manual: solo cuando toques “Sincronizar ahora”',
+                    'Manual: only when you tap “Sync now”'
+                  )}
                 </label>
               </fieldset>
             )}
@@ -158,14 +181,14 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
               <div className={`ai-state${status?.apple === 'ok' ? ' is-on' : ''}`}>
                 <span className="ai-dot" aria-hidden />
                 {status?.apple === 'syncing'
-                  ? 'Sincronizando…'
+                  ? t('Sincronizando…', 'Syncing…')
                   : status?.apple === 'ok'
                     ? status.lastSync
-                      ? `${calendar.autoSync ? 'Al día' : 'Última vez'} (${since(status.lastSync)})`
+                      ? `${calendar.autoSync ? t('Al día', 'Up to date') : t('Última vez', 'Last time')} (${since(status.lastSync)})`
                       : calendar.autoSync
-                        ? 'Conectado'
-                        : 'Conectado · sin sincronizar todavía'
-                    : (status?.error ?? 'Conectando…')}
+                        ? t('Conectado', 'Connected')
+                        : t('Conectado · sin sincronizar todavía', 'Connected · not synced yet')
+                    : (status?.error ?? t('Conectando…', 'Connecting…'))}
               </div>
               <button
                 className="button-ghost"
@@ -175,28 +198,33 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
                   window.api.calendar.syncNow().catch(log)
                 }}
               >
-                Sincronizar ahora
+                {t('Sincronizar ahora', 'Sync now')}
               </button>
             </div>
             {problem && <p className="settings-status is-error">{problem}</p>}
             <small className="settings-hint">
-              Los eventos que se repiten aparecen en Nuggit el día en que empezó la serie.
+              {t(
+                'Los eventos que se repiten aparecen en Nuggit el día en que empezó la serie.',
+                'Repeating events show up in Nuggit on the day the series started.'
+              )}
             </small>
           </>
         )}
       </div>
 
       <div className="settings-subsection">
-        <h4>📡 Suscripción (solo lectura)</h4>
+        <h4>📡 {t('Suscripción (solo lectura)', 'Subscription (read-only)')}</h4>
         <p className="settings-hint">
-          La forma más fácil: tu Mac se suscribe a Nuggit y ve tus tareas y dailies, sin permisos.
-          Se actualiza sola mientras Nuggit está abierto.
+          {t(
+            'La forma más fácil: tu Mac se suscribe a Nuggit y ve tus tareas y dailies, sin permisos. Se actualiza sola mientras Nuggit está abierto.',
+            'The easiest way: your Mac subscribes to Nuggit and sees your tasks and dailies, no permissions needed. It updates on its own while Nuggit is open.'
+          )}
         </p>
         {calendar.feed && status?.feedUrl ? (
           <div className="settings-row is-centered">
             <code className="settings-path">{status.feedUrl}</code>
             <button className="button-ghost" onClick={() => update({ calendar: { feed: false } })}>
-              Dejar de compartir
+              {t('Dejar de compartir', 'Stop sharing')}
             </button>
           </div>
         ) : (
@@ -205,35 +233,47 @@ export function CalendarSettings({ settings, update }: SectionProps): React.JSX.
               className="button-ghost"
               onClick={() => window.api.calendar.subscribe().catch(log)}
             >
-              Suscribirme en Calendario
+              {t('Suscribirme en Calendario', 'Subscribe in Calendar')}
             </button>
           </div>
         )}
         {doubled && (
           <p className="settings-status is-error">
-            Con las dos cosas prendidas vas a ver tus tareas dos veces en Calendario. Mejor usa una.
+            {t(
+              'Con las dos cosas prendidas vas a ver tus tareas dos veces en Calendario. Mejor usa una.',
+              "With both turned on you'll see your tasks twice in Calendar. Better to use just one."
+            )}
           </p>
         )}
       </div>
 
       <div className="settings-subsection">
-        <h4>📤 Exportar (.ics)</h4>
+        <h4>📤 {t('Exportar (.ics)', 'Export (.ics)')}</h4>
         <p className="settings-hint">
-          Un archivo con tus tareas y dailies para cualquier calendario. En Google Calendar:
-          Configuración → Importar y exportar → Importar. Es una copia: no se actualiza sola.
+          {t(
+            'Un archivo con tus tareas y dailies para cualquier calendario. En Google Calendar: Configuración → Importar y exportar → Importar. Es una copia: no se actualiza sola.',
+            "A file with your tasks and dailies for any calendar. In Google Calendar: Settings → Import & export → Import. It's a copy: it doesn't update on its own."
+          )}
         </p>
         <div className="settings-row is-centered">
           <button className="button-ghost" onClick={exportIcs}>
-            Exportar .ics
+            {t('Exportar .ics', 'Export .ics')}
           </button>
-          {exported && <small className="settings-hint">Guardado en {exported}</small>}
+          {exported && (
+            <small className="settings-hint">
+              {t('Guardado en', 'Saved to')} {exported}
+            </small>
+          )}
         </div>
       </div>
 
       <div className="settings-subsection">
-        <h4>🔜 Google Calendar en dos vías</h4>
+        <h4>🔜 {t('Google Calendar en dos vías', 'Google Calendar, two-way')}</h4>
         <p className="settings-hint">
-          Pronto. Necesita entrar con tu cuenta de Google. Mientras tanto, usa Exportar.
+          {t(
+            'Pronto. Necesita entrar con tu cuenta de Google. Mientras tanto, usa Exportar.',
+            'Coming soon. It needs you to sign in with your Google account. In the meantime, use Export.'
+          )}
         </p>
       </div>
     </section>

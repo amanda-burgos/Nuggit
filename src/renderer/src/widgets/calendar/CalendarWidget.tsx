@@ -7,11 +7,13 @@ import { useTasks } from '../../store/useTasks'
 import { useToday } from '../../store/useToday'
 import type { WidgetProps } from '../types'
 import './calendar.css'
+import { locale, t } from '../../../../shared/i18n'
 
 // The calendar has no options yet.
 export type CalendarConfig = Record<string, never>
 
-const WEEKDAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+const weekdays = (): string[] =>
+  t('Lun Mar Mié Jue Vie Sáb Dom', 'Mon Tue Wed Thu Fri Sat Sun').split(' ')
 const log = (err: unknown): void => console.error('[calendar]', err)
 
 const parse = (day: string): Date => {
@@ -27,14 +29,14 @@ const mondayOf = (day: string): string => addDays(day, -((parse(day).getDay() + 
 
 // "Octubre 2026".
 function monthLabel(month: string): string {
-  const name = parse(month).toLocaleDateString('es', { month: 'long' })
+  const name = parse(month).toLocaleDateString(locale(), { month: 'long' })
   return `${name[0].toUpperCase()}${name.slice(1)} ${month.slice(0, 4)}`
 }
 
 function dayLabel(day: string, today: string): string {
-  if (day === today) return 'Hoy'
-  if (day === addDays(today, 1)) return 'Mañana'
-  return parse(day).toLocaleDateString('es', { weekday: 'long', day: 'numeric', month: 'long' })
+  if (day === today) return t('Hoy', 'Today')
+  if (day === addDays(today, 1)) return t('Mañana', 'Tomorrow')
+  return parse(day).toLocaleDateString(locale(), { weekday: 'long', day: 'numeric', month: 'long' })
 }
 
 function itemTitle(item: DayItem): string {
@@ -48,7 +50,7 @@ function itemTitle(item: DayItem): string {
 function timeLabel(item: DayItem): string | null {
   if (item.kind === 'daily') return item.daily.time ?? null
   if (item.kind === 'event' && !item.event.allDay) {
-    return new Date(item.event.start).toLocaleTimeString('es', {
+    return new Date(item.event.start).toLocaleTimeString(locale(), {
       hour: '2-digit',
       minute: '2-digit'
     })
@@ -101,15 +103,23 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
     <div className={`calendar is-${size}`}>
       {big && (
         <div className="calendar-head">
-          <button className="icon-button" title="Mes anterior" onClick={() => moveMonth(-1)}>
+          <button
+            className="icon-button"
+            title={t('Mes anterior', 'Previous month')}
+            onClick={() => moveMonth(-1)}
+          >
             ‹
           </button>
           <h3>{monthLabel(month)}</h3>
-          <button className="icon-button" title="Mes siguiente" onClick={() => moveMonth(1)}>
+          <button
+            className="icon-button"
+            title={t('Mes siguiente', 'Next month')}
+            onClick={() => moveMonth(1)}
+          >
             ›
           </button>
           <button className="button-ghost" onClick={goToday}>
-            Hoy
+            {t('Hoy', 'Today')}
           </button>
         </div>
       )}
@@ -117,7 +127,7 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
       <div className="calendar-body">
         <div className={big ? 'calendar-grid' : 'calendar-strip'} role="grid">
           {big &&
-            WEEKDAYS.map((w) => (
+            weekdays().map((w) => (
               <span key={w} className="calendar-weekday" aria-hidden>
                 {w}
               </span>
@@ -129,7 +139,10 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
                 key={day}
                 role="gridcell"
                 aria-selected={day === selected}
-                aria-label={`${dayLabel(day, today)}: ${items.length} cosas`}
+                aria-label={t(
+                  `${dayLabel(day, today)}: ${items.length} cosas`,
+                  `${dayLabel(day, today)}: ${items.length} items`
+                )}
                 className={[
                   'calendar-day',
                   day === today ? 'is-today' : '',
@@ -139,9 +152,11 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
                 onClick={() => setSelected(day)}
               >
                 <span className="calendar-date">
-                  {!big && <small>{WEEKDAYS[(parse(day).getDay() + 6) % 7]}</small>}
+                  {!big && <small>{weekdays()[(parse(day).getDay() + 6) % 7]}</small>}
                   <span className="calendar-number">{parse(day).getDate()}</span>
-                  {big && day === today && <span className="calendar-today-tag">Hoy</span>}
+                  {big && day === today && (
+                    <span className="calendar-today-tag">{t('Hoy', 'Today')}</span>
+                  )}
                 </span>
                 {big ? (
                   <span className="calendar-chips">
@@ -167,7 +182,7 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
         <section className="calendar-agenda" aria-label={dayLabel(selected, today)}>
           <h4>{dayLabel(selected, today)}</h4>
           {chosen.length === 0 ? (
-            <p className="calendar-hint">Nada este día 🌤️</p>
+            <p className="calendar-hint">{t('Nada este día 🌤️', 'Nothing this day 🌤️')}</p>
           ) : (
             <ul>
               {chosen.map((item, i) => (
@@ -184,8 +199,8 @@ export function CalendarWidget({ size }: WidgetProps<CalendarConfig>): React.JSX
           >
             <input
               value={draft}
-              placeholder="Anotar una tarea para este día…"
-              aria-label="Nueva tarea para este día"
+              placeholder={t('Anotar una tarea para este día…', 'Add a task for this day…')}
+              aria-label={t('Nueva tarea para este día', 'New task for this day')}
               onChange={(e) => setDraft(e.target.value)}
             />
           </form>
@@ -204,8 +219,8 @@ function AgendaItem({ item, today }: { item: DayItem; today: string }): React.JS
           🗓
         </span>
         <span className="calendar-item-main">
-          {item.event.title || '(sin título)'}
-          <small>{[time ?? 'Todo el día', item.event.calendar].join(' · ')}</small>
+          {item.event.title || t('(sin título)', '(untitled)')}
+          <small>{[time ?? t('Todo el día', 'All day'), item.event.calendar].join(' · ')}</small>
         </span>
       </li>
     )
@@ -218,7 +233,9 @@ function AgendaItem({ item, today }: { item: DayItem; today: string }): React.JS
         </span>
         <span className="calendar-item-main">
           {item.daily.title}
-          <small>{[time, item.done ? 'hecho' : null].filter(Boolean).join(' · ') || 'Daily'}</small>
+          <small>
+            {[time, item.done ? t('hecho', 'done') : null].filter(Boolean).join(' · ') || 'Daily'}
+          </small>
         </span>
       </li>
     )
@@ -231,7 +248,7 @@ function AgendaItem({ item, today }: { item: DayItem; today: string }): React.JS
         className="calendar-check"
         role="checkbox"
         aria-checked={done}
-        aria-label={`${task.title}: ${done ? 'hecha' : 'pendiente'}`}
+        aria-label={`${task.title}: ${done ? t('hecha', 'done') : t('pendiente', 'to do')}`}
         onClick={() =>
           (done
             ? window.api.tasks.update(task.id, { status: 'todo' })
@@ -243,7 +260,11 @@ function AgendaItem({ item, today }: { item: DayItem; today: string }): React.JS
       </button>
       <span className="calendar-item-main">
         {task.title}
-        <small>{task.dueDate && task.dueDate < today && !done ? 'Era para antes' : 'Tarea'}</small>
+        <small>
+          {task.dueDate && task.dueDate < today && !done
+            ? t('Era para antes', 'Overdue')
+            : t('Tarea', 'Task')}
+        </small>
       </span>
     </li>
   )

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { t } from '../../../shared/i18n'
 import type { BrainDumpTask } from '../../../shared/types'
 import { dipBase } from '../dip'
 import type { CheckResult } from '../runAgent'
@@ -76,7 +77,12 @@ function checkSplit(raw: string): CheckResult<BrainDumpSplit> {
 export const brainDump = defineAgent({
   name: 'brainDump',
   label: 'Brain Dump',
-  purpose: 'Separa lo que sueltas en tareas y notas.',
+  get purpose() {
+    return t(
+      'Separa lo que sueltas en tareas y notas.',
+      'Sorts what you let out into tasks and notes.'
+    )
+  },
   tools: [],
   tasks: {
     split: {

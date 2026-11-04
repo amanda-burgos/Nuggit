@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { HELP } from '../../../shared/help'
+import { helpContent } from '../../../shared/help'
 import type { AppInfo } from '../../../shared/types'
+import { t } from '../../../shared/i18n'
 import type { SectionProps } from './shared'
 
 export function GeneralSettings({ settings, update }: SectionProps): React.JSX.Element {
@@ -30,11 +31,17 @@ export function GeneralSettings({ settings, update }: SectionProps): React.JSX.E
           }
         />
         <span>
-          Abrir Nuggit al iniciar la Mac
+          {t('Abrir Nuggit al iniciar la Mac', 'Open Nuggit when your Mac starts')}
           <small>
             {info && !info.packaged
-              ? 'Mientras se está desarrollando, esto abre Electron, no la app instalada.'
-              : 'Así la barra de menú y tus widgets están listos desde que prendes la compu.'}
+              ? t(
+                  'Mientras se está desarrollando, esto abre Electron, no la app instalada.',
+                  'While in development, this opens Electron, not the installed app.'
+                )
+              : t(
+                  'Así la barra de menú y tus widgets están listos desde que prendes la compu.',
+                  'So the menu bar and your widgets are ready as soon as you turn on your computer.'
+                )}
           </small>
         </span>
       </label>
@@ -46,22 +53,51 @@ export function GeneralSettings({ settings, update }: SectionProps): React.JSX.E
           onChange={(e) => update({ onboarding: { whatsNew: e.target.checked } })}
         />
         <span>
-          Mostrar “Qué hay de nuevo” después de cada actualización
-          <small>Todas las novedades siguen en ❓ Ayuda → Novedades.</small>
+          {t(
+            'Mostrar “Qué hay de nuevo” después de cada actualización',
+            'Show “What’s new” after each update'
+          )}
+          <small>
+            {t(
+              'Todas las novedades siguen en ❓ Ayuda → Novedades.',
+              "Everything new is still in ❓ Help → What's new."
+            )}
+          </small>
         </span>
       </label>
 
-      <div className="settings-field">
-        <span>Idioma</span>
+      <fieldset className="settings-choices">
+        <legend>{t('Idioma', 'Language')}</legend>
+        <label>
+          <input
+            type="radio"
+            name="language"
+            checked={(settings.language ?? 'es') === 'es'}
+            onChange={() => update({ language: 'es' })}
+          />
+          🇪🇸 Español
+        </label>
+        <label>
+          <input
+            type="radio"
+            name="language"
+            checked={settings.language === 'en'}
+            onChange={() => update({ language: 'en' })}
+          />
+          🇺🇸 English
+        </label>
         <small className="settings-hint">
-          Nuggit está en español. Dip contesta en el idioma en que le hables (español o inglés).
+          {t(
+            'Toda la app cambia de idioma. Dip contesta en el idioma en que le hables.',
+            'The whole app changes language. Dip answers in the language you talk to it in.'
+          )}
         </small>
-      </div>
+      </fieldset>
 
       <div className="settings-subsection">
-        <h4>⌨️ Atajos de teclado</h4>
+        <h4>{t('⌨️ Atajos de teclado', '⌨️ Keyboard shortcuts')}</h4>
         <dl className="settings-shortcuts">
-          {HELP.shortcuts.map(({ keys, what }) => (
+          {helpContent().shortcuts.map(({ keys, what }) => (
             <div key={keys}>
               <dt>
                 <kbd>{keys}</kbd>

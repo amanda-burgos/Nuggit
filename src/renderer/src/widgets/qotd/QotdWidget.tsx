@@ -13,6 +13,7 @@ import {
   type QotdKind,
   type QotdTopic
 } from '../../../../shared/qotd'
+import { t } from '../../../../shared/i18n'
 import type { QotdState } from '../../../../shared/types'
 import { releaseDate } from '../../help/news'
 import { useQotd } from '../../store/useQotd'
@@ -96,29 +97,42 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
       <div className="qotd-topics-bar">
         <span className="qotd-hint">
           {mine.length
-            ? 'Contesta las que quieras: ninguna es obligatoria.'
-            : 'Escoge temas que te gustan y cada uno tendrá su propia pregunta del día.'}
+            ? t(
+                'Contesta las que quieras: ninguna es obligatoria.',
+                'Answer whichever you want: none of them are required.'
+              )
+            : t(
+                'Escoge temas que te gustan y cada uno tendrá su propia pregunta del día.',
+                'Pick topics you like and each one gets its own question of the day.'
+              )}
         </span>
         <button className="button-ghost" onClick={() => setPicking((p) => !p)}>
-          {picking ? 'Listo' : '✏️ Mis temas'}
+          {picking ? t('Listo', 'Done') : t('✏️ Mis temas', '✏️ My topics')}
         </button>
       </div>
       {picking && (
-        <div className="qotd-topic-picker" role="group" aria-label="Temas que te gustan">
-          {topics.map((t) => {
-            const on = qotdTopics.includes(t.id)
-            const yours = qotdCustomTopics.some((c) => c.id === t.id)
+        <div
+          className="qotd-topic-picker"
+          role="group"
+          aria-label={t('Temas que te gustan', 'Topics you like')}
+        >
+          {topics.map((topic) => {
+            const on = qotdTopics.includes(topic.id)
+            const yours = qotdCustomTopics.some((c) => c.id === topic.id)
             return (
-              <span key={t.id} className={`qotd-topic-chip${on ? ' is-on' : ''}`}>
-                <button aria-pressed={on} onClick={() => toggle(t.id)}>
-                  {t.icon} {t.label}
+              <span key={topic.id} className={`qotd-topic-chip${on ? ' is-on' : ''}`}>
+                <button aria-pressed={on} onClick={() => toggle(topic.id)}>
+                  {topic.icon} {topic.label}
                 </button>
                 {yours && (
                   <button
                     className="qotd-topic-remove"
-                    title={`Borrar "${t.label}"`}
-                    aria-label={`Borrar el tema ${t.label}`}
-                    onClick={() => removeTopic(t.id)}
+                    title={t(`Borrar "${topic.label}"`, `Delete "${topic.label}"`)}
+                    aria-label={t(
+                      `Borrar el tema ${topic.label}`,
+                      `Delete the topic ${topic.label}`
+                    )}
+                    onClick={() => removeTopic(topic.id)}
                   >
                     ×
                   </button>
@@ -130,12 +144,12 @@ export function QotdWidget({ size, config }: WidgetProps<QotdConfig>): React.JSX
             <input
               value={newTopic}
               maxLength={40}
-              placeholder="Otro tema: K-pop, química…"
-              aria-label="Escribe un tema que te guste"
+              placeholder={t('Otro tema: K-pop, química…', 'Another topic: K-pop, chemistry…')}
+              aria-label={t('Escribe un tema que te guste', 'Type a topic you like')}
               onChange={(e) => setNewTopic(e.target.value)}
             />
             <button className="button-primary" type="submit" disabled={!newTopic.trim()}>
-              + Agregar
+              {t('+ Agregar', '+ Add')}
             </button>
           </form>
         </div>
@@ -250,8 +264,8 @@ function Answer({
       <textarea
         className="qotd-answer"
         value={text}
-        placeholder="Tu respuesta (opcional)…"
-        aria-label="Tu respuesta"
+        placeholder={t('Tu respuesta (opcional)…', 'Your answer (optional)…')}
+        aria-label={t('Tu respuesta', 'Your answer')}
         rows={3}
         onChange={(e) => change(e.target.value)}
         onBlur={() => {
@@ -261,8 +275,12 @@ function Answer({
       />
       <div className="qotd-actions">
         {onSkip && (
-          <button className="button-ghost" onClick={onSkip} title="Otra pregunta para hoy">
-            🔀 Otra
+          <button
+            className="button-ghost"
+            onClick={onSkip}
+            title={t('Otra pregunta para hoy', 'Another question for today')}
+          >
+            {t('🔀 Otra', '🔀 Another')}
           </button>
         )}
         <button
@@ -272,7 +290,7 @@ function Answer({
             onTalk(text)
           }}
         >
-          💬 Platicar con Dip
+          {t('💬 Platicar con Dip', '💬 Talk with Dip')}
         </button>
       </div>
     </>
@@ -295,10 +313,13 @@ function History({
 
   return (
     <section className="qotd-history">
-      <h2>Tus respuestas</h2>
+      <h2>{t('Tus respuestas', 'Your answers')}</h2>
       {past.length === 0 ? (
         <p className="qotd-hint">
-          Aquí se van guardando tus respuestas de cada día. ¡Las de hoy son las primeras!
+          {t(
+            'Aquí se van guardando tus respuestas de cada día. ¡Las de hoy son las primeras!',
+            "Your answers from each day get saved here. Today's are the first ones!"
+          )}
         </p>
       ) : (
         <ul>
@@ -334,9 +355,9 @@ export function QotdSettings({
   const { settings } = useSettings()
   return (
     <label className="qotd-setting">
-      Pregunta que muestra
+      {t('Pregunta que muestra', 'Question it shows')}
       <select value={config.topic ?? ''} onChange={(e) => updateConfig({ topic: e.target.value })}>
-        <option value="">💭 La general</option>
+        <option value="">{t('💭 La general', '💭 The general one')}</option>
         {allTopics(settings?.qotdCustomTopics).map((t) => (
           <option key={t.id} value={t.id}>
             {t.icon} {t.label}

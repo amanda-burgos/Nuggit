@@ -3,6 +3,7 @@ import { join } from 'path'
 import { z } from 'zod'
 import type { AIBackend, CustomServerSettings, Settings, SttBackend } from '../../shared/types'
 import rawDefaults from '../../../config/ai.defaults.json'
+import { t } from '../../shared/i18n'
 
 // SPEC 8.1: which provider and model each agent uses, without touching code. Priority:
 // environment variables (and .env) > Ajustes (settings.json) > config/ai.defaults.json.
@@ -188,7 +189,11 @@ export function customServer(
     .map((url) => url.trim().replace(/\/+$/, ''))
     .filter((url) => /^https?:\/\//.test(url))
   if (!servers?.length) return saved
-  return { name: saved?.name || 'Servidor (.env)', model: saved?.model ?? '', servers }
+  return {
+    name: saved?.name || t('Servidor (.env)', 'Server (.env)'),
+    model: saved?.model ?? '',
+    servers
+  }
 }
 
 // Loads the first .env found in these folders. Variables already set in the real

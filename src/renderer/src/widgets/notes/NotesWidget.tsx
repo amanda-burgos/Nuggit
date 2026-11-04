@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { locale, t } from '../../../../shared/i18n'
 import type { Note } from '../../../../shared/types'
 import { onNoteFocusRequest, takeNoteFocus, useNotes } from '../../store/useNotes'
 import type { WidgetProps } from '../types'
@@ -62,15 +63,19 @@ export function NotesWidget({ size }: WidgetProps<NotesConfig>): React.JSX.Eleme
   return (
     <div className={`notes is-${size}`}>
       <div className="notes-bar">
-        <button className="button-primary" onClick={add} title="Nueva nota (⌘N)">
-          + Nota
+        <button
+          className="button-primary"
+          onClick={add}
+          title={t('Nueva nota (⌘N)', 'New note (⌘N)')}
+        >
+          {t('+ Nota', '+ Note')}
         </button>
         {notes.length > 3 && (
           <input
             type="search"
             value={query}
-            placeholder="Buscar…"
-            aria-label="Buscar en las notas"
+            placeholder={t('Buscar…', 'Search…')}
+            aria-label={t('Buscar en las notas', 'Search notes')}
             onChange={(e) => setQuery(e.target.value)}
           />
         )}
@@ -78,10 +83,14 @@ export function NotesWidget({ size }: WidgetProps<NotesConfig>): React.JSX.Eleme
 
       {notes.length === 0 ? (
         <p className="notes-hint">
-          Anota lo que sea, rápido. Desde cualquier pestaña: <kbd>⌘N</kbd>.
+          {t(
+            'Anota lo que sea, rápido. Desde cualquier pestaña:',
+            'Jot down anything, fast. From any tab:'
+          )}{' '}
+          <kbd>⌘N</kbd>.
         </p>
       ) : shown.length === 0 ? (
-        <p className="notes-hint">Ninguna nota tiene eso.</p>
+        <p className="notes-hint">{t('Ninguna nota tiene eso.', 'No note has that.')}</p>
       ) : (
         <ul className="notes-list">
           {shown.map((note) => (
@@ -98,7 +107,7 @@ export function NotesWidget({ size }: WidgetProps<NotesConfig>): React.JSX.Eleme
 
       {undo && (
         <div className="notes-undo" role="status">
-          <span>Nota borrada</span>
+          <span>{t('Nota borrada', 'Note deleted')}</span>
           <button
             className="button-ghost"
             onClick={() => {
@@ -106,7 +115,7 @@ export function NotesWidget({ size }: WidgetProps<NotesConfig>): React.JSX.Eleme
               setUndo(null)
             }}
           >
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}
@@ -158,8 +167,8 @@ function NoteCard({
       <textarea
         ref={ref}
         value={text}
-        placeholder="Escribe tu nota…"
-        aria-label="Nota"
+        placeholder={t('Escribe tu nota…', 'Write your note…')}
+        aria-label={t('Nota', 'Note')}
         onFocus={() => setDraft(note.text)}
         onChange={(e) => {
           const value = e.target.value
@@ -179,7 +188,11 @@ function NoteCard({
       />
       <div className="note-meta">
         <small>{describeDate(note.updatedAt)}</small>
-        <button className="icon-button" title="Borrar nota" onClick={() => onRemove(false)}>
+        <button
+          className="icon-button"
+          title={t('Borrar nota', 'Delete note')}
+          onClick={() => onRemove(false)}
+        >
           ×
         </button>
       </div>
@@ -194,9 +207,10 @@ function normalize(value: string): string {
 function describeDate(iso: string): string {
   const date = new Date(iso)
   const now = new Date()
-  const time = date.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })
-  if (date.toDateString() === now.toDateString()) return `Hoy, ${time}`
+  const time = date.toLocaleTimeString(locale(), { hour: '2-digit', minute: '2-digit' })
+  if (date.toDateString() === now.toDateString()) return t(`Hoy, ${time}`, `Today, ${time}`)
   const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)
-  if (date.toDateString() === yesterday.toDateString()) return `Ayer, ${time}`
-  return date.toLocaleDateString('es', { day: 'numeric', month: 'short' })
+  if (date.toDateString() === yesterday.toDateString())
+    return t(`Ayer, ${time}`, `Yesterday, ${time}`)
+  return date.toLocaleDateString(locale(), { day: 'numeric', month: 'short' })
 }

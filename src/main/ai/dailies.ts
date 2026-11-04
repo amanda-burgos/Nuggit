@@ -5,6 +5,7 @@ import type {
   TenderQuestionsResult
 } from '../../shared/types'
 import { describeRepeat } from '../../shared/dailies'
+import { t } from '../../shared/i18n'
 import { loadSettings } from '../storage'
 import { dailies } from './agents'
 import { isoDate, text } from './agents/types'
@@ -31,7 +32,14 @@ function cleanAnswers(value: unknown): TenderAnswer[] {
 
 export async function dailyQuestions(input: unknown): Promise<TenderQuestionsResult> {
   const request = text(input, MAX_REQUEST)
-  if (!request) return { ok: false, error: 'Cuéntale a Dip qué rutina quieres armar.' }
+  if (!request)
+    return {
+      ok: false,
+      error: t(
+        'Cuéntale a Dip qué rutina quieres armar.',
+        'Tell Dip what routine you want to build.'
+      )
+    }
   try {
     const settings = await loadSettings()
     const { value: questions } = await askAgent(
@@ -49,7 +57,14 @@ export async function dailyQuestions(input: unknown): Promise<TenderQuestionsRes
 export async function proposeDailies(input: unknown): Promise<DailyPlanResult> {
   const req = (typeof input === 'object' && input !== null ? input : {}) as Record<string, unknown>
   const request = text(req.request, MAX_REQUEST)
-  if (!request) return { ok: false, error: 'Cuéntale a Dip qué rutina quieres armar.' }
+  if (!request)
+    return {
+      ok: false,
+      error: t(
+        'Cuéntale a Dip qué rutina quieres armar.',
+        'Tell Dip what routine you want to build.'
+      )
+    }
   const answers = cleanAnswers(req.answers)
   const feedback = text(req.feedback, MAX_ANSWER)
   const previous = (Array.isArray(req.previous) ? req.previous : []).slice(0, MAX_DAILIES)

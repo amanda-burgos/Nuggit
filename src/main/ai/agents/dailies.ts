@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { t } from '../../../shared/i18n'
 import type { DailyInput, DailyRepeat } from '../../../shared/types'
 import { dipBase } from '../dip'
 import type { CheckResult } from '../runAgent'
@@ -108,7 +109,9 @@ function checkPlan(raw: string): CheckResult<PlannedDaily[]> {
 export const dailies = defineAgent({
   name: 'dailies',
   label: 'Dailies',
-  purpose: 'Arma rutinas de cosas que se repiten.',
+  get purpose() {
+    return t('Arma rutinas de cosas que se repiten.', 'Builds routines of things that repeat.')
+  },
   tools: [],
   tasks: {
     questions: {

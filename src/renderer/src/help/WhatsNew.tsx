@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import type { ChangelogRelease } from '../../../shared/changelog'
 import { DISCORD_INVITE } from '../../../shared/help'
+import { t } from '../../../shared/i18n'
 import { Releases } from './Releases'
 
 interface Props {
@@ -29,7 +30,9 @@ export function WhatsNew({ release, version, onSeeAll, onClose }: Props): React.
         aria-labelledby="whats-new-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="whats-new-title">✨ Qué hay de nuevo en la versión {version}</h2>
+        <h2 id="whats-new-title">
+          {t(`✨ Qué hay de nuevo en la versión ${version}`, `✨ What's new in version ${version}`)}
+        </h2>
         <div className="whats-new-body">
           <Releases releases={[release]} />
         </div>
@@ -40,10 +43,10 @@ export function WhatsNew({ release, version, onSeeAll, onClose }: Props): React.
             </a>
           )}
           <button className="button-ghost" onClick={onSeeAll}>
-            Ver todo
+            {t('Ver todo', 'See all')}
           </button>
           <button className="button-primary" onClick={onClose} autoFocus>
-            Cerrar
+            {t('Cerrar', 'Close')}
           </button>
         </footer>
       </div>

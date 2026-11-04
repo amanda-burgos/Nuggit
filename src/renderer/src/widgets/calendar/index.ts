@@ -1,9 +1,12 @@
+import { t } from '../../../../shared/i18n'
 import type { WidgetDefinition } from '../types'
 import { CalendarWidget, type CalendarConfig } from './CalendarWidget'
 
 export const calendarWidget: WidgetDefinition<CalendarConfig> = {
   type: 'calendar',
-  name: 'Calendario',
+  get name() {
+    return t('Calendario', 'Calendar')
+  },
   icon: '📅',
   defaultSize: { w: 360, h: 420 },
   minSize: { w: 260, h: 260 },

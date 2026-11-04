@@ -1,11 +1,16 @@
 import { useState } from 'react'
+import { locale, t } from '../../../../shared/i18n'
 import type { DipAction, DipActionEdits, DipChatMessage, Priority } from '../../../../shared/types'
 import { useTasks } from '../../store/useTasks'
 
-const PRIORITY_LABELS: Record<Priority, string> = { high: 'Alta', medium: 'Normal', low: 'Baja' }
+const priorityLabels = (): Record<Priority, string> => ({
+  high: t('Alta', 'High'),
+  medium: t('Normal', 'Normal'),
+  low: t('Baja', 'Low')
+})
 
 function formatDate(date: string): string {
-  return new Date(`${date}T00:00:00`).toLocaleDateString('es', {
+  return new Date(`${date}T00:00:00`).toLocaleDateString(locale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'short'
@@ -13,9 +18,9 @@ function formatDate(date: string): string {
 }
 
 function header(action: DipAction): string {
-  if (action.type === 'create') return '📝 Anotar tarea'
-  if (action.type === 'complete') return '✅ Marcar como hecha'
-  return '✏️ Cambiar tarea'
+  if (action.type === 'create') return t('📝 Anotar tarea', '📝 Add task')
+  if (action.type === 'complete') return t('✅ Marcar como hecha', '✅ Mark as done')
+  return t('✏️ Cambiar tarea', '✏️ Change task')
 }
 
 // What will change, in short lines.
@@ -24,11 +29,15 @@ function details(action: DipAction): string[] {
   const fields = action.type === 'create' ? action : action.changes
   const lines = action.type === 'create' ? [action.title] : [action.taskTitle]
   const arrow = action.type === 'update' ? '→ ' : ''
-  if (action.type === 'update' && fields.title) lines.push(`Nombre ${arrow}${fields.title}`)
+  if (action.type === 'update' && fields.title)
+    lines.push(`${t('Nombre', 'Name')} ${arrow}${fields.title}`)
   if (fields.dueDate) lines.push(`📅 ${arrow}${formatDate(fields.dueDate)}`)
-  else if (action.type === 'update' && fields.dueDate === '') lines.push('📅 → sin fecha')
+  else if (action.type === 'update' && fields.dueDate === '')
+    lines.push(t('📅 → sin fecha', '📅 → no date'))
   if (fields.priority)
-    lines.push(`Prioridad ${arrow}${PRIORITY_LABELS[fields.priority].toLowerCase()}`)
+    lines.push(
+      `${t('Prioridad', 'Priority')} ${arrow}${priorityLabels()[fields.priority].toLowerCase()}`
+    )
   return lines
 }
 
@@ -42,11 +51,12 @@ export function ActionCard({ message }: { message: DipChatMessage }): React.JSX.
 
   const apply = async (edits?: DipActionEdits): Promise<void> => {
     setError(null)
-    const result = await window.api.dipChat
-      .applyAction(message.id, edits)
-      .catch(() => ({ ok: false, error: 'No pude guardarlo. Intenta otra vez.' }))
+    const result = await window.api.dipChat.applyAction(message.id, edits).catch(() => ({
+      ok: false,
+      error: t('No pude guardarlo. Intenta otra vez.', 'I couldn’t save it. Try again.')
+    }))
     if (result.ok) setEditing(false)
-    else setError(result.error ?? 'No pude guardarlo.')
+    else setError(result.error ?? t('No pude guardarlo.', 'I couldn’t save it.'))
   }
 
   return (
@@ -67,32 +77,34 @@ export function ActionCard({ message }: { message: DipChatMessage }): React.JSX.
       {state === 'pending' && !editing && (
         <div className="dip-action-buttons">
           <button className="button-primary" onClick={() => apply()}>
-            Guardar
+            {t('Guardar', 'Save')}
           </button>
           <button className="button-ghost" onClick={() => setEditing(true)}>
-            Cambiar
+            {t('Cambiar', 'Change')}
           </button>
           <button
             className="button-ghost"
             onClick={() => window.api.dipChat.cancelAction(message.id)}
           >
-            Cancelar
+            {t('Cancelar', 'Cancel')}
           </button>
         </div>
       )}
       {state === 'saved' && (
         <div className="dip-action-buttons">
-          <span className="dip-action-state">Guardado ✓</span>
+          <span className="dip-action-state">{t('Guardado ✓', 'Saved ✓')}</span>
           <button
             className="button-ghost"
             onClick={() => window.api.dipChat.undoAction(message.id)}
           >
-            Deshacer
+            {t('Deshacer', 'Undo')}
           </button>
         </div>
       )}
-      {state === 'cancelled' && <span className="dip-action-state">Cancelado</span>}
-      {state === 'undone' && <span className="dip-action-state">Deshecho</span>}
+      {state === 'cancelled' && (
+        <span className="dip-action-state">{t('Cancelado', 'Cancelled')}</span>
+      )}
+      {state === 'undone' && <span className="dip-action-state">{t('Deshecho', 'Undone')}</span>}
     </div>
   )
 }
@@ -129,7 +141,11 @@ function ActionEditor({
       }}
     >
       {action.type === 'complete' ? (
-        <select value={taskId} aria-label="Tarea" onChange={(e) => setTaskId(e.target.value)}>
+        <select
+          value={taskId}
+          aria-label={t('Tarea', 'Task')}
+          onChange={(e) => setTaskId(e.target.value)}
+        >
           {pending.map((t) => (
             <option key={t.id} value={t.id}>
               {t.title}
@@ -140,36 +156,38 @@ function ActionEditor({
         <>
           <input
             value={title}
-            aria-label="Nombre"
-            placeholder={action.type === 'update' ? 'Nombre (igual)' : 'Nombre'}
+            aria-label={t('Nombre', 'Name')}
+            placeholder={
+              action.type === 'update' ? t('Nombre (igual)', 'Name (same)') : t('Nombre', 'Name')
+            }
             onChange={(e) => setTitle(e.target.value)}
           />
           <div className="dip-action-row">
             <input
               type="date"
               value={dueDate}
-              aria-label="Fecha"
+              aria-label={t('Fecha', 'Date')}
               onChange={(e) => setDueDate(e.target.value)}
             />
             <select
               value={priority}
-              aria-label="Prioridad"
+              aria-label={t('Prioridad', 'Priority')}
               onChange={(e) => setPriority(e.target.value as Priority | '')}
             >
-              <option value="">Prioridad…</option>
-              <option value="high">Alta</option>
-              <option value="medium">Normal</option>
-              <option value="low">Baja</option>
+              <option value="">{t('Prioridad…', 'Priority…')}</option>
+              <option value="high">{t('Alta', 'High')}</option>
+              <option value="medium">{t('Normal', 'Normal')}</option>
+              <option value="low">{t('Baja', 'Low')}</option>
             </select>
           </div>
         </>
       )}
       <div className="dip-action-buttons">
         <button type="submit" className="button-primary">
-          Guardar
+          {t('Guardar', 'Save')}
         </button>
         <button type="button" className="button-ghost" onClick={onCancel}>
-          Volver
+          {t('Volver', 'Back')}
         </button>
       </div>
     </form>

@@ -129,7 +129,7 @@ describe('runAgent', () => {
 
   it('ends with a kind message when every provider fails', async () => {
     const provider = fakeProvider(['a', 'b', 'c'])
-    await expect(runTenderizer([candidate(provider)])).rejects.toThrow(TANGLED)
+    await expect(runTenderizer([candidate(provider)])).rejects.toThrow(TANGLED())
     await expect(runTenderizer([])).rejects.toThrow(/ninguna IA/)
   })
 
@@ -182,7 +182,7 @@ describe('runAgent', () => {
       signal: controller.signal
     })
     controller.abort()
-    await expect(run).rejects.toThrow(CANCELLED)
+    await expect(run).rejects.toThrow(CANCELLED())
     expect(backup.calls).toHaveLength(0)
   })
 
