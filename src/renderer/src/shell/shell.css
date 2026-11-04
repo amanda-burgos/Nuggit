@@ -21,9 +21,20 @@
   font-size: 1.1rem;
   padding: 4px 6px 12px;
   min-height: 38px;
+  border: none;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* The logo is a button to Inicio. */
+.sidebar-brand:hover .sidebar-logo {
+  transform: scale(1.06);
 }
 
 .sidebar-logo {
+  transition: transform 140ms ease;
   width: 30px;
   height: 30px;
   flex-shrink: 0;

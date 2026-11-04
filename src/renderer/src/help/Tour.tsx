@@ -24,7 +24,7 @@ const steps = (): Step[] => [
     )
   },
   {
-    target: '.board .widget-actions, [data-tour="add-widget"]',
+    target: '.board .widget .widget-actions, [data-tour="add-widget"]',
     title: t('↗ Despégalos a tu escritorio', '↗ Pop them out onto your desktop'),
     text: t(
       'Con ↗ un widget sale del tablero y se queda en el escritorio de tu Mac, aunque cierres Nuggit. Con ↙ vuelve. 📌 lo fija y ⚙︎ abre sus opciones.',
@@ -118,6 +118,12 @@ function bubblePlace(box: Box | null, step: Step): React.CSSProperties {
 }
 
 export function Tour({ onDone }: { onDone(): void }): React.JSX.Element {
+  // The widget buttons (↗ 📌 ⚙︎) only show on hover; during the tour they stay visible so
+  // the "Despégalos" step points at something.
+  useEffect(() => {
+    document.documentElement.classList.add('is-touring')
+    return () => document.documentElement.classList.remove('is-touring')
+  }, [])
   const [index, setIndex] = useState(0)
   const [box, setBox] = useState<Box | null>(null)
   const STEPS = steps()

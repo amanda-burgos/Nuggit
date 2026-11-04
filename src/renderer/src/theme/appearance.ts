@@ -158,15 +158,9 @@ export function applyAppearance(appearance: AppearanceSettings): void {
   // Fase 13: fonts and text size (sizes in the CSS are rem, so they all follow).
   root.setProperty('--font-sans', fontStack(appearance.font))
   root.setProperty('--font-heading', fontStack(appearance.headingFont ?? appearance.font))
-  // "Ajustar al tamaño de la ventana": in the main window the base size goes from 13 px
-  // (narrow) to 17 px (wide), about 16 px at 1280 px. Detached widgets and the menu bar
-  // windows are small on purpose, so they keep the normal size.
-  const scale = appearance.fontScale ?? 1
-  const mainWindow = !location.search
-  root.fontSize =
-    appearance.fontAuto !== false && mainWindow
-      ? `calc(${scale} * clamp(13px, 0.55vw + 9px, 17px))`
-      : `${Math.round(scale * 100)}%`
+  // The text size. "Ajustar todo al tamaño de la ventana" zooms the whole main window
+  // instead (src/main/windowZoom.ts), so text and widgets grow together.
+  root.fontSize = `${Math.round((appearance.fontScale ?? 1) * 100)}%`
 }
 
 // A widget's own font (Fase 13), over the general one: its text and its titles.

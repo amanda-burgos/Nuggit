@@ -1,9 +1,16 @@
-import changelog from '../../../../CHANGELOG.md?raw'
-import { parseChangelog } from '../../../shared/changelog'
-import { locale, t } from '../../../shared/i18n'
+import changelogEs from '../../../../CHANGELOG.md?raw'
+import changelogEn from '../../../../CHANGELOG.en.md?raw'
+import { parseChangelog, type ChangelogRelease } from '../../../shared/changelog'
+import { getLang, locale, t, type Lang } from '../../../shared/i18n'
 
-// CHANGELOG.md, entry by entry (📣 Novedades, Ayuda → Novedades, "Qué hay de nuevo", Acerca de).
-export const RELEASES = parseChangelog(changelog)
+// CHANGELOG.md (or CHANGELOG.en.md in English), entry by entry (📣 Novedades, Ayuda → Novedades,
+// "Qué hay de nuevo", Acerca de). Both files have the same entries, versions and dates, so
+// "seen" dates and versions work the same in either language. Call it when drawing.
+const parsed: Partial<Record<Lang, ChangelogRelease[]>> = {}
+export function releases(): ChangelogRelease[] {
+  const lang = getLang()
+  return (parsed[lang] ??= parseChangelog(lang === 'en' ? changelogEn : changelogEs))
+}
 
 // "1.0.0" → "Versión 1.0.0"; "Sin publicar" reads better as "Lo más nuevo"; a title stays.
 export const releaseName = (version: string): string =>

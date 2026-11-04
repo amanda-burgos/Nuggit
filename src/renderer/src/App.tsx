@@ -4,7 +4,7 @@ import type { AppTab } from '../../shared/types'
 import { Desktop } from './desktop/Desktop'
 import { Toolbar } from './desktop/Toolbar'
 import { HelpPanel } from './help/HelpPanel'
-import { RELEASES } from './help/news'
+import { releases } from './help/news'
 import { LanguagePicker } from './help/LanguagePicker'
 import { Tour } from './help/Tour'
 import { NewsPanel } from './help/NewsPanel'
@@ -51,7 +51,7 @@ function App(): React.JSX.Element {
         }
         if (onboarding.lastSeenVersion === version) return
         // Only after an update: a new person gets the tour instead.
-        const release = releaseFor(RELEASES, version)
+        const release = releaseFor(releases(), version)
         if (onboarding.tourDone && onboarding.lastSeenVersion && onboarding.whatsNew && release) {
           setNews({ release, version })
         }
@@ -72,7 +72,7 @@ function App(): React.JSX.Element {
   const openNews = (): void => {
     setNews(null)
     setNewsOpen(true)
-    const newest = newestDate(RELEASES)
+    const newest = newestDate(releases())
     if (newest) update({ onboarding: { lastSeenNews: newest } })
   }
 
@@ -116,7 +116,7 @@ function App(): React.JSX.Element {
         collapsed={collapsed}
         onSelect={selectTab}
         onToggleCollapsed={() => update({ ui: { sidebarCollapsed: !collapsed } })}
-        newsCount={unseenCount(RELEASES, settings.onboarding.lastSeenNews)}
+        newsCount={unseenCount(releases(), settings.onboarding.lastSeenNews)}
         onOpenNews={openNews}
       />
       <main className={`app-main${backdrop ? ' has-backdrop' : ''}`}>

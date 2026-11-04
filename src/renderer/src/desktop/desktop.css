@@ -254,7 +254,8 @@
 }
 
 .widget:hover .widget-actions,
-.widget:focus-within .widget-actions {
+.widget:focus-within .widget-actions,
+.is-touring .board .widget-actions {
   opacity: 1;
 }
 

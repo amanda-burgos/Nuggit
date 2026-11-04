@@ -146,11 +146,11 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             onChange={(e) => update({ appearance: { fontAuto: e.target.checked } })}
           />
           <span>
-            {t('Ajustar al tamaño de la ventana', 'Fit to the window size')}
+            {t('Ajustar todo al tamaño de la ventana', 'Fit everything to the window size')}
             <small>
               {t(
-                'Con la ventana chica la letra se achica y con la ventana grande crece. Los widgets despegados quedan igual.',
-                'With a small window the text shrinks and with a big window it grows. Popped-out widgets stay the same.'
+                'Con la ventana chica todo se achica (letra, widgets y barra) y con la ventana grande crece, como hacer zoom. Los widgets despegados quedan igual.',
+                'With a small window everything shrinks (text, widgets and sidebar) and with a big window it grows, like zooming. Popped-out widgets stay the same.'
               )}
             </small>
           </span>

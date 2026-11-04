@@ -62,6 +62,25 @@ describe('parseChangelog', () => {
     })
   })
 
+  it('reads the English changelog the same way', () => {
+    const releases = parseChangelog(`## [Sin publicar]
+
+### New
+- **Help:** a new tab.
+
+## [1.0.0] - 2026-11-02
+
+### Fixed
+- Something.
+`)
+    expect(releases.map((r) => [r.version, r.date])).toEqual([
+      ['Sin publicar', undefined],
+      ['1.0.0', '2026-11-02']
+    ])
+    expect(releases[0].groups[0]).toEqual({ title: 'New', items: ['**Help:** a new tab.'] })
+    expect(releases[1].groups[0].title).toBe('Fixed')
+  })
+
   it('picks this version, or the newest one', () => {
     const releases = parseChangelog(md)
     expect(releaseFor(releases, '1.0.0')?.version).toBe('1.0.0')

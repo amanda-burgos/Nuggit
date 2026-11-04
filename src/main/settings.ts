@@ -8,6 +8,7 @@ import { setMusicTrayMode } from './musicTray'
 import { setPickupMode } from './pickupTray'
 import { setStatusIndicator } from './statusTray'
 import { setAIProvider, updateSettings } from './storage'
+import { setAutoZoom } from './windowZoom'
 
 // Every settings change goes through here, whether it comes from a window or the menu bar,
 // so the theme, the menu bar indicator and every open window stay in step.
@@ -32,6 +33,7 @@ export function musicTrayMode(settings: Settings): NonNullable<Settings['musicTr
 function applySettings(settings: Settings): Settings {
   // Fase 14: the menu bar menus and notifications follow the app's language.
   setLang(settings.language) // listeners (like the menu bar menu) redraw themselves
+  setAutoZoom(settings.appearance.fontAuto)
   // Every window (including detached widgets) follows the theme through the OS setting.
   nativeTheme.themeSource = settings.theme
   setStatusIndicator(settings.statusIndicator)

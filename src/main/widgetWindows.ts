@@ -264,8 +264,16 @@ export function detachWidget(id: string, rect: WidgetRect, from: WebContents): v
   const state = getDesktop()
   if (!owner || !state || state.detached?.[id]) return
   const content = owner.getContentBounds()
+  // The board may be zoomed (windowZoom.ts): its page pixels are bigger or smaller than the
+  // screen's. The widget keeps its size in page pixels, since its own window isn't zoomed.
+  const zoom = from.getZoomFactor()
   const bounds = ensureVisible(
-    toRectangle({ x: content.x + rect.x, y: content.y + rect.y, w: rect.w, h: rect.h })
+    toRectangle({
+      x: content.x + Math.round(rect.x * zoom),
+      y: content.y + Math.round(rect.y * zoom),
+      w: rect.w,
+      h: rect.h
+    })
   )
   focusOnShow.add(id)
   setDetached({ [id]: { bounds: toRect(bounds), alwaysOnTop: false } })

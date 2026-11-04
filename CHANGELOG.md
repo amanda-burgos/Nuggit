@@ -2,6 +2,8 @@
 
 Lo nuevo, lo arreglado y lo que cambió, por fecha y en palabras simples. Se ve en Nuggit con el botón 📣 Novedades.
 
+Cada cambio va también en inglés en CHANGELOG.en.md, en el mismo orden y con la misma fecha (y `### New`, `### Changed` o `### Fixed`).
+
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
 ## [Windows y Linux] - 2026-11-04
@@ -40,6 +42,13 @@ Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versi
 ### Cambió
 
 - **El reloj crece más:** en un cuadro grande la hora ahora se ve mucho más grande.
+- **Todo se ajusta a la ventana:** con "Ajustar todo al tamaño de la ventana" ya no solo cambia la letra: la barra de la izquierda y los widgets también crecen o se achican, como hacer zoom.
+- **El logo de Nuggit** (arriba a la izquierda) te lleva a Inicio.
+- **Novedades en inglés:** si usas Nuggit en inglés, las novedades también salen en inglés.
+
+### Arreglado
+
+- En el tour, el paso "Despégalos" señalaba un cuadro vacío; ahora se ven los botones del widget.
 
 ## [Recordatorios] - 2026-11-02
 

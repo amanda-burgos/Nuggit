@@ -11,6 +11,7 @@ import { initNotes } from './notes'
 import { initQotd } from './qotd'
 import { initReminders } from './reminders'
 import { initUpdates } from './updates'
+import { setAutoZoom, trackWindowZoom } from './windowZoom'
 import { initDesktop } from './desktop'
 import { initFocus } from './focus'
 import { initCalendar } from './calendar'
@@ -53,6 +54,7 @@ function createWindow(): BrowserWindow {
     ...(process.platform === 'linux' ? { icon } : {})
   })
   mainWindow = win
+  trackWindowZoom(win)
 
   win.on('ready-to-show', () => {
     win.show()
@@ -102,6 +104,7 @@ app.whenReady().then(async () => {
   let musicTray: NonNullable<Settings['musicTray']> = 'off'
   try {
     const settings = await loadSettings()
+    setAutoZoom(settings.appearance.fontAuto)
     setLang(settings.language)
     nativeTheme.themeSource = settings.theme
     statusIndicator = settings.statusIndicator

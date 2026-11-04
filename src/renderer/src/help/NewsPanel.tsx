@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { DISCORD_INVITE } from '../../../shared/help'
 import { t } from '../../../shared/i18n'
-import { RELEASES } from './news'
+import { releases } from './news'
 import { Releases } from './Releases'
 
 // 📣 Novedades: every change to Nuggit, newest first, with its date (from CHANGELOG.md).
@@ -31,7 +31,7 @@ export function NewsPanel({ onClose }: { onClose(): void }): React.JSX.Element {
           )}
         </p>
         <div className="whats-new-body">
-          <Releases releases={RELEASES} />
+          <Releases releases={releases()} />
         </div>
         <footer className="whats-new-actions">
           {DISCORD_INVITE && (

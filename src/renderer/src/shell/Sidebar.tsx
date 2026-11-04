@@ -27,10 +27,15 @@ export function Sidebar({
       className={`sidebar${collapsed ? ' is-collapsed' : ''}`}
       aria-label={t('Secciones', 'Sections')}
     >
-      <div className="sidebar-brand">
+      <button
+        type="button"
+        className="sidebar-brand"
+        title={t('Ir a Inicio', 'Go to Home')}
+        onClick={() => onSelect('home')}
+      >
         <img className="sidebar-logo" src={logoUrl} alt="" />
         <span className="sidebar-label">Nuggit</span>
-      </div>
+      </button>
       <div className="sidebar-tabs" role="tablist" aria-orientation="vertical">
         {TABS.map((info) => (
           <button

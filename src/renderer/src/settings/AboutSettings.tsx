@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { AppInfo } from '../../../shared/types'
-import { RELEASES } from '../help/news'
+import { releases } from '../help/news'
 import { Releases } from '../help/Releases'
 import { t } from '../../../shared/i18n'
 
@@ -30,7 +30,7 @@ export function AboutSettings(): React.JSX.Element {
       )}
       <div className="settings-subsection">
         <h4>🆕 {t('Novedades', "What's new")}</h4>
-        {RELEASES[0] && <Releases releases={[RELEASES[0]]} />}
+        {releases()[0] && <Releases releases={[releases()[0]]} />}
         <small className="settings-hint">
           {t(
             'Las de antes están en ❓ Ayuda → Novedades.',
