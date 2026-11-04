@@ -17,6 +17,19 @@ function clock(seconds: number): string {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 }
 
+function progressBar(position: number, duration?: number | null): React.JSX.Element | null {
+  if (!duration) return null
+  return (
+    <div className="music-progress" aria-hidden>
+      <small>{clock(position)}</small>
+      <div className="music-bar">
+        <div style={{ width: `${(position / duration) * 100}%` }} />
+      </div>
+      <small>{clock(duration)}</small>
+    </div>
+  )
+}
+
 // What Spotify is doing, checked every couple of seconds while the player is on screen.
 // Between checks the song's time moves on by itself.
 function useMusicStatus(): {
@@ -133,87 +146,128 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
     )
   ]
 
+  const controls = (): React.JSX.Element => (
+    <div className="music-controls">
+      <button
+        className="icon-button"
+        title={t('Anterior', 'Previous')}
+        aria-label={t('Canción anterior', 'Previous song')}
+        onClick={() => act(window.api.music.previous)}
+      >
+        ⏮
+      </button>
+      <button
+        className="music-play"
+        title={status.playing ? t('Pausar', 'Pause') : t('Reproducir', 'Play')}
+        aria-label={status.playing ? t('Pausar', 'Pause') : t('Reproducir', 'Play')}
+        onClick={() => act(window.api.music.playPause)}
+      >
+        {status.playing ? '⏸' : '▶'}
+      </button>
+      <button
+        className="icon-button"
+        title={t('Siguiente', 'Next')}
+        aria-label={t('Siguiente canción', 'Next song')}
+        onClick={() => act(window.api.music.next)}
+      >
+        ⏭
+      </button>
+    </div>
+  )
+
+  const volumeControl = (): React.JSX.Element => (
+    <label className="music-volume" title={t(`Volumen ${shownVolume}%`, `Volume ${shownVolume}%`)}>
+      <span aria-hidden>{shownVolume === 0 ? '🔇' : '🔈'}</span>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={shownVolume}
+        aria-label={t('Volumen', 'Volume')}
+        onChange={(e) => changeVolume(Number(e.target.value))}
+      />
+    </label>
+  )
+
+  const full = size === 'full'
+  const afterPlay = (): void => {
+    setChoosing(false)
+    setTimeout(refresh, 600)
+  }
+
+  const song = (
+    <div className="music-song">
+      {full && (
+        <span className={`music-now-label${status.playing ? ' is-playing' : ''}`}>
+          <span className="music-eq" aria-hidden>
+            <i />
+            <i />
+            <i />
+            <i />
+          </span>
+          {status.playing ? t('Sonando ahora', 'Now playing') : t('En pausa', 'Paused')}
+        </span>
+      )}
+      <strong title={status.track ?? ''}>
+        {status.track ?? t('Nada sonando', 'Nothing playing')}
+      </strong>
+      {status.artist && <small title={status.artist}>{status.artist}</small>}
+    </div>
+  )
+  const cover = status.artwork ? (
+    <img className="music-cover" src={status.artwork} alt="" />
+  ) : (
+    <span className="music-cover is-empty" aria-hidden>
+      🎵
+    </span>
+  )
+
+  // The Música tab: the cover (blurred) fills the background, the song big, and the
+  // playlists always in view as cards.
+  if (full) {
+    return (
+      <div
+        className={`music is-full${status.playing ? ' is-playing' : ''}`}
+        style={
+          status.artwork
+            ? ({ '--music-cover': `url("${status.artwork}")` } as React.CSSProperties)
+            : undefined
+        }
+      >
+        <div className="music-backdrop" aria-hidden />
+        <div className="music-stage">
+          {cover}
+          <div className="music-info">
+            {song}
+            {progressBar(position, status.duration)}
+            {controls()}
+            {volumeControl()}
+          </div>
+        </div>
+        <PlaylistChooser playlists={saved} shelf onPlayed={() => setTimeout(refresh, 600)} />
+      </div>
+    )
+  }
+
   return (
     <div className={`music is-${size}`}>
       {choosing ? (
         <PlaylistChooser
           playlists={saved}
           onClose={() => setChoosing(false)}
-          onPlayed={() => {
-            setChoosing(false)
-            setTimeout(refresh, 600)
-          }}
+          onPlayed={afterPlay}
         />
       ) : (
         <>
           <div className="music-now">
-            {status.artwork ? (
-              <img className="music-cover" src={status.artwork} alt="" />
-            ) : (
-              <span className="music-cover is-empty" aria-hidden>
-                🎵
-              </span>
-            )}
-            <div className="music-song">
-              <strong title={status.track ?? ''}>
-                {status.track ?? t('Nada sonando', 'Nothing playing')}
-              </strong>
-              {status.artist && <small title={status.artist}>{status.artist}</small>}
-            </div>
+            {cover}
+            {song}
           </div>
-
-          {status.duration ? (
-            <div className="music-progress" aria-hidden>
-              <small>{clock(position)}</small>
-              <div className="music-bar">
-                <div style={{ width: `${(position / status.duration) * 100}%` }} />
-              </div>
-              <small>{clock(status.duration)}</small>
-            </div>
-          ) : null}
-
-          <div className="music-controls">
-            <button
-              className="icon-button"
-              title={t('Anterior', 'Previous')}
-              aria-label={t('Canción anterior', 'Previous song')}
-              onClick={() => act(window.api.music.previous)}
-            >
-              ⏮
-            </button>
-            <button
-              className="music-play"
-              title={status.playing ? t('Pausar', 'Pause') : t('Reproducir', 'Play')}
-              aria-label={status.playing ? t('Pausar', 'Pause') : t('Reproducir', 'Play')}
-              onClick={() => act(window.api.music.playPause)}
-            >
-              {status.playing ? '⏸' : '▶'}
-            </button>
-            <button
-              className="icon-button"
-              title={t('Siguiente', 'Next')}
-              aria-label={t('Siguiente canción', 'Next song')}
-              onClick={() => act(window.api.music.next)}
-            >
-              ⏭
-            </button>
-          </div>
+          {progressBar(position, status.duration)}
+          {controls()}
 
           <div className="music-footer">
-            <label
-              className="music-volume"
-              title={t(`Volumen ${shownVolume}%`, `Volume ${shownVolume}%`)}
-            >
-              <span aria-hidden>{shownVolume === 0 ? '🔇' : '🔈'}</span>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={shownVolume}
-                aria-label={t('Volumen', 'Volume')}
-                onChange={(e) => changeVolume(Number(e.target.value))}
-              />
-            </label>
+            {volumeControl()}
             <button className="button-ghost" onClick={() => setChoosing(true)}>
               🎶 Playlists
             </button>
@@ -227,11 +281,13 @@ export function MusicWidget({ size }: WidgetProps<MusicConfig>): React.JSX.Eleme
 // "Elegir playlist": the saved ones (and the Focus ones), and a box to save a new link.
 function PlaylistChooser({
   playlists,
+  shelf = false,
   onClose,
   onPlayed
 }: {
   playlists: SavedPlaylist[]
-  onClose(): void
+  shelf?: boolean // the Música tab: always shown, as cards
+  onClose?(): void
   onPlayed(): void
 }): React.JSX.Element {
   const [link, setLink] = useState('')
@@ -256,12 +312,18 @@ function PlaylistChooser({
   }
 
   return (
-    <div className="music-chooser">
+    <div className={`music-chooser${shelf ? ' is-shelf' : ''}`}>
       <div className="music-chooser-head">
-        <strong>{t('🎶 Elegir playlist', '🎶 Choose a playlist')}</strong>
-        <button className="icon-button" title={t('Volver', 'Back')} onClick={onClose}>
-          ×
-        </button>
+        <strong>
+          {shelf
+            ? t('🎶 Tus playlists', '🎶 Your playlists')
+            : t('🎶 Elegir playlist', '🎶 Choose a playlist')}
+        </strong>
+        {onClose && (
+          <button className="icon-button" title={t('Volver', 'Back')} onClick={onClose}>
+            ×
+          </button>
+        )}
       </div>
       {playlists.length === 0 ? (
         <p className="music-hint">

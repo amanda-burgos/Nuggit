@@ -8,13 +8,6 @@
   overflow-y: auto;
 }
 
-.music.is-full {
-  max-width: 460px;
-  width: 100%;
-  margin: 0 auto;
-  justify-content: flex-start;
-}
-
 .music.is-off {
   align-items: center;
   text-align: center;
@@ -43,11 +36,6 @@
   border-radius: var(--radius-sm);
   object-fit: cover;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-}
-
-.music.is-full .music-cover {
-  width: 120px;
-  height: 120px;
 }
 
 .music-cover.is-empty {
@@ -241,4 +229,288 @@
 /* The playlist list starts at the top instead of floating in the middle. */
 .music:has(.music-chooser) {
   justify-content: flex-start;
+}
+
+/* --- The Música tab (size "full"): the cover fills the background, the song is big,
+   and the playlists show as cards. --- */
+
+.music.is-full {
+  position: relative;
+  isolation: isolate;
+  justify-content: flex-start;
+  gap: 28px;
+  min-height: 100%;
+  padding: clamp(20px, 4vw, 48px);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow-x: hidden;
+}
+
+/* The cover, blurred and big, so the tab takes the song's colors. */
+.music-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.music-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: var(--music-cover, none) center / cover no-repeat;
+  filter: blur(48px) saturate(1.3);
+  opacity: 0.8;
+  transition: background-image 600ms ease;
+}
+
+.music-backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--color-surface) 30%, transparent),
+    var(--color-surface) 85%
+  );
+}
+
+.music-stage {
+  display: grid;
+  grid-template-columns: minmax(160px, 320px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(20px, 4vw, 48px);
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.music.is-full .music-cover {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  transition: transform 400ms ease;
+}
+
+.music.is-full .music-cover.is-empty {
+  font-size: 4rem;
+}
+
+/* While it plays the cover "breathes" a little. */
+.music.is-full.is-playing .music-cover {
+  animation: music-breathe 4s ease-in-out infinite;
+}
+
+.music-info {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.music.is-full .music-song strong {
+  font-size: clamp(1.5rem, 3.2vw, 2.6rem);
+  line-height: 1.1;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.music.is-full .music-song small {
+  margin-top: 6px;
+  font-size: 1.1rem;
+}
+
+.music-now-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* Four little equalizer bars: they dance while it plays, rest when paused. */
+.music-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 12px;
+}
+
+.music-eq i {
+  width: 3px;
+  height: 30%;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.music-now-label.is-playing .music-eq i {
+  animation: music-eq 900ms ease-in-out infinite;
+}
+
+.music-now-label.is-playing .music-eq i:nth-child(2) {
+  animation-delay: -300ms;
+}
+
+.music-now-label.is-playing .music-eq i:nth-child(3) {
+  animation-delay: -600ms;
+}
+
+.music-now-label.is-playing .music-eq i:nth-child(4) {
+  animation-delay: -150ms;
+}
+
+.music.is-full .music-progress {
+  font-size: 0.85rem;
+}
+
+.music.is-full .music-bar {
+  height: 6px;
+  background: color-mix(in srgb, var(--color-text) 15%, transparent);
+}
+
+.music.is-full .music-controls {
+  justify-content: flex-start;
+  gap: 22px;
+}
+
+.music.is-full .music-controls .icon-button {
+  font-size: 1.4rem;
+}
+
+.music.is-full .music-play {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  transition: transform 120ms ease;
+}
+
+.music.is-full .music-play:hover {
+  transform: scale(1.06);
+}
+
+.music.is-full .music-volume {
+  max-width: 320px;
+}
+
+/* Your playlists, as cards under the player. */
+.music-chooser.is-shelf {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  gap: 12px;
+}
+
+.music-chooser.is-shelf .music-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  overflow: visible;
+}
+
+.music-chooser.is-shelf .music-list li {
+  position: relative;
+}
+
+.music-chooser.is-shelf .music-list-play {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--color-surface-muted) 80%, transparent);
+  border-radius: var(--radius-md);
+  transition: transform 140ms ease;
+}
+
+.music-chooser.is-shelf .music-list-play:hover {
+  transform: translateY(-2px);
+}
+
+.music-chooser.is-shelf .music-list-play img,
+.music-chooser.is-shelf .music-list-art {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  font-size: 2rem;
+  background: var(--color-surface);
+}
+
+.music-chooser.is-shelf .music-list li > .icon-button {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  opacity: 0;
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+  transition: opacity 120ms ease;
+}
+
+.music-chooser.is-shelf .music-list li:hover > .icon-button,
+.music-chooser.is-shelf .music-list li > .icon-button:focus-visible {
+  opacity: 1;
+}
+
+.music-chooser.is-shelf .music-add {
+  max-width: 520px;
+}
+
+@media (max-width: 720px) {
+  .music-stage {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .music.is-full .music-cover {
+    max-width: 260px;
+  }
+
+  .music-info {
+    width: 100%;
+  }
+
+  .music.is-full .music-controls {
+    justify-content: center;
+  }
+
+  .music.is-full .music-volume {
+    margin: 0 auto;
+  }
+}
+
+@keyframes music-eq {
+  0%,
+  100% {
+    height: 25%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+@keyframes music-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.015);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .music.is-full.is-playing .music-cover,
+  .music-now-label.is-playing .music-eq i {
+    animation: none;
+  }
 }
