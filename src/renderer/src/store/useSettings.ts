@@ -51,9 +51,10 @@ export function useSettings(): SettingsStore {
       if (uiPatch?.panel) ui.panels = { ...ui.panels, [uiPatch.panel.type]: uiPatch.panel.config }
       const { voiceURI, ...voiceRest } = voicePatch ?? {}
       const voice = { ...prev.voice, ...voiceRest }
-      const { themeColor, ...appearanceRest } = appearancePatch ?? {}
+      const { themeColor, headingFont, ...appearanceRest } = appearancePatch ?? {}
       const appearance = { ...prev.appearance, ...appearanceRest }
       if (themeColor !== undefined) appearance.themeColor = themeColor ?? undefined
+      if (headingFont !== undefined) appearance.headingFont = headingFont ?? undefined
       if (voicePatch && 'voiceURI' in voicePatch) voice.voiceURI = voiceURI || undefined
       const next = {
         ...prev,

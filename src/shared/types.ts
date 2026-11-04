@@ -18,6 +18,7 @@ export interface WidgetInstance {
   locked?: boolean // "Fijar": can't be moved or resized, no edit controls (SPEC 9.16)
   background?: Background // its own background, over the general one (Fase 9); unset = general
   radius?: number // its own corner roundness in px, over the general one; unset = general
+  font?: string // Fase 13: its own font (a FontPreset id or "mac:<family>"); unset = general
 }
 
 // A background (board or widgets, Fase 9). Images are copies kept in Nuggit's data folder,
@@ -31,6 +32,12 @@ export type Background =
 export const WIDGET_RADIUS_MIN = 0
 export const WIDGET_RADIUS_MAX = 32
 
+// Fase 13: fonts. A font is a bundled/system preset id ("system", "nunito"…) or
+// "mac:<family>" for a font installed on this Mac. Text size is a scale of the base size.
+export const DEFAULT_FONT = 'system'
+export const FONT_SCALE_MIN = 0.85
+export const FONT_SCALE_MAX = 1.3
+
 // Ajustes → Apariencia (Fase 9).
 export interface AppearanceSettings {
   accent: string // a preset name ("lavender"…) or a #rrggbb color
@@ -42,6 +49,10 @@ export interface AppearanceSettings {
   widgetShadow: boolean
   widgetOpacity: number // 0.6–1: how solid the widgets are
   widgetRadius: number // px, WIDGET_RADIUS_MIN–MAX: how round the widget corners are
+  font: string // Fase 13: the app's font
+  headingFont?: string // the titles' font; unset = same as the text
+  fontScale: number // FONT_SCALE_MIN–MAX: how big the text is
+  fontAuto: boolean // the main window's text follows its size (smaller window, smaller text)
 }
 
 // A widget popped out of the board into its own window on the computer's desktop.
@@ -323,7 +334,10 @@ export interface SettingsPatch {
   qotdTopics?: string[]
   qotdCustomTopics?: QotdCustomTopic[]
   // themeColor: null = back to light/dark
-  appearance?: Partial<Omit<AppearanceSettings, 'themeColor'>> & { themeColor?: string | null }
+  appearance?: Partial<Omit<AppearanceSettings, 'themeColor' | 'headingFont'>> & {
+    themeColor?: string | null
+    headingFont?: string | null // null = same as the text
+  }
   music?: {
     enabled?: boolean
     focusPlaylist?: string | null // a link or URI; null or '' removes it
@@ -616,6 +630,8 @@ export interface NuggitApi {
     setBackground(id: string, background: Background | null): Promise<void>
     // A widget's own corner roundness in px; null = back to the general one.
     setRadius(id: string, radius: number | null): Promise<void>
+    // Fase 13: a widget's own font; null = back to the general one.
+    setFont(id: string, font: string | null): Promise<void>
     // Called whenever another window (or the main process) changes the desktop.
     onChange(listener: (state: SavedDesktop) => void): () => void
   }
@@ -831,6 +847,10 @@ export interface NuggitApi {
     info(): Promise<AppInfo>
     // "Abrir Nuggit al iniciar la Mac".
     setOpenAtLogin(open: boolean): Promise<AppInfo>
+  }
+  // Fase 13: the font families installed on this Mac (empty if they can't be read).
+  fonts: {
+    list(): Promise<string[]>
   }
   widgetWindows: {
     // rect is relative to the calling window's content area.

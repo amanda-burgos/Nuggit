@@ -1,4 +1,5 @@
 import type { AppearanceSettings, Background } from '../../../shared/types'
+import { fontStack } from './fonts'
 
 // Fase 9: Ajustes → Apariencia applied as CSS variables, so every window (the board,
 // detached widgets, the menu bar windows) looks the same and follows light/dark.
@@ -116,4 +117,24 @@ export function applyAppearance(appearance: AppearanceSettings): void {
   root.setProperty('--widget-radius', `${appearance.widgetRadius ?? 18}px`)
   root.setProperty('--widget-shadow', appearance.widgetShadow ? 'var(--shadow-widget)' : 'none')
   root.setProperty('--widget-opacity', `${Math.round(appearance.widgetOpacity * 100)}%`)
+
+  // Fase 13: fonts and text size (sizes in the CSS are rem, so they all follow).
+  root.setProperty('--font-sans', fontStack(appearance.font))
+  root.setProperty('--font-heading', fontStack(appearance.headingFont ?? appearance.font))
+  // "Ajustar al tamaño de la ventana": in the main window the base size goes from 13 px
+  // (narrow) to 17 px (wide), about 16 px at 1280 px. Detached widgets and the menu bar
+  // windows are small on purpose, so they keep the normal size.
+  const scale = appearance.fontScale ?? 1
+  const mainWindow = !location.search
+  root.fontSize =
+    appearance.fontAuto !== false && mainWindow
+      ? `calc(${scale} * clamp(13px, 0.55vw + 9px, 17px))`
+      : `${Math.round(scale * 100)}%`
+}
+
+// A widget's own font (Fase 13), over the general one: its text and its titles.
+export function widgetFontVars(font: string | undefined): Record<string, string> {
+  if (!font) return {}
+  const stack = fontStack(font)
+  return { '--font-sans': stack, '--font-heading': stack }
 }

@@ -4,6 +4,14 @@ Lo nuevo, lo arreglado y lo que cambió, por fecha y en palabras simples. Se ve 
 
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
+## [Tu letra] - 2026-11-04
+
+### Nuevo
+
+- **Escoge tu letra 🔤:** en Ajustes → Apariencia → Letra eliges la fuente de Nuggit entre varias incluidas (redonda, de libro, escrita a mano, para dislexia, para leer más fácil…) o cualquiera de las que tienes en tu Mac. Los títulos pueden llevar otra (Fase 13).
+- **Tamaño de la letra:** más chica o más grande (85 % a 130 %), y si quieres, que se ajuste sola al tamaño de la ventana.
+- **Letra por widget:** cada widget puede tener la suya desde su ⚙︎.
+
 ## [Recordatorios] - 2026-11-02
 
 ### Nuevo

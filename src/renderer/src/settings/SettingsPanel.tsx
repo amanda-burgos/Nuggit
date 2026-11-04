@@ -47,7 +47,7 @@ const SECTIONS: Array<{
   {
     id: 'appearance',
     tab: 'appearance',
-    keywords: 'apariencia tema claro oscuro sistema mi color colores fondo transparencia',
+    keywords: 'apariencia tema claro oscuro sistema mi color colores fondo transparencia letra fuente fuentes tipografía font tamaño texto títulos dislexia',
     Component: AppearanceSettings
   },
   {

@@ -26,6 +26,22 @@ button {
   color: inherit;
 }
 
+/* Fase 13: fields use the chosen font too (browsers don't pass it down by default). */
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
+/* Titles can have their own font (Ajustes → Apariencia → Letra). */
+h1,
+h2,
+h3,
+h4,
+.widget-title {
+  font-family: var(--font-heading, var(--font-sans));
+}
+
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;

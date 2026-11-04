@@ -28,10 +28,12 @@ import {
   replaceDesktop,
   setWidgetBackground,
   setWidgetRadius,
+  setWidgetFont,
   setWidgetLocked,
   updateWidgetConfig
 } from './desktop'
 import { forgetImages, pickImages } from './images'
+import { listMacFonts } from './fonts'
 import * as ai from './ai'
 import { splitBrainDump } from './ai/brainDump'
 import { dailyQuestions, proposeDailies } from './ai/dailies'
@@ -77,7 +79,7 @@ import {
 } from './reminders'
 import { getNextActionState, setAvailable, skipAction, startAction, tinyStep } from './nextAction'
 import { changeSettings } from './settings'
-import { clampRadius, cleanBackground, loadSettings } from './storage'
+import { clampRadius, cleanBackground, cleanFont, loadSettings } from './storage'
 import {
   completeTask,
   createTask,
@@ -149,6 +151,15 @@ export function registerIpc({ openSettings, openBoard, openTab }: IpcDeps): void
       if (clean !== null) setWidgetRadius(id, clean)
     }
   })
+  ipcMain.handle('desktop:setFont', (_event, id: unknown, font: unknown) => {
+    if (typeof id !== 'string') return
+    if (font === null) setWidgetFont(id, null)
+    else {
+      const clean = cleanFont(font)
+      if (clean) setWidgetFont(id, clean)
+    }
+  })
+  ipcMain.handle('fonts:list', () => listMacFonts())
   ipcMain.handle('images:pick', (event, multiple: unknown) => pickImages(event.sender, multiple))
   ipcMain.handle('images:forget', (_event, names: unknown) => forgetImages(names))
   ipcMain.handle('desktop:setLocked', (_event, id: unknown, locked: unknown) => {

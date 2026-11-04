@@ -99,6 +99,20 @@ export function setWidgetRadius(id: string, radius: number | null): void {
   })
 }
 
+// Fase 13: a widget's own font (null = use the general one).
+export function setWidgetFont(id: string, font: string | null): void {
+  if (!state || !state.widgets.some((w) => w.id === id)) return
+  commit({
+    ...state,
+    widgets: state.widgets.map((w) => {
+      if (w.id !== id) return w
+      const next = { ...w }
+      delete next.font
+      return font === null ? next : { ...next, font }
+    })
+  })
+}
+
 export function setWidgetHidden(id: string, hidden: boolean): void {
   updateWidget(id, { hidden })
 }

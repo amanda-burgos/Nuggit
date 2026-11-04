@@ -2,9 +2,10 @@ import { useState } from 'react'
 import type { WidgetInstance } from '../../../shared/types'
 import { WIDGET_RADIUS_MAX, WIDGET_RADIUS_MIN } from '../../../shared/types'
 import { useAIStatus } from '../store/useAIStatus'
-import { backgroundVars } from '../theme/appearance'
+import { backgroundVars, widgetFontVars } from '../theme/appearance'
 import { useAppearance } from '../theme/appearanceContext'
 import { BackgroundPicker } from '../theme/BackgroundPicker'
+import { FontSelect } from '../theme/FontPicker'
 import { AINotice } from './AINotice'
 import type { AnyWidgetDefinition } from '../widgets/types'
 
@@ -89,7 +90,8 @@ export function WidgetFrame({
       style={
         {
           ...backgroundVars(background),
-          ...(instance.radius !== undefined && { '--widget-radius': `${instance.radius}px` })
+          ...(instance.radius !== undefined && { '--widget-radius': `${instance.radius}px` }),
+          ...widgetFontVars(instance.font)
         } as React.CSSProperties
       }
     >
@@ -186,6 +188,18 @@ export function WidgetFrame({
                     </button>
                   )}
                 </div>
+              </div>
+              <div className="widget-settings-field">
+                <span>Letra{instance.font ? '' : ' (la general)'}</span>
+                <FontSelect
+                  value={instance.font ?? null}
+                  generalLabel="Usar la general"
+                  onChange={(font) =>
+                    window.api.desktop
+                      .setFont(instance.id, font)
+                      .catch((err) => console.error('Could not change font', err))
+                  }
+                />
               </div>
               {onSetShadow && (
                 <label>

@@ -25,6 +25,7 @@ const api: NuggitApi = {
     setLocked: (id, locked) => ipcRenderer.invoke('desktop:setLocked', id, locked),
     setBackground: (id, background) => ipcRenderer.invoke('desktop:setBackground', id, background),
     setRadius: (id, radius) => ipcRenderer.invoke('desktop:setRadius', id, radius),
+    setFont: (id, font) => ipcRenderer.invoke('desktop:setFont', id, font),
     onChange: (listener) => {
       const handler = (_event: IpcRendererEvent, state: SavedDesktop): void => listener(state)
       ipcRenderer.on('desktop:changed', handler)
@@ -234,6 +235,9 @@ const api: NuggitApi = {
       ipcRenderer.on('app:openSettings', handler)
       return () => ipcRenderer.removeListener('app:openSettings', handler)
     }
+  },
+  fonts: {
+    list: () => ipcRenderer.invoke('fonts:list')
   },
   widgetWindows: {
     detach: (id, rect) => ipcRenderer.invoke('widgetWindows:detach', id, rect),

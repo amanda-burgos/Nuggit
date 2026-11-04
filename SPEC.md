@@ -743,6 +743,20 @@ Cómo quedó (Fase 12):
 - **Si Nuggit estaba cerrado:** lo que tocaba en las últimas 12 h suena una vez al abrir ("Era a las 9:00"); lo más viejo se salta sin avisar. Si suenan varios a la vez, sale un solo aviso con todos.
 - La pestaña ofrece "Abrir Nuggit al prender la Mac" si está apagado.
 
+### Fase 13 — Letra (fuentes)
+- En Ajustes → Apariencia → **🔤 Letra**: elegir la fuente de la app, una fuente aparte para los títulos y el tamaño del texto.
+- Fuentes **incluidas** (funcionan sin internet) + **las fuentes instaladas en tu Mac**.
+- Cada widget puede tener **su propia letra** desde su ⚙︎ ("Usar la general").
+- La letra puede **ajustarse al tamaño de la ventana** (ventana chica, letra más chica).
+- **Listo cuando:** cambio la fuente y el tamaño y toda la app (y los widgets despegados) cambia al instante, y un widget puede tener otra letra.
+
+Cómo quedó (Fase 13):
+- **Fuentes incluidas** (`src/renderer/src/theme/fonts.ts`): del sistema, Redondeada (SF Rounded), Con serifa (New York), Monoespaciada, y empaquetadas con @fontsource (solo latín, 400 y 700): Inter, Nunito, Fredoka, Lexend, Atkinson Hyperlegible, OpenDyslexic, Comic Neue, Caveat, Merriweather y Space Grotesk. Cada tarjeta se muestra en su propia letra.
+- **Fuentes de tu Mac:** se piden a AppKit con `osascript -l JavaScript` (`src/main/fonts.ts`, ~0.1 s, una vez por sesión), con buscador. Se guardan como `mac:<familia>`.
+- **Se guarda** en `appearance.font`, `headingFont` (sin poner = igual que el texto), `fontScale` (85–130 %) y `fontAuto`. Se aplica con las variables `--font-sans` y `--font-heading` y el `font-size` de `<html>` (todo el CSS usa rem).
+- **Ajustar al tamaño de la ventana** (prendido por defecto): solo en la ventana principal, la base va de 13 px a 17 px según el ancho (~16 px a 1280 px), por el tamaño elegido. Los widgets despegados y las ventanitas de la barra de menú usan el tamaño normal.
+- **Por widget:** `font` en el widget (`desktop:setFont`), desde su ⚙︎; cambia su texto y su título.
+
 ### Después del MVP (ideas)
 School, Recordatorios con Dip ("recuérdame a las 5…"), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 

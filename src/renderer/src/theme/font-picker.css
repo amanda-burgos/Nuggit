@@ -1,0 +1,122 @@
+/* Fase 13: Ajustes → Apariencia → Letra, and the font in a widget's ⚙︎. */
+.font-select {
+  max-width: 100%;
+  font-size: 0.85rem;
+  color: inherit;
+  background: var(--color-surface-muted);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+}
+
+.font-select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.font-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.font-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.font-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.font-choice:hover {
+  transform: translateY(-1px);
+}
+
+.font-choice.is-active {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent);
+}
+
+.font-sample {
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.font-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.font-choice small {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.font-mac-toggle {
+  align-self: flex-start;
+}
+
+.font-mac {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.font-mac-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.font-mac-list button {
+  width: 100%;
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 0.95rem;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.font-mac-list button:hover {
+  background: var(--color-surface-muted);
+}
+
+.font-mac-list button.is-active {
+  background: var(--color-accent-soft);
+}
+
+.font-mac-empty {
+  padding: 6px 8px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.font-size-preview {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}

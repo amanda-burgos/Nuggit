@@ -8,7 +8,13 @@ import type {
   WidgetInstance,
   WidgetRect
 } from '../../shared/types'
-import { WIDGET_RADIUS_MAX, WIDGET_RADIUS_MIN } from '../../shared/types'
+import {
+  DEFAULT_FONT,
+  FONT_SCALE_MAX,
+  FONT_SCALE_MIN,
+  WIDGET_RADIUS_MAX,
+  WIDGET_RADIUS_MIN
+} from '../../shared/types'
 import { spotifyUri } from '../../shared/music'
 import { readJson, writeJson } from './jsonStore'
 
@@ -29,7 +35,10 @@ const DEFAULT_SETTINGS: Settings = {
     widgetBackground: { kind: 'default' },
     widgetShadow: true,
     widgetOpacity: 1,
-    widgetRadius: 18
+    widgetRadius: 18,
+    font: DEFAULT_FONT,
+    fontScale: 1,
+    fontAuto: true
   },
   ui: { tab: 'home', sidebarCollapsed: false, panels: {} },
   onboarding: { tourDone: false, whatsNew: true },
@@ -49,6 +58,20 @@ export function clampRadius(value: unknown): number | null {
   return Math.min(WIDGET_RADIUS_MAX, Math.max(WIDGET_RADIUS_MIN, Math.round(value)))
 }
 
+// Fase 13: a font choice is a short id ("nunito") or "mac:<family>"; null if it isn't one.
+export function cleanFont(value: unknown): string | null {
+  if (typeof value !== 'string') return null
+  const font = value.trim()
+  if (!font || font.length > 120 || /["\\;{}<>]/.test(font)) return null
+  if (font.startsWith('mac:')) return font.length > 4 ? font : null
+  return /^[a-z0-9-]+$/.test(font) ? font : null
+}
+
+function clampScale(value: unknown): number | null {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
+  return Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, Math.round(value * 100) / 100))
+}
+
 function loadAppearance(saved: unknown): Settings['appearance'] {
   if (!isObject(saved)) return { ...DEFAULT_SETTINGS.appearance }
   const { widgetCorners, ...rest } = saved
@@ -58,6 +81,12 @@ function loadAppearance(saved: unknown): Settings['appearance'] {
   if (typeof appearance.themeColor !== 'string' || !HEX.test(appearance.themeColor)) {
     delete appearance.themeColor
   }
+  appearance.font = cleanFont(saved.font) ?? DEFAULT_FONT
+  const heading = cleanFont(saved.headingFont)
+  if (heading) appearance.headingFont = heading
+  else delete appearance.headingFont
+  appearance.fontScale = clampScale(saved.fontScale) ?? 1
+  if (typeof appearance.fontAuto !== 'boolean') appearance.fontAuto = true
   return appearance
 }
 
@@ -344,7 +373,11 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
       widgetBackground,
       widgetShadow,
       widgetOpacity,
-      widgetRadius
+      widgetRadius,
+      font,
+      headingFont,
+      fontScale,
+      fontAuto
     } = patch.appearance
     if (typeof accent === 'string' && (ACCENTS.includes(accent) || HEX.test(accent))) {
       current.appearance.accent = accent
@@ -366,6 +399,14 @@ export async function updateSettings(patch: unknown): Promise<Settings> {
     }
     const radius = clampRadius(widgetRadius)
     if (radius !== null) current.appearance.widgetRadius = radius
+    const cleanText = cleanFont(font)
+    if (cleanText) current.appearance.font = cleanText
+    const cleanHeading = cleanFont(headingFont)
+    if (cleanHeading) current.appearance.headingFont = cleanHeading
+    else if (headingFont === null) delete current.appearance.headingFont
+    const scale = clampScale(fontScale)
+    if (scale !== null) current.appearance.fontScale = scale
+    if (typeof fontAuto === 'boolean') current.appearance.fontAuto = fontAuto
   }
   if (isObject(patch) && isObject(patch.music)) {
     const { enabled, onBreak, focusPlaylist, breakPlaylist } = patch.music

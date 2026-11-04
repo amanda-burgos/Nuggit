@@ -27,6 +27,7 @@
   --radius-md: 12px;
   --radius-sm: 8px;
 
+  /* Changed in Ajustes → Apariencia → Letra (theme/fonts.ts). */
   --font-sans:
     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
     sans-serif;

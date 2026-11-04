@@ -1,7 +1,14 @@
 import type { ThemePreference } from '../../../shared/types'
-import { WIDGET_RADIUS_MAX, WIDGET_RADIUS_MIN } from '../../../shared/types'
+import {
+  DEFAULT_FONT,
+  FONT_SCALE_MAX,
+  FONT_SCALE_MIN,
+  WIDGET_RADIUS_MAX,
+  WIDGET_RADIUS_MIN
+} from '../../../shared/types'
 import { ACCENT_PRESETS, isDarkColor } from '../theme/appearance'
 import { BackgroundPicker } from '../theme/BackgroundPicker'
+import { FontPicker, FontSelect } from '../theme/FontPicker'
 import type { SectionProps } from './shared'
 
 const THEMES: Array<{ value: ThemePreference; label: string }> = [
@@ -84,6 +91,81 @@ export function AppearanceSettings({ settings, update }: SectionProps): React.JS
             />
           </label>
         </div>
+      </div>
+
+      <div className="settings-subsection">
+        <h4>🔤 Letra</h4>
+        <div className="settings-field">
+          <span>Fuente</span>
+          <FontPicker
+            value={appearance.font}
+            onChange={(font) => update({ appearance: { font } })}
+          />
+        </div>
+
+        <div className="settings-field">
+          <span>Fuente de los títulos</span>
+          <FontSelect
+            ariaLabel="Fuente de los títulos"
+            value={appearance.headingFont ?? null}
+            generalLabel="Igual que el texto"
+            onChange={(headingFont) => update({ appearance: { headingFont } })}
+          />
+        </div>
+
+        <label className="settings-field">
+          <span>Tamaño de la letra: {Math.round(appearance.fontScale * 100)}%</span>
+          <input
+            type="range"
+            className="settings-range"
+            min={FONT_SCALE_MIN}
+            max={FONT_SCALE_MAX}
+            step={0.05}
+            value={appearance.fontScale}
+            onChange={(e) => update({ appearance: { fontScale: Number(e.target.value) } })}
+          />
+          <small>
+            Cambia el tamaño del texto en toda la app, también en los widgets despegados.
+          </small>
+        </label>
+
+        <label className="settings-check">
+          <input
+            type="checkbox"
+            checked={appearance.fontAuto}
+            onChange={(e) => update({ appearance: { fontAuto: e.target.checked } })}
+          />
+          <span>
+            Ajustar al tamaño de la ventana
+            <small>
+              Con la ventana chica la letra se achica y con la ventana grande crece. Los widgets
+              despegados quedan igual.
+            </small>
+          </span>
+        </label>
+
+        <p className="font-size-preview">
+          Así se ve: <strong>Termina un tender de 10 minutos</strong> y luego toma agua. 🌱
+        </p>
+
+        {(appearance.font !== DEFAULT_FONT ||
+          appearance.headingFont ||
+          appearance.fontScale !== 1 ||
+          !appearance.fontAuto) && (
+          <button
+            type="button"
+            className="bg-choice is-text"
+            style={{ alignSelf: 'flex-start' }}
+            onClick={() =>
+              update({
+                appearance: { font: DEFAULT_FONT, headingFont: null, fontScale: 1, fontAuto: true }
+              })
+            }
+          >
+            Volver a la letra de siempre
+          </button>
+        )}
+        <small>Cada widget puede tener su propia letra desde su ⚙︎.</small>
       </div>
 
       <div className="settings-field">
