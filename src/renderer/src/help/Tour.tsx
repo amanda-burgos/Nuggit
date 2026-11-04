@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { IS_MAC, bySystem } from '../../../shared/keys'
 import { t } from '../../../shared/i18n'
 
 // Fase 10: the welcome tour. Bubbles that point at each part of Nuggit, one at a time.
@@ -10,6 +11,7 @@ interface Step {
   title: string
   text: string
   top?: boolean // about the Mac's menu bar, which lives above the window
+  bottom?: boolean // about the system tray (Windows/Linux), at the bottom of the screen
 }
 
 const steps = (): Step[] => [
@@ -31,11 +33,24 @@ const steps = (): Step[] => [
   },
   {
     target: null,
-    top: true,
-    title: t('⬆ Arriba, en la barra de menú', '⬆ Up top, in the menu bar'),
+    top: IS_MAC,
+    bottom: !IS_MAC,
+    title: bySystem(
+      t('⬆ Arriba, en la barra de menú', '⬆ Up top, in the menu bar'),
+      t('↘ Abajo a la derecha, junto al reloj', '↘ Bottom right, next to the clock'),
+      t('📌 En la bandeja del sistema', '📌 In the system tray')
+    ),
     text: t(
-      'Nuggit también vive en la barra de menú de tu Mac: ahí ves lo que estás haciendo, abres el mini chat de Dip desde cualquier app y sacas widgets con el 🧩.',
-      "Nuggit also lives in your Mac's menu bar: there you see what you're doing, open Dip's mini chat from any app and pop out widgets with the 🧩."
+      bySystem(
+        'Nuggit también vive en la barra de menú de tu Mac: ahí ves lo que estás haciendo, abres el mini chat de Dip desde cualquier app y sacas widgets con el 🧩.',
+        'Nuggit también vive en la bandeja del sistema, abajo a la derecha junto al reloj (si no ves sus íconos, toca la flechita ^): ahí ves lo que estás haciendo, abres el mini chat de Dip desde cualquier app y sacas widgets con el 🧩.',
+        'Nuggit también vive en la bandeja del sistema: ahí ves lo que estás haciendo, abres el mini chat de Dip desde cualquier app y sacas widgets con el 🧩.'
+      ),
+      bySystem(
+        "Nuggit also lives in your Mac's menu bar: there you see what you're doing, open Dip's mini chat from any app and pop out widgets with the 🧩.",
+        "Nuggit also lives in the system tray, at the bottom right next to the clock (if you don't see its icons, click the little ^ arrow): there you see what you're doing, open Dip's mini chat from any app and pop out widgets with the 🧩.",
+        "Nuggit also lives in the system tray: there you see what you're doing, open Dip's mini chat from any app and pop out widgets with the 🧩."
+      )
     )
   },
   {
@@ -86,6 +101,7 @@ function bubblePlace(box: Box | null, step: Step): React.CSSProperties {
   const clampLeft = (x: number): number => Math.max(16, Math.min(x, vw - width - 16))
   const clampTop = (y: number): number => Math.max(16, Math.min(y, vh - 220))
   if (step.top) return { width, top: 16, left: clampLeft(vw / 2 - width / 2) }
+  if (step.bottom) return { width, top: clampTop(vh - 240), left: clampLeft(vw - width - 16) }
   if (!box) return { width, top: vh / 2 - 100, left: clampLeft(vw / 2 - width / 2) }
   const big = box.width * box.height > vw * vh * 0.35
   if (big) {

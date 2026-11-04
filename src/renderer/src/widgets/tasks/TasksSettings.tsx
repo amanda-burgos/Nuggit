@@ -1,5 +1,6 @@
 import { t } from '../../../../shared/i18n'
 import type { StatusIndicator } from '../../../../shared/types'
+import { trayName } from '../../../../shared/keys'
 import { useSettings } from '../../store/useSettings'
 
 const options = (): Array<{ value: StatusIndicator; label: string }> => [
@@ -19,8 +20,8 @@ export function TasksSettings(): React.JSX.Element {
     <fieldset className="tasks-settings">
       <legend>
         {t(
-          'Cuando hay algo en curso, mostrar en la barra de menú',
-          'When something is in progress, show in the menu bar'
+          `Cuando hay algo en curso, mostrar en la ${trayName()}`,
+          `When something is in progress, show in the ${trayName()}`
         )}
       </legend>
       {options().map((option) => (

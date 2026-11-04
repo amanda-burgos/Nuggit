@@ -34,14 +34,16 @@
         "behind",
         "front"
       ],
-      "text": "Tap **↗** in a widget's header and it leaves the board as its own little window on your desktop. It stays wherever you put it, even if you close Nuggit. To bring it back, tap **↙** (Back to the board). From the quick pickup (🧩 in the menu bar) you can set it to **Pin on top** (always in front, on every desktop) or **Pin on back** (in the background, behind everything)."
+      "text": "Tap **↗** in a widget's header and it leaves the board as its own little window on your desktop. It stays wherever you put it, even if you close Nuggit. To bring it back, tap **↙** (Back to the board). From the quick pickup (🧩 in the {mac:menu bar|win:system tray}) you can set it to **Pin on top** (always in front, on every desktop) or **Pin on back** (in the background, behind everything)."
     },
     {
       "id": "menubar",
       "icon": "📍",
-      "title": "Your Mac's menu bar",
+      "title": "{mac:Your Mac's menu bar|win:The system tray}",
       "keywords": [
         "menu bar",
+        "system tray",
+        "tray",
         "menu",
         "bar",
         "icon",
@@ -51,7 +53,7 @@
         "🧩",
         "mini chat"
       ],
-      "text": "Up in your Mac's menu bar Nuggit has its icons: the **Nuggit** one (what you're doing now and the next step), the **Dip** one (a mini chat you can open from any app), the **🧩 quick pickup** (to pop any widget out onto the desktop in one click) and, if you want, the **Music** one. Choose which ones show in Settings → Menu bar."
+      "text": "{mac:Up in your Mac's menu bar|win:At the bottom right, in the system tray next to the clock,|linux:In the system tray} Nuggit has its icons: the **Nuggit** one (what you're doing now and the next step), the **Dip** one (a mini chat you can open from any app), the **🧩 quick pickup** (to pop any widget out onto the desktop in one click) and, if you want, the **Music** one. Choose which ones show in Settings → {mac:Menu bar|win:System tray}."
     },
     {
       "id": "dip",
@@ -65,49 +67,49 @@
       "icon": "✅",
       "title": "Tasks",
       "keywords": ["tasks", "task", "subtasks", "date", "due", "complete", "done", "delete"],
-      "text": "In **Tasks** (⌘3) type a task and hit Enter. You can give it a date and subtasks, and mark it done with one click; done tasks leave the list. You can also add them by telling Dip."
+      "text": "In **Tasks** ({mod}3) type a task and hit Enter. You can give it a date and subtasks, and mark it done with one click; done tasks leave the list. You can also add them by telling Dip."
     },
     {
       "id": "next",
       "icon": "🎯",
       "title": "Now: what should I do now?",
       "keywords": ["now", "next", "what should i do", "what now", "finished", "done"],
-      "text": "**Now** (⌘4) tells you **just one thing** to do right now, so you don't get lost in the list. When you finish it, \"I'm done\" checks it off and suggests the next one. You also see it in Nuggit's menu bar icon."
+      "text": "**Now** ({mod}4) tells you **just one thing** to do right now, so you don't get lost in the list. When you finish it, \"I'm done\" checks it off and suggests the next one. You also see it in Nuggit's {mac:menu bar|win:system tray} icon."
     },
     {
       "id": "tenders",
       "icon": "🪜",
       "title": "Tenderizer: break big tasks down",
       "keywords": ["tenderizer", "tenders", "steps", "break down", "split", "project", "big"],
-      "text": "If a task feels huge, take it to **Tenderizer** (⌘5). Dip asks you a couple of questions and breaks it into tiny steps (tenders). You review the steps, change them if you want and save them. If getting started is hard, \"Just start\" gives you a 2-minute version of the step."
+      "text": "If a task feels huge, take it to **Tenderizer** ({mod}5). Dip asks you a couple of questions and breaks it into tiny steps (tenders). You review the steps, change them if you want and save them. If getting started is hard, \"Just start\" gives you a 2-minute version of the step."
     },
     {
       "id": "dailies",
       "icon": "🔁",
       "title": "Dailies: routines",
       "keywords": ["dailies", "routine", "routines", "daily", "streak", "repeat", "habit"],
-      "text": "In **Dailies** (⌘6) you create routines that repeat (every day or on the days you pick). They show up as today's tasks and keep your **streak 🔥**. \"Plan with Dip\" helps you put them together."
+      "text": "In **Dailies** ({mod}6) you create routines that repeat (every day or on the days you pick). They show up as today's tasks and keep your **streak 🔥**. \"Plan with Dip\" helps you put them together."
     },
     {
       "id": "notes",
       "icon": "📝",
       "title": "Notes and Brain Dump",
-      "keywords": ["notes", "note", "brain dump", "head", "dump", "⌘n"],
-      "text": "**Notes** (⌘7) are quick notes that save themselves; ⌘N makes a new one from anywhere. In **Brain Dump** (⌘8) you dump everything on your mind into one box and Dip sorts it into tasks and notes for you to review before saving."
+      "keywords": ["notes", "note", "brain dump", "head", "dump", "{mod}n"],
+      "text": "**Notes** ({mod}7) are quick notes that save themselves; {mod}N makes a new one from anywhere. In **Brain Dump** ({mod}8) you dump everything on your mind into one box and Dip sorts it into tasks and notes for you to review before saving."
     },
     {
       "id": "focus",
       "icon": "⏳",
       "title": "Focus",
       "keywords": ["focus", "concentrate", "timer", "pomodoro", "break", "exit", "esc"],
-      "text": "In **Focus** (⌘9) pick a task and a time (25/5, 15/5 or your own) and start. You can pause, change or cancel whenever you want, and it keeps running even if you close the window."
+      "text": "In **Focus** ({mod}9) pick a task and a time (25/5, 15/5 or your own) and start. You can pause, change or cancel whenever you want, and it keeps running even if you close the window."
     },
     {
       "id": "calendar",
       "icon": "📅",
       "title": "Calendar",
       "keywords": ["calendar", "date", "day", "events", "mac", "google", "ics"],
-      "text": "The **Calendar** (⌘0) puts your dated tasks, your dailies and your Mac's events together, by day. You can add a task straight onto a day. In Settings → Calendar you connect your Mac's Calendar (two-way) or export an .ics for Google Calendar."
+      "text": "The **Calendar** ({mod}0) puts your dated tasks, your dailies and your Mac's events together, by day. You can add a task straight onto a day. In Settings → Calendar you connect your Mac's Calendar (two-way) or export an .ics for Google Calendar."
     },
     {
       "id": "music",
@@ -156,7 +158,7 @@
         "snooze",
         "time"
       ],
-      "text": "In the **Reminders** tab (or its widget) type what to remind you about, the day and the time (or tap **In 15 min**, **In 1 hour**, **Tomorrow 9:00**). It can be **once** or repeat: every day, some days or every X days. At that time you get a **Mac notification**, even if the window is closed: Nuggit just has to be open (in the menu bar is enough). Tapping the notification opens the tab, where you can **snooze it** (+10 min, +1 hour) or mark it **Done**."
+      "text": "In the **Reminders** tab (or its widget) type what to remind you about, the day and the time (or tap **In 15 min**, **In 1 hour**, **Tomorrow 9:00**). It can be **once** or repeat: every day, some days or every X days. At that time you get a **{mac:Mac notification|win:Windows notification|linux:system notification}**, even if the window is closed: Nuggit just has to be open (in the {mac:menu bar|win:system tray} is enough). Tapping the notification opens the tab, where you can **snooze it** (+10 min, +1 hour) or mark it **Done**."
     }
   ],
   "customize": [
@@ -197,8 +199,8 @@
     {
       "id": "menubar-settings",
       "icon": "📍",
-      "title": "The menu bar",
-      "text": "Which icons show up top, how what you're doing looks, and the shortcut to open Dip from any app.",
+      "title": "{mac:The menu bar|win:The system tray}",
+      "text": "Which icons show {mac:up top|win:at the bottom by the clock|linux:in the tray}, how what you're doing looks, and the shortcut to open Dip from any app.",
       "settingsTab": "menubar"
     },
     {
@@ -261,23 +263,23 @@
   ],
   "shortcuts": [
     {
-      "keys": "⌘1 … ⌘0",
+      "keys": "{mod}1 … {mod}0",
       "what": "Switch tabs: Home, Dip, Tasks, Now, Tenderizer, Dailies, Notes, Brain Dump, Focus, Calendar"
     },
     {
-      "keys": "⌘,",
+      "keys": "{mod},",
       "what": "Open Settings"
     },
     {
-      "keys": "⌘N",
+      "keys": "{mod}N",
       "what": "New quick note"
     },
     {
       "keys": "Enter",
-      "what": "Send the message to Dip (⇧ Enter: new line)"
+      "what": "Send the message to Dip ({shift}Enter: new line)"
     },
     {
-      "keys": "Fn Fn (🌐)",
+      "keys": "{dictate}",
       "what": "Dictate with your voice in any text field"
     },
     {
@@ -286,7 +288,7 @@
     },
     {
       "keys": "Your shortcut",
-      "what": "Open Dip's mini chat from any app (you pick it in Settings → Menu bar)"
+      "what": "Open Dip's mini chat from any app (you pick it in Settings → {mac:Menu bar|win:System tray})"
     }
   ]
 }

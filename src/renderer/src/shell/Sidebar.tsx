@@ -1,6 +1,7 @@
 import type { AppTab } from '../../../shared/types'
 import logoUrl from '../../../../resources/brand/dip-app-icon.svg'
 import { t } from '../../../shared/i18n'
+import { formatShortcut } from '../../../shared/keys'
 import { TABS } from './tabs'
 
 interface Props {
@@ -38,7 +39,11 @@ export function Sidebar({
             data-tour={`tab-${info.key}`}
             aria-selected={info.key === tab}
             className={`sidebar-tab${info.key === tab ? ' is-active' : ''}`}
-            title={info.shortcut ? `${info.label} (⌘${info.shortcut})` : info.label}
+            title={
+              info.shortcut
+                ? `${info.label} (${formatShortcut(`CommandOrControl+${info.shortcut}`)})`
+                : info.label
+            }
             onClick={() => onSelect(info.key)}
           >
             <span className="sidebar-icon" aria-hidden>
@@ -46,7 +51,9 @@ export function Sidebar({
             </span>
             <span className="sidebar-label">{info.label}</span>
             {info.shortcut && (
-              <kbd className="sidebar-label sidebar-shortcut">⌘{info.shortcut}</kbd>
+              <kbd className="sidebar-label sidebar-shortcut">
+                {formatShortcut(`CommandOrControl+${info.shortcut}`)}
+              </kbd>
             )}
           </button>
         ))}

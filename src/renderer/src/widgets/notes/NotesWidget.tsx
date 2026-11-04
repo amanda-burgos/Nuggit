@@ -3,6 +3,9 @@ import { locale, t } from '../../../../shared/i18n'
 import type { Note } from '../../../../shared/types'
 import { onNoteFocusRequest, takeNoteFocus, useNotes } from '../../store/useNotes'
 import type { WidgetProps } from '../types'
+import { formatShortcut } from '../../../../shared/keys'
+
+const NEW_NOTE = formatShortcut('CommandOrControl+N')
 import './notes.css'
 
 // Notes have no options yet.
@@ -66,7 +69,7 @@ export function NotesWidget({ size }: WidgetProps<NotesConfig>): React.JSX.Eleme
         <button
           className="button-primary"
           onClick={add}
-          title={t('Nueva nota (⌘N)', 'New note (⌘N)')}
+          title={t(`Nueva nota (${NEW_NOTE})`, `New note (${NEW_NOTE})`)}
         >
           {t('+ Nota', '+ Note')}
         </button>
@@ -87,7 +90,7 @@ export function NotesWidget({ size }: WidgetProps<NotesConfig>): React.JSX.Eleme
             'Anota lo que sea, rápido. Desde cualquier pestaña:',
             'Jot down anything, fast. From any tab:'
           )}{' '}
-          <kbd>⌘N</kbd>.
+          <kbd>{formatShortcut('CommandOrControl+N')}</kbd>.
         </p>
       ) : shown.length === 0 ? (
         <p className="notes-hint">{t('Ninguna nota tiene eso.', 'No note has that.')}</p>

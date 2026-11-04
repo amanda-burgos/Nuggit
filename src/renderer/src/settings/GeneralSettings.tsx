@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { helpContent } from '../../../shared/help'
 import type { AppInfo } from '../../../shared/types'
 import { t } from '../../../shared/i18n'
+import { trayName } from '../../../shared/keys'
 import type { SectionProps } from './shared'
 
 export function GeneralSettings({ settings, update }: SectionProps): React.JSX.Element {
@@ -39,8 +40,8 @@ export function GeneralSettings({ settings, update }: SectionProps): React.JSX.E
                   'While in development, this opens Electron, not the installed app.'
                 )
               : t(
-                  'Así la barra de menú y tus widgets están listos desde que prendes la compu.',
-                  'So the menu bar and your widgets are ready as soon as you turn on your computer.'
+                  `Así la ${trayName()} y tus widgets están listos desde que prendes la compu.`,
+                  `So the ${trayName()} and your widgets are ready as soon as you turn on your computer.`
                 )}
           </small>
         </span>

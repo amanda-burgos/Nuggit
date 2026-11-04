@@ -13,6 +13,7 @@ import { BackgroundPicker } from '../theme/BackgroundPicker'
 import { FontSelect } from '../theme/FontPicker'
 import { AINotice } from './AINotice'
 import type { AnyWidgetDefinition } from '../widgets/types'
+import { trayName } from '../../../shared/keys'
 import { t } from '../../../shared/i18n'
 
 // Actions are shown only when their handler is given: the board and a detached
@@ -286,8 +287,8 @@ export function WidgetFrame({
                     {t('Pin on back: siempre al fondo', 'Pin on back: always at the back')}
                     <small>
                       {t(
-                        'Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe clics: para quitarlo, usa los widgets rápidos 🧩 de la barra de menú.',
-                        "It stays behind everything, as part of the wallpaper. There it doesn't get clicks: to remove it, use the quick widgets 🧩 in the menu bar."
+                        `Se queda detrás de todo, como parte del fondo de pantalla. Ahí ya no recibe clics: para quitarlo, usa los widgets rápidos 🧩 de la ${trayName()}.`,
+                        `It stays behind everything, as part of the wallpaper. There it doesn't get clicks: to remove it, use the quick widgets 🧩 in the ${trayName()}.`
                       )}
                     </small>
                   </span>

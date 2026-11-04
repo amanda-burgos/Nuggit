@@ -5,6 +5,7 @@ import { getNextActionState, onNextActionChange, skipAction, startAction } from 
 import { getPickupMode, onPickupModeChange, showPickup } from './pickupTray'
 import { getMusicTrayMode, onMusicTrayModeChange, showMusicPlayer } from './musicTray'
 import { onLangChange, t } from '../shared/i18n'
+import { bySystem } from '../shared/keys'
 import { completeTask, getTasks, onTasksChange, setStatuses, updateTask } from './tasks'
 
 // While something is "En curso", Nuggit shows a small indicator in the macOS menu bar, so
@@ -136,7 +137,10 @@ function buildMenu(top: NextAction, others: Task[]): Menu {
         ]
       : []),
     {
-      label: t('Mostrar en la barra', 'Show in the menu bar'),
+      label: bySystem(
+        t('Mostrar en la barra', 'Show in the menu bar'),
+        t('Mostrar en la bandeja', 'Show in the system tray')
+      ),
       submenu: (Object.keys(labels) as StatusIndicator[]).map((m) => ({
         label: labels[m],
         type: 'radio',

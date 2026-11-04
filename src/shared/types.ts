@@ -102,7 +102,8 @@ export interface SavedDesktop {
 export type ThemePreference = 'light' | 'dark' | 'system'
 
 // Global shortcut that opens Dip's mini chat from any app ('' = none).
-export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'Command+Shift+Space'
+// Electron accelerators: CommandOrControl is ⌘ on a Mac and Ctrl on Windows/Linux.
+export type DipShortcut = '' | 'Alt+Space' | 'Control+Alt+Space' | 'CommandOrControl+Shift+Space'
 
 // Tabs of the control center (SPEC 9.0).
 export type AppTab =

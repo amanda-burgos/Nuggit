@@ -5,6 +5,7 @@ import { useNow, useReminders } from '../../store/useReminders'
 import type { WidgetProps } from '../types'
 import { ReminderEditor, type ReminderDraft } from './ReminderEditor'
 import './reminders.css'
+import { withKeys } from '../../../../shared/keys'
 import { t } from '../../../../shared/i18n'
 
 export type RemindersConfig = Record<string, never>
@@ -188,8 +189,12 @@ export function RemindersWidget({ size }: WidgetProps<RemindersConfig>): React.J
       {full && (
         <p className="reminder-hint">
           {t(
-            'Suenan como aviso de la Mac aunque cierres la ventana: Nuggit solo tiene que estar abierto (en la barra de menú basta).',
-            'They ring as a Mac notification even if you close the window: Nuggit just has to be open (the menu bar is enough).'
+            withKeys(
+              'Suenan como {mac:aviso de la Mac|win:aviso de Windows|linux:aviso del sistema} aunque cierres la ventana: Nuggit solo tiene que estar abierto (en la {mac:barra de menú|win:bandeja del sistema} basta).'
+            ),
+            withKeys(
+              'They ring as a {mac:Mac|win:Windows|linux:system} notification even if you close the window: Nuggit just has to be open (the {mac:menu bar|win:system tray} is enough).'
+            )
           )}
           {openAtLogin === false && (
             <>

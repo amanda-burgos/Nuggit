@@ -17,6 +17,7 @@ import { TABS } from './shell/tabs'
 import './shell/shell.css'
 import { useDesktop } from './store/useDesktop'
 import { newQuickNote } from './store/useNotes'
+import { IS_MAC } from '../../shared/keys'
 import { useSettings } from './store/useSettings'
 
 // The control center (SPEC 9.0): a sidebar with tabs, each one a full-size panel.
@@ -82,7 +83,9 @@ function App(): React.JSX.Element {
   // ⌘8 Brain Dump, ⌘9 Focus, ⌘0 Calendario, ⌘, Ajustes. ⌘N: a new quick note (SPEC 9.7).
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) return
+      // Mac: ⌘ (or ⌃, as before). Windows/Linux: Ctrl only (the Windows key belongs to the system).
+      const mod = IS_MAC ? e.metaKey || e.ctrlKey : e.ctrlKey && !e.metaKey
+      if (!mod || e.altKey || e.shiftKey) return
       if (e.key.toLowerCase() === 'n') {
         e.preventDefault()
         newQuickNote()

@@ -7,7 +7,7 @@ export interface TabInfo {
   key: AppTab
   label: string
   icon: React.ReactNode
-  shortcut: string // the key pressed with ⌘ ('' = no shortcut: ⌘1–⌘0 are taken)
+  shortcut: string // the key pressed with ⌘ (Ctrl on Windows/Linux); '' = none: 1–0 are taken
   widgetType?: string // tabs that show a widget at full size
 }
 

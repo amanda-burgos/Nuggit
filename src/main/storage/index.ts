@@ -237,7 +237,11 @@ const TABS = [
   'settings'
 ]
 const PICKUP_MODES = ['icon', 'menu', 'off']
-const SHORTCUTS = ['', 'Alt+Space', 'Control+Alt+Space', 'Command+Shift+Space']
+const SHORTCUTS = ['', 'Alt+Space', 'Control+Alt+Space', 'CommandOrControl+Shift+Space']
+// Saved before it worked on Windows/Linux: the same keys on a Mac.
+const OLD_SHORTCUTS: Record<string, string> = {
+  'Command+Shift+Space': 'CommandOrControl+Shift+Space'
+}
 const MODEL_ID = /^[a-z0-9][a-z0-9._:/-]{0,99}$/i
 const BACKENDS = ['gemini', 'ollama', 'custom'] as const
 const MAX_SERVERS = 5
@@ -292,6 +296,13 @@ function cleanCustomTopics(value: unknown): Settings['qotdCustomTopics'] | null 
   return topics.slice(0, 20)
 }
 
+function loadDipTray(saved: unknown): Settings['dipTray'] {
+  const tray = { ...DEFAULT_SETTINGS.dipTray, ...(isObject(saved) ? saved : {}) }
+  const shortcut = OLD_SHORTCUTS[tray.shortcut] ?? tray.shortcut
+  tray.shortcut = (SHORTCUTS.includes(shortcut) ? shortcut : '') as Settings['dipTray']['shortcut']
+  return tray
+}
+
 // QOTD: the general (random) question became a topic you can turn off ('general'). Someone
 // who had already picked topics keeps the general one too and skips "choose at least 1".
 function loadQotdTopics(data: Record<string, unknown>): Pick<Settings, 'qotdTopics' | 'qotdSetup'> {
@@ -315,7 +326,7 @@ export async function loadSettings(): Promise<Settings> {
     ...DEFAULT_SETTINGS,
     ...data,
     ai: { ...DEFAULT_SETTINGS.ai, ...(isObject(data.ai) ? data.ai : {}) },
-    dipTray: { ...DEFAULT_SETTINGS.dipTray, ...(isObject(data.dipTray) ? data.dipTray : {}) },
+    dipTray: loadDipTray(data.dipTray),
     voice: { ...DEFAULT_SETTINGS.voice, ...(isObject(data.voice) ? data.voice : {}) },
     calendar: { ...DEFAULT_SETTINGS.calendar, ...(isObject(data.calendar) ? data.calendar : {}) },
     music: { ...DEFAULT_SETTINGS.music, ...(isObject(data.music) ? data.music : {}) },

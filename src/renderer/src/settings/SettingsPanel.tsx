@@ -12,6 +12,7 @@ import { MusicSettings } from './MusicSettings'
 import type { SectionProps } from './shared'
 import { VoiceSettings } from './VoiceSettings'
 import { t } from '../../../shared/i18n'
+import { TrayName } from '../../../shared/keys'
 import './settings.css'
 
 interface Props {
@@ -27,7 +28,7 @@ const tabs = (): Array<{ key: SettingsTab; label: string; icon: string }> => [
   { key: 'voice', label: t('Voz', 'Voice'), icon: '🎙️' },
   { key: 'calendar', label: t('Calendario', 'Calendar'), icon: '📅' },
   { key: 'music', label: t('Música', 'Music'), icon: '🎵' },
-  { key: 'menubar', label: t('Barra de menú', 'Menu bar'), icon: '📍' },
+  { key: 'menubar', label: TrayName(), icon: '📍' },
   { key: 'about', label: t('Acerca de', 'About'), icon: 'ℹ️' }
 ]
 
@@ -98,7 +99,7 @@ const SECTIONS: Array<{
     id: 'menubar',
     tab: 'menubar',
     keywords:
-      'barra de menu icono indicador en curso puntito mini chat atajo quick pickup widgets musica reproductor menu bar icon indicator in progress dot shortcut music player',
+      'barra de menu bandeja del sistema reloj icono indicador en curso puntito mini chat atajo quick pickup widgets musica reproductor menu bar system tray icon indicator in progress dot shortcut music player',
     Component: MenuBarSettings
   },
   {

@@ -2,6 +2,7 @@ import community from '../../config/community.json'
 import rawHelp from '../../config/help.json'
 import rawHelpEn from '../../config/help.en.json'
 import { getLang, t } from './i18n'
+import { withKeys } from './keys'
 
 // Fase 10: the help texts live in config/help.json (easy to edit). The Ayuda tab shows
 // them, and Dip reads the few that match a question about how to use Nuggit.
@@ -45,7 +46,26 @@ const HELP_ES: HelpContent = rawHelp
 const HELP_EN: HelpContent = rawHelpEn
 
 // The help texts in the current language.
-export const helpContent = (): HelpContent => (getLang() === 'en' ? HELP_EN : HELP_ES)
+// With the shortcut markers ({mod}…) written the way this system shows them (keys.ts).
+// A shortcut with no keys on this system (dictation on Linux) is left out.
+function forThisSystem(help: HelpContent): HelpContent {
+  const fill = (value: unknown): unknown =>
+    typeof value === 'string'
+      ? withKeys(value)
+      : Array.isArray(value)
+        ? value.map(fill)
+        : value && typeof value === 'object'
+          ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, fill(v)]))
+          : value
+  const filled = fill(help) as HelpContent
+  return { ...filled, shortcuts: filled.shortcuts.filter((s) => s.keys.trim()) }
+}
+
+const cache: Partial<Record<'es' | 'en', HelpContent>> = {}
+export const helpContent = (): HelpContent => {
+  const lang = getLang()
+  return (cache[lang] ??= forThisSystem(lang === 'en' ? HELP_EN : HELP_ES))
+}
 
 // The Discord invite from config/community.json, only if it really is one ('' = no button).
 export const DISCORD_INVITE = /^https:\/\/(discord\.gg|discord\.com\/invite)\/[\w-]+$/.test(

@@ -4,6 +4,13 @@ Lo nuevo, lo arreglado y lo que cambió, por fecha y en palabras simples. Se ve 
 
 Formato: `## [Título] - AAAA-MM-DD` (o `## [1.0.0] - AAAA-MM-DD` para una versión), y debajo `### Nuevo`, `### Cambió` o `### Arreglado` con una línea `- ` por cambio. La más nueva va arriba.
 
+## [Windows y Linux] - 2026-11-04
+
+### Cambió
+
+- **Atajos para cada sistema:** en Windows y Linux los atajos se ven como "Ctrl+1", "Ctrl+N" o "Ctrl+Shift+Espacio" en vez de ⌘, en la barra de la izquierda, en las notas, en Ajustes y en la Ayuda. El atajo de Dip ahora también funciona ahí.
+- **La bandeja del sistema:** en Windows y Linux los íconos de Nuggit viven en la bandeja del sistema (en Windows abajo a la derecha, junto al reloj), y así lo dicen Ajustes, la Ayuda y el tour. En Mac todo sigue igual.
+
 ## [Aviso de versión nueva] - 2026-11-04
 
 ### Nuevo

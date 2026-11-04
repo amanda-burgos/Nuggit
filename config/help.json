@@ -32,16 +32,19 @@
         "fondo",
         "frente"
       ],
-      "text": "Toca **↗** en el encabezado de un widget y sale del tablero como ventanita propia en tu escritorio. Se queda donde la dejes, aunque cierres Nuggit. Para devolverlo, toca **↙** (Regresar al tablero). Desde el quick pickup (🧩 en la barra de menú) puedes ponerlo **Pin on top** (siempre al frente, en todos los escritorios) o **Pin on back** (al fondo, detrás de todo)."
+      "text": "Toca **↗** en el encabezado de un widget y sale del tablero como ventanita propia en tu escritorio. Se queda donde la dejes, aunque cierres Nuggit. Para devolverlo, toca **↙** (Regresar al tablero). Desde el quick pickup (🧩 en la {mac:barra de menú|win:bandeja del sistema}) puedes ponerlo **Pin on top** (siempre al frente, en todos los escritorios) o **Pin on back** (al fondo, detrás de todo)."
     },
     {
       "id": "menubar",
       "icon": "📍",
-      "title": "La barra de menú de la Mac",
+      "title": "{mac:La barra de menú de la Mac|win:La bandeja del sistema}",
       "keywords": [
         "barra",
         "menú",
         "menu",
+        "bandeja",
+        "sistema",
+        "reloj",
         "icono",
         "ícono",
         "quick pickup",
@@ -49,7 +52,7 @@
         "🧩",
         "mini chat"
       ],
-      "text": "Arriba en la barra de menú de tu Mac Nuggit tiene sus íconos: el de **Nuggit** (lo que estás haciendo ahora y el siguiente paso), el de **Dip** (un mini chat que abres desde cualquier app), el **🧩 quick pickup** (para sacar cualquier widget al escritorio con un clic) y, si quieres, el de **Música**. Eliges cuáles se ven en Ajustes → Barra de menú."
+      "text": "{mac:Arriba en la barra de menú de tu Mac|win:Abajo a la derecha, en la bandeja del sistema junto al reloj,|linux:En la bandeja del sistema} Nuggit tiene sus íconos: el de **Nuggit** (lo que estás haciendo ahora y el siguiente paso), el de **Dip** (un mini chat que abres desde cualquier app), el **🧩 quick pickup** (para sacar cualquier widget al escritorio con un clic) y, si quieres, el de **Música**. Eliges cuáles se ven en Ajustes → {mac:Barra de menú|win:Bandeja del sistema}."
     },
     {
       "id": "dip",
@@ -63,49 +66,49 @@
       "icon": "✅",
       "title": "Tareas",
       "keywords": ["tareas", "tarea", "subtareas", "fecha", "completar", "hecha", "borrar"],
-      "text": "En **Tareas** (⌘3) escribes una tarea y le das Enter. Puedes ponerle fecha, subtareas y marcarla como hecha con un clic; las hechas salen de la lista. También se pueden anotar diciéndoselo a Dip."
+      "text": "En **Tareas** ({mod}3) escribes una tarea y le das Enter. Puedes ponerle fecha, subtareas y marcarla como hecha con un clic; las hechas salen de la lista. También se pueden anotar diciéndoselo a Dip."
     },
     {
       "id": "next",
       "icon": "🎯",
       "title": "Ahora: ¿qué hago ahora?",
       "keywords": ["ahora", "siguiente", "next", "qué hago", "ya terminé"],
-      "text": "**Ahora** (⌘4) te dice **una sola cosa** que hacer en este momento, para no perderte en la lista. Cuando la terminas, \"ya terminé\" la marca y te sugiere la siguiente. Lo mismo se ve en el ícono de Nuggit de la barra de menú."
+      "text": "**Ahora** ({mod}4) te dice **una sola cosa** que hacer en este momento, para no perderte en la lista. Cuando la terminas, \"ya terminé\" la marca y te sugiere la siguiente. Lo mismo se ve en el ícono de Nuggit de la {mac:barra de menú|win:bandeja del sistema}."
     },
     {
       "id": "tenders",
       "icon": "🪜",
       "title": "Tenderizer: partir tareas grandes",
       "keywords": ["tenderizer", "tenders", "pasos", "partir", "proyecto", "grande"],
-      "text": "Si una tarea se siente enorme, llévala a **Tenderizer** (⌘5). Dip te hace un par de preguntas y la parte en pasitos chiquitos (tenders). Revisas los pasos, los cambias si quieres y los guardas. Si cuesta empezar, \"Solo empieza\" te da una versión de 2 minutos del paso."
+      "text": "Si una tarea se siente enorme, llévala a **Tenderizer** ({mod}5). Dip te hace un par de preguntas y la parte en pasitos chiquitos (tenders). Revisas los pasos, los cambias si quieres y los guardas. Si cuesta empezar, \"Solo empieza\" te da una versión de 2 minutos del paso."
     },
     {
       "id": "dailies",
       "icon": "🔁",
       "title": "Dailies: rutinas",
       "keywords": ["dailies", "rutina", "rutinas", "diario", "racha", "repetir", "hábito"],
-      "text": "En **Dailies** (⌘6) creas rutinas que se repiten (todos los días o los días que elijas). Aparecen como tareas de hoy y llevan tu **racha 🔥**. Con \"Planear con Dip\" te ayuda a armarlas."
+      "text": "En **Dailies** ({mod}6) creas rutinas que se repiten (todos los días o los días que elijas). Aparecen como tareas de hoy y llevan tu **racha 🔥**. Con \"Planear con Dip\" te ayuda a armarlas."
     },
     {
       "id": "notes",
       "icon": "📝",
       "title": "Notas y Brain Dump",
-      "keywords": ["notas", "nota", "brain dump", "cabeza", "soltar", "⌘n"],
-      "text": "**Notas** (⌘7) son notas rápidas que se guardan solas; ⌘N crea una nueva desde cualquier lado. En **Brain Dump** (⌘8) sueltas todo lo que tienes en la cabeza en una caja y Dip lo separa en tareas y notas para que las revises antes de guardar."
+      "keywords": ["notas", "nota", "brain dump", "cabeza", "soltar", "{mod}n"],
+      "text": "**Notas** ({mod}7) son notas rápidas que se guardan solas; {mod}N crea una nueva desde cualquier lado. En **Brain Dump** ({mod}8) sueltas todo lo que tienes en la cabeza en una caja y Dip lo separa en tareas y notas para que las revises antes de guardar."
     },
     {
       "id": "focus",
       "icon": "⏳",
       "title": "Focus",
       "keywords": ["focus", "concentrar", "temporizador", "pomodoro", "descanso", "salir", "esc"],
-      "text": "En **Focus** (⌘9) eliges una tarea y un tiempo (25/5, 15/5 o el tuyo) y empiezas. Puedes pausar, cambiar o cancelar cuando quieras, y sigue corriendo aunque cierres la ventana."
+      "text": "En **Focus** ({mod}9) eliges una tarea y un tiempo (25/5, 15/5 o el tuyo) y empiezas. Puedes pausar, cambiar o cancelar cuando quieras, y sigue corriendo aunque cierres la ventana."
     },
     {
       "id": "calendar",
       "icon": "📅",
       "title": "Calendario",
       "keywords": ["calendario", "fecha", "día", "eventos", "mac", "google", "ics"],
-      "text": "El **Calendario** (⌘0) junta tus tareas con fecha, tus dailies y los eventos de tu Mac, por día. Puedes anotar una tarea directo en un día. En Ajustes → Calendario conectas el Calendario de la Mac (en dos vías) o exportas un .ics para Google Calendar."
+      "text": "El **Calendario** ({mod}0) junta tus tareas con fecha, tus dailies y los eventos de tu Mac, por día. Puedes anotar una tarea directo en un día. En Ajustes → Calendario conectas el Calendario de la Mac (en dos vías) o exportas un .ics para Google Calendar."
     },
     {
       "id": "music",
@@ -154,7 +157,7 @@
         "posponer",
         "hora"
       ],
-      "text": "En la pestaña **Recordatorios** (o su widget) escribes qué te recuerdo, el día y la hora (o tocas **En 15 min**, **En 1 hora**, **Mañana 9:00**). Puede ser **una vez** o repetirse: todos los días, algunos días o cada X días. A esa hora te sale un **aviso de la Mac**, aunque la ventana esté cerrada: Nuggit solo tiene que estar abierto (en la barra de menú basta). Al tocar el aviso se abre la pestaña, donde puedes **posponerlo** (+10 min, +1 hora) o darle **Listo**."
+      "text": "En la pestaña **Recordatorios** (o su widget) escribes qué te recuerdo, el día y la hora (o tocas **En 15 min**, **En 1 hora**, **Mañana 9:00**). Puede ser **una vez** o repetirse: todos los días, algunos días o cada X días. A esa hora te sale un **{mac:aviso de la Mac|win:aviso de Windows|linux:aviso del sistema}**, aunque la ventana esté cerrada: Nuggit solo tiene que estar abierto (en la {mac:barra de menú|win:bandeja del sistema} basta). Al tocar el aviso se abre la pestaña, donde puedes **posponerlo** (+10 min, +1 hora) o darle **Listo**."
     }
   ],
   "customize": [
@@ -195,8 +198,8 @@
     {
       "id": "menubar-settings",
       "icon": "📍",
-      "title": "La barra de menú",
-      "text": "Qué íconos se ven arriba, cómo se ve lo que estás haciendo y el atajo para abrir a Dip desde cualquier app.",
+      "title": "{mac:La barra de menú|win:La bandeja del sistema}",
+      "text": "Qué íconos se ven {mac:arriba|win:abajo junto al reloj|linux:en la bandeja}, cómo se ve lo que estás haciendo y el atajo para abrir a Dip desde cualquier app.",
       "settingsTab": "menubar"
     },
     {
@@ -259,23 +262,23 @@
   ],
   "shortcuts": [
     {
-      "keys": "⌘1 … ⌘0",
+      "keys": "{mod}1 … {mod}0",
       "what": "Cambiar de pestaña: Inicio, Dip, Tareas, Ahora, Tenderizer, Dailies, Notas, Brain Dump, Focus, Calendario"
     },
     {
-      "keys": "⌘,",
+      "keys": "{mod},",
       "what": "Abrir Ajustes"
     },
     {
-      "keys": "⌘N",
+      "keys": "{mod}N",
       "what": "Nueva nota rápida"
     },
     {
       "keys": "Enter",
-      "what": "Mandar el mensaje a Dip (⇧ Enter: nueva línea)"
+      "what": "Mandar el mensaje a Dip ({shift}Enter: nueva línea)"
     },
     {
-      "keys": "Fn Fn (🌐)",
+      "keys": "{dictate}",
       "what": "Dictar con la voz en cualquier campo de texto"
     },
     {
@@ -284,7 +287,7 @@
     },
     {
       "keys": "Tu atajo",
-      "what": "Abrir el mini chat de Dip desde cualquier app (lo eliges en Ajustes → Barra de menú)"
+      "what": "Abrir el mini chat de Dip desde cualquier app (lo eliges en Ajustes → {mac:Barra de menú|win:Bandeja del sistema})"
     }
   ]
 }

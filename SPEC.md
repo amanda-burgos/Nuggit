@@ -785,6 +785,19 @@ Cómo quedó (Fase 15):
 - **Para publicar una versión:** sube `version` en `package.json` (ej. 1.1.0), haz el `.dmg` (`npm run build:mac`), y en GitHub → Releases → "Draft a new release" con el tag `v1.1.0`, adjunta el `.dmg` y publícalo (no como pre-release ni borrador: esos no cuentan).
 - **Para probarlo sin publicar:** mientras se desarrolla, `NUGGIT_UPDATE_REPO=electron/electron` lo revisa contra otro repo que sí tiene Releases. En la app empaquetada se ignora.
 
+### Windows y Linux: atajos y bandeja del sistema
+- Los atajos se muestran según el sistema: en Mac ⌘ ⌥ ⇧ ⌃ ("⌘1"), en Windows y Linux "Ctrl+1", "Ctrl+Shift+Espacio".
+- Los textos que hablan de la barra de menú cambian: en Mac "barra de menú" (arriba); en Windows "bandeja del sistema" (abajo a la derecha, junto al reloj); en Linux "bandeja del sistema".
+- En Mac todo se ve y funciona igual que antes.
+
+Cómo quedó:
+- **`src/shared/keys.ts`:** `PLATFORM` / `IS_MAC`, `formatShortcut('CommandOrControl+1')` (⌘1 o Ctrl+1), `bySystem(mac, windows, linux)`, `trayName()`, `TrayName()`, `trayPlace()`, y `withKeys(texto)` para los textos de ayuda.
+- **Marcadores en `config/help*.json`:** `{mod}3` → ⌘3 / Ctrl+3, `{shift}Enter` → ⇧ Enter / Shift+Enter, `{dictate}` → Fn Fn (🌐) / Win+H (en Linux esa fila no sale), y `{mac:…|win:…|linux:…}` para frases que cambian por sistema (sin `linux:` usa la de Windows). `helpContent()` los llena, así que también le llegan así a Dip.
+- **Atajo global de Dip:** `CommandOrControl+Shift+Space` (lo guardado como `Command+Shift+Space` se cambia solo; en Mac son las mismas teclas). En Windows, Alt+Espacio avisa que choca con el menú de las ventanas.
+- **Teclas dentro de la app:** en Mac ⌘ (o ⌃, como antes); en Windows y Linux solo Ctrl (la tecla Windows es del sistema). Ctrl+1…9 no chocan con nada; Ctrl+0 es "tamaño real" en el menú que trae Electron, pero Nuggit lo atrapa antes (`preventDefault`), así que abre Calendario.
+- **El tour** en Windows y Linux pone la burbuja de la bandeja abajo a la derecha y dice que si no se ven los íconos se toca la flechita ^.
+- **Falta:** otros textos todavía dicen "tu Mac" (escritorio, avisos, voces, Spotify, calendario de la Mac); varias funciones (calendario de Apple, Spotify por AppleScript, dictado, voces) son solo de Mac.
+
 ### Después del MVP (ideas)
 School, Recordatorios con Dip ("recuérdame a las 5…"), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 

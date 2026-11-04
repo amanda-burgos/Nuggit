@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import type { DipShortcut } from '../../../shared/types'
 import { DipIcon } from '../theme/DipIcon'
 import type { SectionProps } from './shared'
+import { IS_MAC, formatShortcut, trayName } from '../../../shared/keys'
 import { t } from '../../../shared/i18n'
 
 const shortcuts = (): Array<{ value: DipShortcut; label: string }> => [
   { value: '', label: t('Ninguno', 'None') },
-  { value: 'Alt+Space', label: t('⌥ Espacio', '⌥ Space') },
-  { value: 'Control+Alt+Space', label: t('⌃ ⌥ Espacio', '⌃ ⌥ Space') },
-  { value: 'Command+Shift+Space', label: t('⌘ ⇧ Espacio', '⌘ ⇧ Space') }
+  { value: 'Alt+Space', label: formatShortcut('Alt+Space') },
+  { value: 'Control+Alt+Space', label: formatShortcut('Control+Alt+Space') },
+  { value: 'CommandOrControl+Shift+Space', label: formatShortcut('CommandOrControl+Shift+Space') }
 ]
 
 // SPEC 9.15: Dip's own menu bar icon and the shortcut that opens its mini chat.
@@ -34,7 +35,7 @@ export function DipTraySettings({ settings, update }: SectionProps): React.JSX.E
   return (
     <div className="settings-subsection">
       <h4>
-        <DipIcon /> {t('Dip en la barra de menú', 'Dip in the menu bar')}
+        <DipIcon /> {t(`Dip en la ${trayName()}`, `Dip in the ${trayName()}`)}
       </h4>
       <label className="settings-check">
         <input
@@ -73,12 +74,17 @@ export function DipTraySettings({ settings, update }: SectionProps): React.JSX.E
                 '⚠️ Ese atajo ya lo usa otra app o el sistema. Elige otro.',
                 '⚠️ Another app or the system already uses that shortcut. Pick another one.'
               )
-            : shortcut === 'Alt+Space'
+            : shortcut === 'Alt+Space' && IS_MAC
               ? t(
                   'Ojo: con este atajo, ⌥ Espacio ya no escribe un espacio especial en otras apps.',
                   'Heads up: with this shortcut, ⌥ Space no longer types a special space in other apps.'
                 )
-              : t('Funciona aunque el ícono esté oculto.', 'Works even when the icon is hidden.')}
+              : shortcut === 'Alt+Space'
+                ? t(
+                    'Ojo: Alt+Espacio es el que abre el menú de las ventanas; con este atajo ese menú ya no sale. Mejor elige otro.',
+                    "Heads up: Alt+Space opens the windows' menu; with this shortcut that menu stops working. Better pick another one."
+                  )
+                : t('Funciona aunque el ícono esté oculto.', 'Works even when the icon is hidden.')}
         </small>
       </label>
     </div>
