@@ -43,6 +43,15 @@ Por ahora el `.dmg` es para Macs con chip de Apple (M1, M2, M3…).
 
 *For now the `.dmg` is for Macs with Apple chips (M1, M2, M3…).*
 
+### 📲 Instalar en Mac / Installing on Mac
+
+1. Abre el `.dmg`.
+2. **Arrastra** el ícono de Nuggit a la carpeta **Applications** (no le des doble clic ahí adentro).
+3. Expulsa el `.dmg` (el ⏏️ al lado de "Nuggit" en Finder).
+4. Abre Nuggit desde **Aplicaciones** (o búscala con ⌘ Espacio).
+
+*1. Open the `.dmg`. 2. **Drag** the Nuggit icon onto the **Applications** folder (don't double-click it in there). 3. Eject the `.dmg` (the ⏏️ next to "Nuggit" in Finder). 4. Open Nuggit from **Applications** (or search for it with ⌘ Space).*
+
 ### ⚠️ Antes de abrirla / Before you open it
 
 Nuggit todavía **no está firmada** por Apple ni por Microsoft, así que tu computadora te va a avisar la primera vez. Es normal.
@@ -64,6 +73,10 @@ Nuggit todavía **no está firmada** por Apple ni por Microsoft, así que tu com
   4. *Open Nuggit again and confirm with **Open Anyway** (it may ask for your password).*
 
   *You only do this the first time.*
+
+  La primera vez que abre puede tardar hasta un minuto mientras tu computadora la revisa. Si se queda congelada, reinicia tu computadora y vuelve a abrirla.
+
+  *The first launch can take up to a minute while your computer checks it. If it freezes, restart your computer and open it again.*
 - **Windows:** si sale "Windows protegió tu PC", toca **Más información → Ejecutar de todas formas**.<br>
   *If you see "Windows protected your PC", click **More info → Run anyway**.*
 
@@ -140,6 +153,22 @@ Sin IA, Nuggit funciona igual, solo que sin Dip.
 Tus tareas, notas, ajustes y tu API key se guardan **solo en tu computadora**, en la carpeta de datos de la app. Nunca se suben a este repo ni a ningún servidor de Nuggit. Lo único que Nuggit pregunta por internet por su cuenta es si hay una versión nueva en GitHub.
 
 *Your tasks, notes, settings and API key are stored **only on your computer**, in the app's data folder. They are never uploaded to this repo or to any Nuggit server. The only thing Nuggit checks online on its own is whether there's a new version on GitHub.*
+
+### 🔄 Empezar de cero / Start over
+
+Para borrar todo y que Nuggit arranque como nueva, cierra Nuggit y **mueve** (o borra) su carpeta de datos. Si la mueves, puedes regresarla después.
+
+*To wipe everything and start fresh, quit Nuggit and **move** (or delete) its data folder. If you move it, you can put it back later.*
+
+| Sistema / System | Carpeta de datos / Data folder |
+|---|---|
+| Mac | `~/Library/Application Support/Nuggit` |
+| Windows | `%APPDATA%\Nuggit` |
+| Linux | `~/.config/Nuggit` |
+
+Ojo: también se borra tu API key, así que la tendrás que poner otra vez.
+
+*Heads up: this also removes your API key, so you'll need to enter it again.*
 
 ---
 

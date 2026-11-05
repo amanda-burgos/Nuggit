@@ -815,6 +815,16 @@ Cómo quedó (Fase 16):
 - **Pantalla** (`theme/MouseDressUp.tsx`, `mouse-dressup.css`): la vista previa tiene su propio canvas con la estela sin guardar y muestras de botón, campo de texto y "widget" para ver los otros cursores. Los favoritos se guardan al momento; cargarlos solo cambia la vista previa. Las 3 ideas (Modo gatito 🐾, Galaxia ✨, Dip eléctrico ⚡) no se pueden borrar.
 - **Límites:** en Chromium los cursores de más de 32 px pueden volver al normal muy cerca del borde de la ventana.
 
+### Ideas para la 1.1 — El mouse en toda la computadora
+Todo opcional y apagado de fábrica. **Full customizable**, igual que el Vestidor del mouse.
+
+- **✨ Estela en toda la computadora:** una ventana transparente encima de todas las pantallas, que no recibe clics, dibuja la estela del Vestidor siguiendo el mouse en cualquier app. Se apaga sola cuando el mouse no se mueve (batería), en pantalla completa (juegos, videos) y con "Reducir movimiento".
+- **🐾 Compañerito que sigue al mouse:** un personaje que flota al lado del cursor y lo persigue, en toda la computadora. **Es algo aparte de Dip** (Dip es el ayudante con IA; el compañerito es solo decoración).
+  - Escoger el compañerito (gatito, patita, estrella, corazón, fantasmita…), sus colores por partes (colores base + rueda + degradado) y su tamaño.
+  - Cómo se mueve: qué tan cerca sigue al mouse, qué tan rápido, de qué lado flota, y qué hace cuando el mouse se queda quieto (se sienta, se duerme, da vueltitas…).
+  - Ponerle nombre, y guardarlo en los Favoritos del Vestidor junto con el cursor y la estela.
+- **🪟 Windows: cursor de todo el sistema:** en Windows sí se pueden cambiar los cursores del sistema de forma oficial, así que ahí el cursor del Vestidor puede salir en toda la computadora (y volver al normal al apagarlo o cerrar Nuggit). En Mac no: Apple no lo permite.
+
 ### Después del MVP (ideas)
 School, Recordatorios con Dip ("recuérdame a las 5…"), exportar/backup, más proveedores de IA, voz en tiempo real, versión para celular.
 
