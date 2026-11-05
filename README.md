@@ -49,8 +49,21 @@ Nuggit todavía **no está firmada** por Apple ni por Microsoft, así que tu com
 
 *Nuggit is **not signed** by Apple or Microsoft yet, so your computer will warn you the first time. That's expected.*
 
-- **Mac:** si dice que "no se puede abrir", haz **clic derecho → Abrir → Abrir**, o ve a **Ajustes del Sistema → Privacidad y seguridad → Abrir de todos modos**.<br>
-  *If it says it "can't be opened", **right-click → Open → Open**, or go to **System Settings → Privacy & Security → Open Anyway**.*
+- **Mac:** si dice que Nuggit "no se puede abrir" o que "Apple no pudo verificar" que no tenga malware:
+  1. Toca **Listo** (no la muevas a la papelera).
+  2. Ve a **Ajustes del Sistema → Privacidad y seguridad**.
+  3. Baja hasta el mensaje de Nuggit y toca **Abrir de todos modos**.
+  4. Abre Nuggit otra vez y confirma con **Abrir de todos modos** (te puede pedir tu contraseña).
+
+  Solo se hace la primera vez.
+
+  *If it says Nuggit "can't be opened" or that "Apple could not verify" it's free of malware:*
+  1. *Click **Done** (don't move it to the Trash).*
+  2. *Go to **System Settings → Privacy & Security**.*
+  3. *Scroll down to the Nuggit message and click **Open Anyway**.*
+  4. *Open Nuggit again and confirm with **Open Anyway** (it may ask for your password).*
+
+  *You only do this the first time.*
 - **Windows:** si sale "Windows protegió tu PC", toca **Más información → Ejecutar de todas formas**.<br>
   *If you see "Windows protected your PC", click **More info → Run anyway**.*
 
