@@ -5,26 +5,31 @@
 **EN** · A desktop app that helps you start tasks, stay organized and keep your focus. It has widgets, plus **Dip**, an AI helper that breaks a big task into small steps (the *Tenders*).
 
 > Hecha primero para **Mac**. Windows y Linux todavía no se han probado. Mira [Compatibilidad](#-compatibilidad--compatibility).
-> Made for **Mac** first. Windows and Linux are untested. See [Compatibility](#-compatibilidad--compatibility).
+>
+> *Made for **Mac** first. Windows and Linux are untested. See [Compatibility](#-compatibilidad--compatibility).*
 
 ---
 
 ## ⬇️ Descargar / Download
 
 Las versiones listas para instalar estarán en la página de [**Releases**](../../releases).
-Ready-to-install versions will be on the [**Releases**](../../releases) page.
+
+*Ready-to-install versions will be on the [**Releases**](../../releases) page.*
 
 ### ⚠️ Antes de abrirla / Before you open it
 
 Nuggit todavía **no está firmada** por Apple ni por Microsoft, así que tu computadora te va a avisar la primera vez. Es normal.
-Nuggit is **not signed** by Apple or Microsoft yet, so your computer will warn you the first time. That's expected.
 
-- **Mac:** si dice que "no se puede abrir", haz **clic derecho → Abrir → Abrir**, o ve a *Ajustes del Sistema → Privacidad y seguridad → Abrir de todos modos*.
-  If it says it "can't be opened", **right-click → Open → Open**, or go to *System Settings → Privacy & Security → Open Anyway*.
-- **Windows:** si sale "Windows protegió tu PC", toca **Más información → Ejecutar de todas formas**.
-  If you see "Windows protected your PC", click **More info → Run anyway**.
+*Nuggit is **not signed** by Apple or Microsoft yet, so your computer will warn you the first time. That's expected.*
 
-Descarga Nuggit solo desde este repo. / Only download Nuggit from this repo.
+- **Mac:** si dice que "no se puede abrir", haz **clic derecho → Abrir → Abrir**, o ve a **Ajustes del Sistema → Privacidad y seguridad → Abrir de todos modos**.<br>
+  *If it says it "can't be opened", **right-click → Open → Open**, or go to **System Settings → Privacy & Security → Open Anyway**.*
+- **Windows:** si sale "Windows protegió tu PC", toca **Más información → Ejecutar de todas formas**.<br>
+  *If you see "Windows protected your PC", click **More info → Run anyway**.*
+
+Descarga Nuggit solo desde este repo.
+
+*Only download Nuggit from this repo.*
 
 ---
 
@@ -44,13 +49,16 @@ Descarga Nuggit solo desde este repo. / Only download Nuggit from this repo.
 ✅ funciona / works · 🧪 debería funcionar, pero no se ha probado / should work, untested · ❌ no disponible / not available
 
 ¹ **Planeado / Planned:** en Windows, play / pausa / siguiente con las teclas multimedia (sin carátula ni playlists).
-On Windows, play / pause / next through the media keys (no artwork or playlists).
+
+*On Windows, play / pause / next through the media keys (no artwork or playlists).*
 
 **Sobre el calendario / About the calendar:** la sincronización en vivo solo funciona con la app Calendario de la Mac. Google Calendar no puede leerla, así que para Google usa la opción de **exportar `.ics`** (es una copia: si cambias algo en Nuggit, vuelve a exportar).
-Live sync only works with the Mac's Calendar app. Google Calendar can't read it, so for Google use **export `.ics`** (it's a snapshot: if you change something in Nuggit, export again).
+
+*Live sync only works with the Mac's Calendar app. Google Calendar can't read it, so for Google use **export `.ics`** (it's a snapshot: if you change something in Nuggit, export again).*
 
 ¿Probaste Nuggit en Windows o Linux? Cuéntanos qué funcionó y qué no en [Issues](../../issues). 🙏
-Tried Nuggit on Windows or Linux? Tell us what worked and what didn't in [Issues](../../issues).
+
+*Tried Nuggit on Windows or Linux? Tell us what worked and what didn't in [Issues](../../issues).*
 
 ---
 
@@ -69,7 +77,8 @@ Sin IA, Nuggit funciona igual, solo que sin Dip. / Without AI, Nuggit still work
 ## 🔒 Tus datos / Your data
 
 Tus tareas, notas, ajustes y tu API key se guardan **solo en tu computadora**, en la carpeta de datos de la app. Nunca se suben a este repo ni a ningún servidor de Nuggit.
-Your tasks, notes, settings and API key are stored **only on your computer**, in the app's data folder. They are never uploaded to this repo or to any Nuggit server.
+
+*Your tasks, notes, settings and API key are stored **only on your computer**, in the app's data folder. They are never uploaded to this repo or to any Nuggit server.*
 
 ---
 
@@ -93,4 +102,13 @@ npm run build:linux   # crea la versión de Linux / build for Linux
 ```
 
 La especificación completa y las fases están en [SPEC.md](SPEC.md), y los cambios en [CHANGELOG.md](CHANGELOG.md).
-The full spec and phases are in [SPEC.md](SPEC.md), and the changes in [CHANGELOG.md](CHANGELOG.md).
+
+*The full spec and phases are in [SPEC.md](SPEC.md), and the changes in [CHANGELOG.md](CHANGELOG.md).*
+
+---
+
+## 📄 Licencia / License
+
+[MIT](LICENSE): puedes usar, copiar y modificar el código, siempre que mantengas el aviso de copyright.
+
+*[MIT](LICENSE): you can use, copy and change the code, as long as you keep the copyright notice.*
