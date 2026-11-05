@@ -14,21 +14,21 @@
 
 ## ✨ Qué hace / What it does
 
-- 🧩 **Tablero de widgets**: tareas, notas, reloj, calendario, música, imágenes y más. Despega cualquier widget y ponlo suelto en tu escritorio.
+- 🧩 **Tablero de widgets**: tareas, notas, reloj, calendario, música, imágenes y más. Despega cualquier widget y ponlo suelto en tu escritorio.<br>
   *Widget board: tasks, notes, clock, calendar, music, images and more. Pop any widget out onto your desktop.*
-- 💬 **Dip y los Tenders**: le das una tarea, te hace unas preguntas y te la parte en pasitos. También arma rutinas (Dailies) y ordena un *brain dump*.
+- 💬 **Dip y los Tenders**: le das una tarea, te hace unas preguntas y te la parte en pasitos. También arma rutinas (Dailies) y ordena un *brain dump*.<br>
   *Dip and the Tenders: give it a task, it asks a few questions and breaks it into steps. It also builds routines (Dailies) and sorts a brain dump.*
-- 🎯 **Focus**: rondas para concentrarte, con descansos y tu música.
+- 🎯 **Focus**: rondas para concentrarte, con descansos y tu música.<br>
   *Focus sessions with breaks and your music.*
-- ⏰ **Recordatorios** y 💭 **Pregunta del día**.
+- ⏰ **Recordatorios** y 💭 **Pregunta del día**.<br>
   *Reminders and a Question of the day.*
-- 🎨 **Hazla tuya**: colores, tu propio color, fondos con tus fotos, transparencia, y cada widget con su estilo.
+- 🎨 **Hazla tuya**: colores, tu propio color, fondos con tus fotos, transparencia, y cada widget con su estilo.<br>
   *Make it yours: colors, your own color, photo backgrounds, transparency, and a style for each widget.*
-- 🔤 **Letras**: escoge la fuente de la app y de los títulos, y el tamaño. Incluye fuentes fáciles de leer como **Lexend**, **Atkinson Hyperlegible** y **OpenDyslexic**. Cada widget puede tener su propia letra.
+- 🔤 **Letras**: escoge la fuente de la app y de los títulos, y el tamaño. Incluye fuentes fáciles de leer como **Lexend**, **Atkinson Hyperlegible** y **OpenDyslexic**. Cada widget puede tener su propia letra.<br>
   *Fonts: pick the app's font, a title font and the size. Includes easy-to-read fonts like Lexend, Atkinson Hyperlegible and OpenDyslexic. Each widget can have its own font.*
-- 🖱️ **Vestidor del mouse**: viste tu cursor (gatito, pata de gato 🐾, estrella, corazón, Dip…) con los colores que quieras, y ponle una estela de brillitos, estrellitas, corazoncitos y más (hasta 2 a la vez). Guarda tus combos favoritos.
+- 🖱️ **Vestidor del mouse**: viste tu cursor (gatito, pata de gato 🐾, estrella, corazón, Dip…) con los colores que quieras, y ponle una estela de brillitos, estrellitas, corazoncitos y más (hasta 2 a la vez). Guarda tus combos favoritos.<br>
   *Mouse Dress Up: dress up your cursor (kitty, cat paw, star, heart, Dip…) in any colors, add a trail of sparkles, stars, hearts and more (up to 2 at once), and save your favorite combos.*
-- 📣 **Te avisa cuando hay una versión nueva** y te enseña lo que cambió.
+- 📣 **Te avisa cuando hay una versión nueva** y te enseña lo que cambió.<br>
   *Tells you when a new version is out and shows what changed.*
 
 ---
