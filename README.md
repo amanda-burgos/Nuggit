@@ -79,7 +79,7 @@ Cuando salga una versión nueva, Nuggit te avisa. Toca **Descargar**, baja el `.
 | Íconos en la barra de menú / bandeja del sistema | ✅ | 🧪 | 🧪 |
 | Exportar tus tareas a un `.ics` (para Google Calendar, Outlook…) | ✅ | 🧪 | 🧪 |
 | Sincronización en vivo con el **Calendario de Apple** | ✅ | ❌ | ❌ |
-| Control de **Spotify** con carátula, canción y playlists | ✅ | ❌ ¹ | ❌ |
+| Control de **Spotify** con carátula, canción y playlists | ✅ | ❌  | ❌ |
 | Hablarle a Dip con el **dictado** y voces del sistema | ✅ | ❌ | ❌ |
 | Voz local con **whisper.cpp** | ✅ | ❌ | ❌ |
 | Voz con Gemini o con tu propio servidor | ✅ | 🧪 | 🧪 |
