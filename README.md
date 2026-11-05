@@ -96,20 +96,20 @@ Cuando salga una versión nueva, Nuggit te avisa. Toca **Descargar**, baja el `.
 
 | Función / Feature | Mac | Windows | Linux |
 |---|:---:|:---:|:---:|
-| Tablero, widgets, tareas, notas, Dailies, Focus, Recordatorios | ✅ | 🧪 | 🧪 |
-| Dip y los Tenders (IA: Gemini, Ollama o tu propio servidor) | ✅ | 🧪 | 🧪 |
-| Español e inglés / Spanish and English | ✅ | 🧪 | 🧪 |
-| Fuentes incluidas y vestidor del mouse / Bundled fonts and Mouse Dress Up | ✅ | 🧪 | 🧪 |
-| Usar las fuentes instaladas en tu computadora / Use your installed fonts | ✅ | ❌ | ❌ |
-| Atajos de teclado (⌘ en Mac, Ctrl en Windows y Linux) | ✅ | 🧪 | 🧪 |
-| Íconos en la barra de menú / bandeja del sistema | ✅ | 🧪 | 🧪 |
-| Exportar tus tareas a un `.ics` (para Google Calendar, Outlook…) | ✅ | 🧪 | 🧪 |
-| Sincronización en vivo con el **Calendario de Apple** | ✅ | ❌ | ❌ |
-| Control de **Spotify** con carátula, canción y playlists | ✅ | ❌ ¹ | ❌ |
-| Hablarle a Dip con el **dictado** y voces del sistema | ✅ | ❌ | ❌ |
-| Voz local con **whisper.cpp** | ✅ | ❌ | ❌ |
-| Voz con Gemini o con tu propio servidor | ✅ | 🧪 | 🧪 |
-| Aviso de versión nueva / New version notice | ✅ | 🧪 | 🧪 |
+| Tablero, widgets, tareas, notas, Dailies, Focus, Recordatorios<br>*Board, widgets, tasks, notes, Dailies, Focus, Reminders* | ✅ | 🧪 | 🧪 |
+| Dip y los Tenders (IA: Gemini, Ollama o tu propio servidor)<br>*Dip and the Tenders (AI: Gemini, Ollama or your own server)* | ✅ | 🧪 | 🧪 |
+| Español e inglés<br>*Spanish and English* | ✅ | 🧪 | 🧪 |
+| Fuentes incluidas y vestidor del mouse<br>*Bundled fonts and Mouse Dress Up* | ✅ | 🧪 | 🧪 |
+| Usar las fuentes instaladas en tu computadora<br>*Use the fonts installed on your computer* | ✅ | ❌ | ❌ |
+| Atajos de teclado (⌘ en Mac, Ctrl en Windows y Linux)<br>*Keyboard shortcuts (⌘ on Mac, Ctrl on Windows and Linux)* | ✅ | 🧪 | 🧪 |
+| Íconos en la barra de menú / bandeja del sistema<br>*Icons in the menu bar / system tray* | ✅ | 🧪 | 🧪 |
+| Exportar tus tareas a un `.ics` (para Google Calendar, Outlook…)<br>*Export your tasks to an `.ics` (for Google Calendar, Outlook…)* | ✅ | 🧪 | 🧪 |
+| Sincronización en vivo con el **Calendario de Apple**<br>*Live sync with Apple Calendar* | ✅ | ❌ | ❌ |
+| Control de **Spotify** con carátula, canción y playlists<br>*Spotify control with artwork, song and playlists* | ✅ | ❌ ¹ | ❌ |
+| Hablarle a Dip con el **dictado** y voces del sistema<br>*Talk to Dip with system dictation and voices* | ✅ | ❌ | ❌ |
+| Voz local con **whisper.cpp**<br>*Local voice with whisper.cpp* | ✅ | ❌ | ❌ |
+| Voz con Gemini o con tu propio servidor<br>*Voice with Gemini or your own server* | ✅ | 🧪 | 🧪 |
+| Aviso de versión nueva<br>*New version notice* | ✅ | 🧪 | 🧪 |
 
 ✅ funciona / works · 🧪 debería funcionar, pero no se ha probado / should work, untested · ❌ no disponible / not available
 
