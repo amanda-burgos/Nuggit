@@ -70,7 +70,7 @@ export function TaskEditor({ task, onSave, onCancel }: Props): React.JSX.Element
         <input
           type="number"
           min={1}
-          step={5}
+          step={1}
           inputMode="numeric"
           placeholder={t('ej: 25', 'e.g. 25')}
           value={estimate}
